@@ -230,3 +230,4 @@ src/
 - **TypeScript**
 - **Tailwind CSS v4** (with `@theme` design tokens)
 - **Framer Motion** (scroll reveals, entrance animations, mobile menu)
+# TA-Website-Mockup
