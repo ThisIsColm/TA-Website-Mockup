@@ -53,7 +53,7 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
                 <h3 className="text-lg font-medium text-text-primary group-hover:text-accent transition-colors duration-300">
                     {post.title}
                 </h3>
-                <p className="text-sm text-text-secondary mt-1 line-clamp-2">
+                <p className="text-sm text-text-secondary mt-1 line-clamp-4">
                     {post.excerpt}
                 </p>
             </motion.article>

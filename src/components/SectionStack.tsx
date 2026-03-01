@@ -54,10 +54,11 @@ export default function SectionStack() {
         };
     }, []);
 
-    // Total scroll slots needed: One slot for Phil, one per card, and one buffer slot.
+    // Total scroll slots needed: One slot for Phil, one per card.
     // Plus the total sum of delays to give the last cards room to breathe.
+    // Buffer removed so the section unlocks the moment the last card lands.
     const totalDelay = cardDelays[cardDelays.length - 1];
-    const totalSlots = sections.length + 2 + totalDelay;
+    const totalSlots = sections.length + 1 + totalDelay;
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end end"],
@@ -71,12 +72,12 @@ export default function SectionStack() {
     const snapPoints = [
         0, // Start / Philosophy
         ...sections.map((_, i) => {
+            const isLive = i === sections.length - 1;
             const delayOffset = cardDelays[i];
             const slideEnd = (i + 1) + delayOffset;
-            const settleEnd = slideEnd + 0.4;
+            const settleEnd = isLive ? slideEnd : slideEnd + 0.4;
             return settleEnd * 100; // Convert to vh
-        }),
-        (totalSlots - 1) * 100 // Final Exit
+        })
     ];
 
     // Phil text Slot - text moves up exactly 100vh over the first unit.
@@ -228,7 +229,7 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
     const yStartValNum = index === 0 ? 101 : 110;
 
     const isLive = index === sections.length - 1;
-    const numericTargetY = isLive ? 8 : (index * 3);
+    const numericTargetY = isLive ? 9 : (index * 3);
 
     // The total amount the stack will drift up over the entire scroll
     const driftAmount = -6;
@@ -239,38 +240,38 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
     const driftAtSlideEnd = slideEnd * driftAmount;
     const driftAtEnd = 1.0 * driftAmount;
 
-    const y = useTransform(
-        progress,
-        [0, entranceStart, slideEnd, 1.0],
-        [
+    // isLive card hits slideEnd exactly at 1.0
+    const yInputRange = isLive ? [0, entranceStart, 1.0] : [0, entranceStart, slideEnd, 1.0];
+    const yOutputRange = isLive
+        ? [`${yStartValNum + driftAt0}vh`, `${yStartValNum + driftAtEntrance}vh`, `${numericTargetY + driftAtEnd}vh`]
+        : [
             `${yStartValNum + driftAt0}vh`,
             `${yStartValNum + driftAtEntrance}vh`,
             `${numericTargetY + driftAtSlideEnd}vh`,
             `${numericTargetY + driftAtEnd}vh`
-        ]
-    );
+        ];
+    const y = useTransform(progress, yInputRange, yOutputRange);
 
-    const peakScales = [1.0, 0.85, 0.80, 0.75]; // Scale as it slides in
+    const peakScales = [1.0, 0.85, 0.80, 0.8]; // Scale as it slides in
     const settledScales = [0.85, 0.80, 0.75, 0.70]; // Scale immediately after docking
-    const finalScales = [0.60, 0.62, 0.64, 0.66]; // Scale at the very end of the scroll
+    const finalScales = [0.60, 0.62, 0.64, 0.61]; // Scale at the very end of the scroll
 
-    const scale = useTransform(
-        progress,
-        [0, entranceStart, slideEnd, settleEnd, 1.0],
-        [
-            peakScales[index],
-            peakScales[index],
-            peakScales[index],
-            settledScales[index],
-            finalScales[index]
-        ]
-    );
+    // For the last card, start at 0.71 and reach finalScale halfway through the slide
+    const liveMidPoint = entranceStart + (1.0 - entranceStart) / .7;
 
-    const borderRadius = useTransform(
-        progress,
-        [0, entranceStart, slideEnd, settleEnd],
-        ["0px", "0px", "0px", "4px"]
-    );
+    const peakScale = peakScales[index];
+    const settledScale = settledScales[index];
+    const finalScale = finalScales[index];
+
+    const scaleInputRange = isLive ? [0, entranceStart, liveMidPoint, 1.0] : [0, entranceStart, slideEnd, settleEnd, 1.0];
+    const scaleOutputRange = isLive
+        ? [0.79, 0.79, finalScale, finalScale]
+        : [peakScale, peakScale, peakScale, settledScale, finalScale];
+    const scale = useTransform(progress, scaleInputRange, scaleOutputRange);
+
+    const radiusInputRange = isLive ? [0, entranceStart, 1.0] : [0, entranceStart, slideEnd, settleEnd];
+    const radiusOutputRange = isLive ? ["0px", "0px", "4px"] : ["0px", "0px", "0px", "4px"];
+    const borderRadius = useTransform(progress, radiusInputRange, radiusOutputRange);
 
     // Parallax removed - image stays static within its container
     const imageY = "0%";
@@ -329,7 +330,7 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
                             opacity: textOpacity,
                             y: textY
                         }}
-                        className="text-[clamp(2rem,6vw,5.5rem)] font-medium tracking-tight text-white pl-6"
+                        className="text-[clamp(2rem,6vw,5.5rem)] font-medium tracking-tight text-white pl-6 pr-4 md:pr-12 lg:pr-24"
                     >
                         {section.title}
                     </motion.h2>

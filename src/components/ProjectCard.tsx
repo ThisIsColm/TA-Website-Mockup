@@ -43,7 +43,9 @@ export default function ProjectCard({ project, index = 0, aspectRatio = "aspect-
                         {project.title}
                     </h3>
                     <p className="text-[22px] -mt-[5px] text-white/50 leading-snug line-clamp-1">
-                        {project.excerpt}
+                        {project.tags && project.tags.length > 0
+                            ? project.tags[0].charAt(0).toUpperCase() + project.tags[0].slice(1)
+                            : project.excerpt}
                     </p>
                 </div>
             </motion.article>

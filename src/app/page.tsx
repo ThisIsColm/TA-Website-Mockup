@@ -116,17 +116,15 @@ export default function HomePage() {
                         <Container>
                             {/* Custom Editorial Header */}
                             <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
-                                <div className="max-w-md">
+                                <div className="max-w-3xl">
                                     <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
                                         Selected Work
                                     </h2>
-                                    <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
-                                        Our work explores branding and digital design, balancing clarity, creativity, and cultural resonance.
+                                    <p className="text-white/60 text-[20px] leading-6 max-w-3xl">
+                                        Not everything we've made, just the work that earned its place here. A curated collection of projects we're proud to put our name on, every frame deliberate, every outcome intentional.
                                     </p>
                                 </div>
-                                <span className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 leading-none">
-                                    ({projects.length})
-                                </span>
+
                             </ScrollReveal>
 
                             {/* 12-Column Asymmetrical Grid */}
@@ -174,17 +172,14 @@ export default function HomePage() {
                     <section className="py-section-sm lg:py-section">
                         <Container>
                             <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
-                                <div className="max-w-md">
+                                <div className="max-w-2xl">
                                     <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
-                                        Case Studies
+                                        How We Think
                                     </h2>
                                     <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
-                                        Our work explores branding and digital design, balancing clarity, creativity, and cultural resonance.
+                                        A deeper look at the ideas, process, and craft behind the results. Because great work doesn't happen by accident.
                                     </p>
                                 </div>
-                                <span className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 leading-none">
-                                    ({posts.length})
-                                </span>
                             </ScrollReveal>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 -mt-15 lg:gap-6">
                                 {posts.map((post, i) => (
@@ -195,33 +190,20 @@ export default function HomePage() {
                     </section>
 
                     {/* ── CTA Section ───────────────────────────────────────────── */}
-                    <section className="py-section-sm lg:py-section border-t border-border">
+                    <section className="pb-section-sm lg:pb-section">
                         <Container>
-                            <ScrollReveal className="text-center max-w-3xl mx-auto">
-                                <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
-                                    Let&apos;s work
-                                    <br />
-                                    together.
-                                </h2>
-                                <p className="text-text-secondary text-lg mt-6">
-                                    Have a project in mind? We&apos;d love to hear about it.
-                                </p>
-                                <Link
-                                    href="/about#contact"
-                                    className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white font-medium rounded-[4px] text-base hover:bg-accent-hover transition-colors duration-300 mt-10"
-                                >
-                                    Get in Touch
-                                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
-                                        <path
-                                            d="M1 7h12M8 2l5 5-5 5"
-                                            stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </Link>
-                            </ScrollReveal>
+                            <div className="border-t border-border pt-section-sm lg:pt-section">
+                                <ScrollReveal className="text-center max-w-5xl mx-auto">
+                                    <Link href="/about#contact" className="group block py-10 cursor-pointer">
+                                        <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-medium group-hover:text-white group-hover:font-medium leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
+                                            Let&apos;s work together.
+                                        </h2>
+                                        <p className="text-text-secondary text-[18px] mt-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-100 -mb-350">
+                                            Have a project in mind? We&apos;d love to hear about it.
+                                        </p>
+                                    </Link>
+                                </ScrollReveal>
+                            </div>
                         </Container>
                     </section>
                 </div>
