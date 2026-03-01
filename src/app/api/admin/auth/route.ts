@@ -24,7 +24,7 @@ export async function POST(request: Request) {
             match: password === config.admin.password
         });
 
-        if (!password || password !== config.admin.password) {
+        if (!password || password.trim() !== config.admin.password.trim()) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
