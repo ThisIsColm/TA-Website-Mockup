@@ -90,7 +90,7 @@ export default function AboutPage() {
                             <span className="text-accent">craft and purpose.</span>
                         </h1>
                         <p className="text-lg md:text-xl text-text-secondary mt-8 max-w-2xl leading-relaxed">
-                            Tiny Ark is an independent butique video agency based in Dublin, working globally with brands and cultural institutions.
+                            Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions.
 
                         </p>
                     </ScrollReveal>
@@ -103,7 +103,7 @@ export default function AboutPage() {
                     <ScrollReveal>
                         <div className="relative aspect-[21/9] rounded-[4px] overflow-hidden bg-bg-card">
                             <Image
-                                src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=80"
+                                src="/images/about/studio.jpg"
                                 alt="Tiny Ark studio workspace"
                                 fill
                                 className="object-cover"
@@ -120,31 +120,27 @@ export default function AboutPage() {
                 <Container>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                         <ScrollReveal>
-                            <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em]">
-                                Design with intention.
-                                <br />
-                                Build with precision.
+                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
+                                About
                             </h2>
                         </ScrollReveal>
 
                         <ScrollReveal delay={0.15}>
-                            <div className="space-y-6 text-text-secondary text-[17px] leading-relaxed">
+                            <div className="space-y-6 text-[18px] leading-relaxed">
                                 <p>
-                                    Founded in 2015, Tiny Ark has grown from a two-person operation
-                                    into a full-service creative studio working with brands across
-                                    the globe. Our team brings together expertise in design,
-                                    technology, and strategy.
+                                    Tiny Ark began with a simple ambition: to create work that feels timeless in a world obsessed with speed.
                                 </p>
                                 <p>
-                                    We believe the best digital experiences emerge from a deep
-                                    understanding of both the brand and its audience. That&apos;s
-                                    why every engagement starts with research and strategy before
-                                    a single pixel is placed.
+                                    Founded as an independent creative studio, Tiny Ark was built on craft — a small, focused team united by a belief that precision, story, and design should never be compromised. What started as a boutique production partnership quickly evolved into a trusted creative collaborator for ambitious brands seeking depth over decoration.
                                 </p>
                                 <p>
-                                    Our process is iterative and collaborative. We share early, we
-                                    listen deeply, and we refine relentlessly until the work
-                                    exceeds expectations.
+                                    Over the years, Tiny Ark has grown deliberately. Our work expanded from digital content into a multidisciplinary practice that blends strategy, narrative, and execution at the highest level.
+                                </p>
+                                <p>
+                                    Today, we partner with forward-thinking companies to shape ideas into enduring brand experiences. Every engagement begins with clarity. Every output is held to exacting standards.
+                                </p>
+                                <p>
+                                    Because we believe the most powerful brands are not built on noise. They are built on conviction, craft, and restraint.
                                 </p>
                             </div>
                         </ScrollReveal>
@@ -152,111 +148,82 @@ export default function AboutPage() {
                 </Container>
             </section>
 
-            {/* ── Values ─────────────────────────────────────────────── */}
+            {/* ── Principles ─────────────────────────────────────────── */}
             <section className="py-section-sm lg:py-section border-t border-border">
                 <Container>
-                    <ScrollReveal>
-                        <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.03em] mb-14">
-                            Our Values
-                        </h2>
-                    </ScrollReveal>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
-                        {values.map((value, i) => (
-                            <ScrollReveal key={value.number} delay={i * 0.1}>
-                                <div className="border-t border-border pt-8">
-                                    <span className="text-sm font-medium text-accent">
-                                        {value.number}
-                                    </span>
-                                    <h3 className="text-xl font-semibold mt-3 mb-3">
-                                        {value.title}
-                                    </h3>
-                                    <p className="text-text-secondary text-[15px] leading-relaxed">
-                                        {value.description}
-                                    </p>
-                                </div>
-                            </ScrollReveal>
-                        ))}
-                    </div>
-                </Container>
-            </section>
-
-            {/* ── Services ───────────────────────────────────────────── */}
-            <section className="py-section-sm lg:py-section border-t border-border">
-                <Container>
-                    <ScrollReveal>
-                        <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.03em] mb-14">
-                            Services
-                        </h2>
-                    </ScrollReveal>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-                        {services.map((service, i) => (
-                            <ScrollReveal key={service.title} delay={i * 0.08}>
-                                <div className="p-6 rounded-[4px] bg-bg-card border border-border hover:border-border/80 transition-colors">
-                                    <h3 className="text-lg font-semibold mb-3">
-                                        {service.title}
-                                    </h3>
-                                    <p className="text-sm text-text-secondary leading-relaxed">
-                                        {service.description}
-                                    </p>
-                                </div>
-                            </ScrollReveal>
-                        ))}
-                    </div>
-                </Container>
-            </section>
-
-            {/* ── Process ────────────────────────────────────────────── */}
-            <section className="py-section-sm lg:py-section border-t border-border">
-                <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                         <ScrollReveal>
-                            <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.03em] mb-6">
-                                Our Process
+                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
+                                Principles
                             </h2>
-                            <p className="text-text-secondary text-[17px] leading-relaxed">
-                                Every project follows a proven yet flexible methodology that
-                                ensures clarity, creativity, and quality.
-                            </p>
                         </ScrollReveal>
 
-                        <div className="space-y-8">
+                        <div className="space-y-12">
                             {[
                                 {
-                                    step: "01",
-                                    title: "Discovery & Strategy",
-                                    desc: "We immerse ourselves in your brand, audience, and goals to build a strategic foundation.",
+                                    title: "Craft Over Convention",
+                                    description: "We obsess over the details. Every pixel, every transition, every word is considered and intentional."
                                 },
                                 {
-                                    step: "02",
-                                    title: "Concept & Design",
-                                    desc: "We explore creative directions and develop refined concepts aligned with the strategy.",
+                                    title: "Strategy First",
+                                    description: "Beautiful design without purpose is decoration. We ground every creative decision in strategic thinking."
                                 },
                                 {
-                                    step: "03",
-                                    title: "Build & Refine",
-                                    desc: "We bring designs to life with meticulous production, iterating until every detail is right.",
+                                    title: "Collaborative Process",
+                                    description: "The best work happens together. We partner closely with our clients, sharing insights and iterating as a team."
                                 },
                                 {
-                                    step: "04",
-                                    title: "Launch & Support",
-                                    desc: "We ensure a smooth launch and provide ongoing support to maximize impact.",
-                                },
-                            ].map((item, i) => (
-                                <ScrollReveal key={item.step} delay={i * 0.1}>
-                                    <div className="flex gap-6 items-start">
-                                        <span className="text-sm font-medium text-accent mt-1 shrink-0">
-                                            {item.step}
+                                    title: "Accessible by Default",
+                                    description: "Great design works for everyone. We build inclusively, ensuring our work reaches the widest possible audience."
+                                }
+                            ].map((principle, i) => (
+                                <ScrollReveal key={principle.title} delay={i * 0.1}>
+                                    <h3 className="text-xl font-semibold text-white mb-2">{principle.title}</h3>
+                                    <p className="text-text-secondary text-[17px] leading-relaxed">
+                                        {principle.description}
+                                    </p>
+                                </ScrollReveal>
+                            ))}
+                        </div>
+                    </div>
+                </Container>
+            </section>
+
+
+
+            {/* ── Awards ───────────────────────────────────────────── */}
+            <section className="py-section-sm lg:py-section border-t border-border">
+                <Container>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                        <ScrollReveal>
+                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
+                                Awards
+                            </h2>
+                        </ScrollReveal>
+
+                        <div className="flex flex-col">
+                            {[
+                                "Forma Awards",
+                                "Linea Prize",
+                                "Aperture Design Award",
+                                "Novum Awards",
+                                "Graphis Honor",
+                                "Clarity Design Prize",
+                                "Structure Awards",
+                                "Archetype Prize",
+                                "Lumen Design Award",
+                                "Frame Awards",
+                                "Axis Design Award",
+                                "Vista Awards",
+                                "Forma Prize",
+                                "Spectrum Awards",
+                                "Modus Design Prize",
+                            ].map((award, i) => (
+                                <ScrollReveal key={award} delay={i * 0.05}>
+                                    <div className="py-3 border-b border-white/10 flex justify-between items-center group">
+                                        <span className="text-[17px] text-white/90 group-hover:text-white transition-colors">
+                                            {award}
                                         </span>
-                                        <div>
-                                            <h3 className="text-lg font-semibold mb-2">
-                                                {item.title}
-                                            </h3>
-                                            <p className="text-sm text-text-secondary leading-relaxed">
-                                                {item.desc}
-                                            </p>
-                                        </div>
                                     </div>
                                 </ScrollReveal>
                             ))}
@@ -265,29 +232,21 @@ export default function AboutPage() {
                 </Container>
             </section>
 
-            {/* ── Contact CTA ────────────────────────────────────────── */}
-            <section
-                id="contact"
-                className="py-section-sm lg:py-section border-t border-border"
-            >
+            {/* ── CTA Section ───────────────────────────────────────────── */}
+            <section className="pb-section-sm lg:pb-section border-t border-border">
                 <Container>
-                    <ScrollReveal className="text-center max-w-3xl mx-auto">
-                        <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
-                            Let&apos;s create
-                            <br />
-                            something great.
-                        </h2>
-                        <p className="text-text-secondary text-lg mt-6 leading-relaxed">
-                            Whether you have a clear brief or just a spark of an idea, we&apos;d
-                            love to hear from you. Let&apos;s start a conversation.
-                        </p>
-                        <Link
-                            href="mailto:hello@tinyark.com"
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white font-medium rounded-[4px] text-base hover:bg-accent-hover transition-colors duration-300 mt-10"
-                        >
-                            hello@tinyark.com
-                        </Link>
-                    </ScrollReveal>
+                    <div className="pt-section-sm lg:pt-section">
+                        <ScrollReveal className="text-center max-w-5xl mx-auto">
+                            <Link href="/about#contact" className="group block py-10 cursor-pointer">
+                                <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-medium group-hover:text-white group-hover:font-medium leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
+                                    Let&apos;s work together.
+                                </h2>
+                                <p className="text-text-secondary text-[18px] mt-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-100 -mb-350">
+                                    Have a project in mind? We&apos;d love to hear about it.
+                                </p>
+                            </Link>
+                        </ScrollReveal>
+                    </div>
                 </Container>
             </section>
         </>

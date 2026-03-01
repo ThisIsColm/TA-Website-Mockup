@@ -32,13 +32,13 @@ export default function VideoHero() {
                 className="absolute inset-0 w-full h-full pointer-events-none"
             >
                 <iframe
-                    src="https://player.vimeo.com/video/1169110663?h=64a496fc25&background=1&autoplay=1&loop=1&muted=1"
+                    src="https://player.vimeo.com/video/1169321210?h=64a496fc25&background=1&autoplay=1&loop=1&muted=1"
                     className="absolute top-1/2 left-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
                     allow="autoplay; fullscreen; picture-in-picture"
                     title="Background Video"
                 />
-                {/* Dark overlay for readability */}
-                <div className="absolute inset-0 bg-black/30" />
+                {/* Dark overlay for readability - reduced from 30% to 10% */}
+                <div className="absolute inset-0 bg-black/10" />
             </motion.div>
 
         </section>

@@ -18,7 +18,7 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
     });
 
     return (
-        <Link href={`/blog/${post.slug}`} className="group block">
+        <Link href={`/case-studies/${post.slug}`} className="group block">
             <motion.article
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -41,21 +41,15 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
                 </div>
 
-                {/* Category & Date */}
-                <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-[4px] bg-bg-elevated text-text-secondary border border-border">
-                        {post.category}
+                {/* Date & Title */}
+                <div className="flex flex-col gap-1">
+                    <span className="text-[22px] leading-[1.2] mt-1 text-text-tertiary">
+                        {formattedDate}
                     </span>
-                    <span className="text-xs text-text-tertiary">{formattedDate}</span>
+                    <h3 className="text-[22px] font-medium text-white leading-[1] mb-6 group-hover:text-accent transition-colors duration-300">
+                        {post.title}
+                    </h3>
                 </div>
-
-                {/* Title & Excerpt */}
-                <h3 className="text-lg font-medium text-text-primary group-hover:text-accent transition-colors duration-300">
-                    {post.title}
-                </h3>
-                <p className="text-sm text-text-secondary mt-1 line-clamp-4">
-                    {post.excerpt}
-                </p>
             </motion.article>
         </Link>
     );

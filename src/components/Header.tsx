@@ -9,8 +9,8 @@ import Container from "./Container";
 
 const navLinks = [
     { href: "/work", label: "Work" },
+    { href: "/case-studies", label: "Case Studies" },
     { href: "/about", label: "About" },
-    { href: "/blog", label: "Case Studies" },
 ];
 
 export default function Header() {
@@ -42,7 +42,7 @@ export default function Header() {
         >
             <Container className="px-4 md:px-8 lg:px-10">
                 <nav
-                    className="flex items-center justify-between h-[72px]"
+                    className="relative flex items-center justify-between h-[72px]"
                     aria-label="Main navigation"
                 >
                     {/* Logo */}
@@ -70,12 +70,12 @@ export default function Header() {
                     </Link>
 
                     {/* Center Nav - Desktop */}
-                    <div className="hidden md:flex items-center gap-6">
+                    <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-0 items-center gap-6 group/nav">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 href={link.href}
-                                className={`text-[18px] font-medium tracking-wide transition-colors hover:text-accent ${pathname === link.href || pathname.startsWith(link.href + "/")
+                                className={`text-[18px] font-bold tracking-wide transition-colors hover:text-accent ${pathname === link.href || pathname.startsWith(link.href + "/")
                                     ? "text-accent"
                                     : "text-white"
                                     }`}
@@ -88,7 +88,7 @@ export default function Header() {
                     {/* Contact - Desktop */}
                     <Link
                         href="/about#contact"
-                        className="hidden md:block text-[18px] font-medium tracking-wide text-white hover:text-accent transition-colors"
+                        className="hidden md:block text-[18px] font-bold tracking-wide text-white hover:text-accent transition-colors"
                     >
                         Contact
                     </Link>

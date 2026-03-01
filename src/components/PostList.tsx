@@ -9,11 +9,11 @@ interface PostListProps {
 export default function PostList({ posts, columns = 3 }: PostListProps) {
     const gridCols =
         columns === 2
-            ? "grid-cols-1 md:grid-cols-2"
-            : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+            ? "grid-cols-1 md:grid-cols-2 gap-6"
+            : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10";
 
     return (
-        <div className={`grid ${gridCols} gap-8 lg:gap-10`}>
+        <div className={`grid ${gridCols}`}>
             {posts.map((post, index) => (
                 <PostCard key={post.slug} post={post} index={index} />
             ))}
