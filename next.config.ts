@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "freight.cargo.site",
             },
+            {
+                protocol: "https",
+                hostname: "www.colmmoore.com",
+            },
         ],
     },
 };

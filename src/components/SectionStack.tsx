@@ -234,8 +234,8 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
 
     const y = useTransform(
         progress,
-        [0, entranceStart, slideEnd, 1.0],
-        [yStartVal, yStartVal, targetYNormal, `${numericTargetY + driftAmount}vh`]
+        [0, entranceStart, slideEnd],
+        [yStartVal, yStartVal, targetYNormal]
     );
 
     const peakScales = [1.0, 0.85, 0.80, 0.75]; // Scale as it slides in
@@ -260,13 +260,8 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
         ["0px", "0px", "0px", "4px"]
     );
 
-    // Subtle Image Parallax: Image moves opposite to card scroll to create depth.
-    // We move it from +10% to -10% within its container.
-    const imageY = useTransform(
-        progress,
-        [entranceStart, slideEnd, 1.0],
-        ["10%", "0.1%", "-10%"]
-    );
+    // Parallax removed - image stays static within its container
+    const imageY = "0%";
 
     // Subtle Text Drift: Text "lands" slightly after the card.
     const textY = useTransform(
@@ -288,7 +283,7 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
             }}
             className="absolute inset-0 w-full h-screen overflow-hidden pointer-events-auto"
         >
-            <div className="absolute inset-x-0 inset-y-[-15%] w-full h-[130%] overflow-hidden">
+            <div className="absolute inset-0 w-full h-full overflow-hidden">
                 <motion.div
                     style={{ y: imageY }}
                     className="relative w-full h-full"
@@ -297,7 +292,7 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
                         src={section.image}
                         alt={section.title}
                         fill
-                        className="object-cover scale-110"
+                        className="object-cover"
                         priority={index === 0}
                     />
                 </motion.div>

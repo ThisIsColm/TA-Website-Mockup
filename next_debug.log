@@ -1,0 +1,102 @@
+   ▲ Next.js 15.5.12
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.178.62:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1425ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1252ms (1388 modules)
+ GET / 200 in 1775ms
+ ✓ Compiled /api/curation/home in 431ms (1413 modules)
+ ✓ Compiled in 83ms (629 modules)
+ GET /api/curation/home 200 in 742ms
+ ✓ Compiled /work/[slug] in 246ms (1428 modules)
+ GET /work/airbnb-icons-the-colosseum 200 in 1196ms
+ ✓ Compiled in 576ms (630 modules)
+ ✓ Compiled in 143ms (630 modules)
+ ✓ Compiled in 419ms (630 modules)
+ ✓ Compiled in 108ms (630 modules)
+ ✓ Compiled in 180ms (630 modules)
+ ✓ Compiled in 211ms (630 modules)
+ ✓ Compiled in 443ms (630 modules)
+ ⨯ ./src/components/SectionStack.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m             )'
+     ,-[[36;1;4m/Users/colmmoore/Documents/__WebDev/TA-Website/src/components/SectionStack.tsx[0m:292:1]
+ [2m289[0m |                 className="absolute inset-0 w-full h-screen overflow-hidden pointer-events-auto"
+ [2m290[0m |             >
+ [2m291[0m |                 <div className="absolute inset-x-0 inset-y-[-15%] w-full h-[130%] overflow-hidden">
+ [2m292[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m         </motion.div>
+ [2m293[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m             </div >
+ [2m294[0m |     
+ [2m295[0m |             {/* Film Overlay */ }
+ [2m296[0m |             < div className = "absolute inset-0 pointer-events-none z-[5] opacity-20 mix-blend-soft-light" >
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/SectionStack.tsx
+./src/app/page.tsx
+ ✓ Compiled in 357ms (630 modules)
+ ✓ Compiled in 165ms (630 modules)
+ ⨯ ./src/components/SectionStack.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m             )'
+     ,-[[36;1;4m/Users/colmmoore/Documents/__WebDev/TA-Website/src/components/SectionStack.tsx[0m:292:1]
+ [2m289[0m |                 className="absolute inset-0 w-full h-screen overflow-hidden pointer-events-auto"
+ [2m290[0m |             >
+ [2m291[0m |                 <div className="absolute inset-x-0 inset-y-[-15%] w-full h-[130%] overflow-hidden">
+ [2m292[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m         </motion.div>
+ [2m293[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m             </div >
+ [2m294[0m |     
+ [2m295[0m |             {/* Film Overlay */ }
+ [2m296[0m |             < div className = "absolute inset-0 pointer-events-none z-[5] opacity-20 mix-blend-soft-light" >
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/SectionStack.tsx
+./src/app/page.tsx
+ ✓ Compiled in 170ms (630 modules)
+ ✓ Compiled in 114ms (630 modules)
+ ✓ Compiled in 84ms (630 modules)
+ ✓ Compiled in 159ms (630 modules)
+ ✓ Compiled in 97ms (630 modules)
+ ✓ Compiled in 107ms (630 modules)
+ ✓ Compiled in 110ms (630 modules)
+ ✓ Compiled in 91ms (630 modules)
+ ✓ Compiled in 86ms (630 modules)
+ ✓ Compiled in 110ms (630 modules)
+ ✓ Compiled in 135ms (630 modules)
+ ✓ Compiled in 232ms (630 modules)
+ ✓ Compiled in 95ms (630 modules)
+ ✓ Compiled in 94ms (630 modules)
+ ✓ Compiled in 111ms (630 modules)
+ ✓ Compiled in 111ms (630 modules)
+ ✓ Compiled in 78ms (630 modules)
+ ✓ Compiled in 286ms (630 modules)
+ ✓ Compiled in 95ms (630 modules)
+ ✓ Compiled in 151ms (629 modules)
+ ✓ Compiled in 350ms (629 modules)
+ ✓ Compiled in 96ms (629 modules)
+ ✓ Compiled in 73ms (629 modules)
+ ✓ Compiled in 105ms (629 modules)
+ ✓ Compiled in 93ms (629 modules)
+ ✓ Compiled in 90ms (629 modules)
+ ✓ Compiled in 98ms (629 modules)
+ ✓ Compiled in 80ms (629 modules)
+ ✓ Compiled in 100ms (629 modules)
+ ✓ Compiled in 99ms (629 modules)
+ ✓ Compiled in 88ms (629 modules)
+ ✓ Compiled in 114ms (629 modules)
+ ✓ Compiled in 90ms (629 modules)
+ ✓ Compiled in 272ms (629 modules)
+ ✓ Compiled in 178ms (629 modules)
+ ✓ Compiled in 123ms (629 modules)
+ ✓ Compiled in 112ms (629 modules)
+ ✓ Compiled in 397ms (629 modules)

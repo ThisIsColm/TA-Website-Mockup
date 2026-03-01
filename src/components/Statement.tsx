@@ -38,7 +38,7 @@ export default function Statement({ text, className = "" }: StatementProps) {
                             <motion.span
                                 key={i}
                                 style={{ opacity }}
-                                className="text-[clamp(1.7rem,4vw,3.7rem)] font-semibold leading-[1.2] text-white"
+                                className="text-[clamp(2.5rem,6.5vw,6rem)] font-regular leading-[1.05] text-white"
                             >
                                 {word}
                             </motion.span>

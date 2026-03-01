@@ -23,7 +23,7 @@ export default function Header() {
     // Smooth resize from large (1) to smaller (0.6)
     // The animation starts when we scroll (e.g., from 400 to 800px)
     const logoScale = useTransform(scrollY, [400, 800], [1.5, 0.6]);
-    const logoY = useTransform(scrollY, [400, 800], [0, -5]); // Subtle vertical shift if needed
+    const logoY = useTransform(scrollY, [400, 800], [0, -15]); // Move it higher when shrunk
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -48,20 +48,25 @@ export default function Header() {
                     {/* Logo */}
                     <Link
                         href="/"
-                        className="relative z-10 flex items-center mt-6"
+                        className="relative z-10 flex items-center mt-6 group"
                     >
                         <motion.div
-                            style={{ scale: logoScale, y: logoY, originX: 0, originY: 0.5 }}
-                            className="relative w-[180px] md:w-[240px] h-[40px] md:h-[50px] transition-colors"
-                        >
-                            <Image
-                                src="https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png"
-                                alt="Tiny Ark Logo"
-                                fill
-                                className="object-contain object-left"
-                                priority
-                            />
-                        </motion.div>
+                            style={{
+                                scale: pathname === "/" ? logoScale : 0.6,
+                                y: pathname === "/" ? logoY : -15,
+                                originX: 0,
+                                originY: 0.5,
+                                WebkitMaskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
+                                WebkitMaskSize: 'contain',
+                                WebkitMaskRepeat: 'no-repeat',
+                                WebkitMaskPosition: 'left center',
+                                maskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
+                                maskSize: 'contain',
+                                maskRepeat: 'no-repeat',
+                                maskPosition: 'left center',
+                            }}
+                            className="relative w-[180px] md:w-[240px] h-[40px] md:h-[50px] bg-white group-hover:bg-accent transition-colors duration-300"
+                        />
                     </Link>
 
                     {/* Center Nav - Desktop */}

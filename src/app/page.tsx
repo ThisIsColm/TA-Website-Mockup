@@ -1,8 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import Container from "@/components/Container";
 import ProjectCard from "@/components/ProjectCard";
 import PostCard from "@/components/PostCard";
@@ -12,10 +11,87 @@ import VideoHero from "@/components/VideoHero";
 import SectionStack from "@/components/SectionStack";
 import Statement from "@/components/Statement";
 import { getFeaturedProjects, getRecentPosts } from "@/lib/data";
+import { Project, Post } from "@/types";
+
+// ── Types for curated API response ───────────────────────────────
+
+interface CuratedPost {
+    id: string;
+    title: string;
+    slug: string;
+    url: string;
+    feature_image: string | null;
+    excerpt: string;
+    published_at: string;
+    tags: string[];
+}
+
+// ── Adapters: Ghost data → existing component shapes ─────────────
+
+function ghostToProject(post: CuratedPost, index: number): Project {
+    return {
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt || "",
+        coverImage: post.feature_image || "",
+        tags: post.tags,
+        date: post.published_at,
+        year: new Date(post.published_at).getFullYear().toString(),
+        role: "",
+        services: [],
+        tools: [],
+        content: "",
+        galleryImages: [],
+    };
+}
+
+function ghostToPost(post: CuratedPost): Post {
+    return {
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt || "",
+        date: post.published_at,
+        author: "Tiny Ark",
+        coverImage: post.feature_image || "",
+        category: post.tags[0] || "General",
+        content: "",
+    };
+}
+
+// ── Component ────────────────────────────────────────────────────
 
 export default function HomePage() {
-    const projects = getFeaturedProjects(5);
-    const posts = getRecentPosts(3);
+    // Hardcoded fallback data
+    const fallbackProjects = getFeaturedProjects(5);
+    const fallbackPosts = getRecentPosts(3);
+
+    const [projects, setProjects] = useState<Project[]>(fallbackProjects);
+    const [posts, setPosts] = useState<Post[]>(fallbackPosts);
+    const [loaded, setLoaded] = useState(false);
+
+    // Fetch curated data on mount
+    useEffect(() => {
+        async function fetchCurated() {
+            try {
+                const res = await fetch("/api/curation/home");
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Only replace if we got curated content
+                if (data.selectedWork?.length > 0) {
+                    setProjects(data.selectedWork.map((p: CuratedPost, i: number) => ghostToProject(p, i)));
+                }
+                if (data.caseStudies?.length > 0) {
+                    setPosts(data.caseStudies.map((p: CuratedPost) => ghostToPost(p)));
+                }
+            } catch (err) {
+                console.warn("[home] Could not fetch curated data, using fallback:", err);
+            } finally {
+                setLoaded(true);
+            }
+        }
+        fetchCurated();
+    }, []);
 
     return (
         <div className="relative">
@@ -30,7 +106,7 @@ export default function HomePage() {
                 <SectionStack />
 
                 <Statement
-                    text="Tiny Ark is an independent creative video agency crafting stories that move people, built for brands that refuse to be forgotten."
+                    text="Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions."
                 />
 
                 {/* ── Rest of Content (slides after stack) ────────────────── */}
@@ -42,7 +118,7 @@ export default function HomePage() {
                             <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
                                 <div className="max-w-md">
                                     <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
-                                        Work
+                                        Selected Work
                                     </h2>
                                     <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
                                         Our work explores branding and digital design, balancing clarity, creativity, and cultural resonance.
@@ -93,8 +169,20 @@ export default function HomePage() {
                     {/* ── Recent Posts ───────────────────────────────────────────── */}
                     <section className="py-section-sm lg:py-section">
                         <Container>
-                            <SectionHeading title="Case Studies" />
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">
+                            <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
+                                <div className="max-w-md">
+                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
+                                        Case Studies
+                                    </h2>
+                                    <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
+                                        Our work explores branding and digital design, balancing clarity, creativity, and cultural resonance.
+                                    </p>
+                                </div>
+                                <span className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 leading-none">
+                                    ({posts.length})
+                                </span>
+                            </ScrollReveal>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 -mt-15 lg:gap-6">
                                 {posts.map((post, i) => (
                                     <PostCard key={post.slug} post={post} index={i} />
                                 ))}
