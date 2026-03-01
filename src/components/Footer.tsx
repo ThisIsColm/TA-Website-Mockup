@@ -9,7 +9,7 @@ const footerLinks = {
         { href: "/case-studies", label: "Case Studies" },
     ],
     studio: [
-        { href: "/about#contact", label: "Contact" },
+        { href: "/contact", label: "Contact" },
         { href: "/about", label: "Studio" },
     ],
     social: [
@@ -104,7 +104,7 @@ export default function Footer() {
                                 maskRepeat: 'no-repeat',
                                 maskPosition: 'left center',
                             }}
-                            className="w-[540px] md:w-[720px] h-[120px] md:h-[150px] bg-text-primary/100 max-w-full relative -left-2"
+                            className="w-[540px] md:w-[500px] h-[120px] md:h-[150px] bg-text-primary/100 -mb-2 max-w-full relative -left-2"
                         />
                         <p className="text-[18px] text-text-tertiary md:pb-3 mb-[9px]">
                             © {new Date().getFullYear()} Tiny Ark. All rights reserved.

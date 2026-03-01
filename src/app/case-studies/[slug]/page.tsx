@@ -69,17 +69,48 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
         return (
             <article>
-                {/* ── Header ─────────────────────────────────────────────── */}
+                {/* ── Hero ───────────────────────────────────────────────── */}
                 <section className="pt-[72px] py-16 lg:py-24">
                     <Container>
-                        <ScrollReveal className="max-w-3xl mx-auto text-center">
-                            <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.03em] mt-6">
-                                {post.title}
-                            </h1>
-                            <div className="flex items-center justify-center gap-3 mt-6 text-sm text-text-tertiary">
-                                <span>{post.author}</span>
-                                <span>·</span>
-                                <time dateTime={post.date}>{formattedDate}</time>
+                        <div className="max-w-4xl">
+                            <ScrollReveal>
+                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                                    {post.title}
+                                </h1>
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                    {post.excerpt}
+                                </p>
+                            </ScrollReveal>
+                        </div>
+
+                        {/* Post Meta */}
+                        <ScrollReveal
+                            delay={0.15}
+                            className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 pt-8 border-t border-border"
+                        >
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Date
+                                </p>
+                                <p className="text-sm text-text-primary">{formattedDate}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Author
+                                </p>
+                                <p className="text-sm text-text-primary">{post.author}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Category
+                                </p>
+                                <p className="text-sm text-text-primary">{post.category}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Studio
+                                </p>
+                                <p className="text-sm text-text-primary">Tiny Ark</p>
                             </div>
                         </ScrollReveal>
                     </Container>
@@ -89,7 +120,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                 <section>
                     <Container>
                         <ScrollReveal>
-                            <div className="relative aspect-[16/9] rounded-[4px] overflow-hidden bg-bg-card max-w-5xl mx-auto">
+                            <div className="relative aspect-[16/9] rounded-[4px] overflow-hidden bg-bg-card">
                                 <Image
                                     src={post.coverImage}
                                     alt={post.title}
@@ -176,17 +207,52 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
     return (
         <article>
-            {/* ── Header ─────────────────────────────────────────────── */}
+            {/* ── Hero ───────────────────────────────────────────────── */}
             <section className="pt-[72px] py-16 lg:py-24">
                 <Container>
-                    <ScrollReveal className="max-w-3xl mx-auto text-center">
-                        <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.03em] mt-6">
-                            {ghostPost.title}
-                        </h1>
-                        <div className="flex items-center justify-center gap-3 mt-6 text-sm text-text-tertiary">
-                            <span>Tiny Ark</span>
-                            <span>·</span>
-                            <time dateTime={ghostPost.published_at}>{formattedDate}</time>
+                    <div className="max-w-4xl">
+                        <ScrollReveal>
+                            <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                                {ghostPost.title}
+                            </h1>
+                            {(ghostPost.custom_excerpt || ghostPost.excerpt) && (
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                    {ghostPost.custom_excerpt || ghostPost.excerpt}
+                                </p>
+                            )}
+                        </ScrollReveal>
+                    </div>
+
+                    {/* Post Meta */}
+                    <ScrollReveal
+                        delay={0.15}
+                        className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 pt-8 border-t border-border"
+                    >
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                Published
+                            </p>
+                            <p className="text-sm text-text-primary">{formattedDate}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                Author
+                            </p>
+                            <p className="text-sm text-text-primary">Tiny Ark</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                Category
+                            </p>
+                            <p className="text-sm text-text-primary">
+                                {ghostPost.primary_tag?.name || "Case Study"}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                Studio
+                            </p>
+                            <p className="text-sm text-text-primary">Tiny Ark</p>
                         </div>
                     </ScrollReveal>
                 </Container>
@@ -198,7 +264,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                     <Container>
                         <ScrollReveal>
                             <div
-                                className="relative rounded-[4px] overflow-hidden bg-black max-w-5xl mx-auto shadow-2xl"
+                                className="relative rounded-[4px] overflow-hidden bg-black shadow-2xl"
                                 style={{ aspectRatio: ghostPost.video_aspect_ratio || 16 / 9 }}
                             >
                                 {ghostPost.video_html ? (
@@ -216,7 +282,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                                         priority
                                         unoptimized
                                     />
-                                )}
+                                )}{" "}
                             </div>
                         </ScrollReveal>
                     </Container>

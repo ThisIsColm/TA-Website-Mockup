@@ -87,7 +87,7 @@ export default function Header() {
 
                     {/* Contact - Desktop */}
                     <Link
-                        href="/about#contact"
+                        href="/contact"
                         className="hidden md:block text-[18px] font-bold tracking-wide text-white hover:text-accent transition-colors"
                     >
                         Contact
@@ -140,7 +140,7 @@ export default function Header() {
                                 </Link>
                             ))}
                             <Link
-                                href="/about#contact"
+                                href="/contact"
                                 className="text-2xl font-medium text-text-secondary hover:text-text-primary transition-colors"
                             >
                                 Contact
