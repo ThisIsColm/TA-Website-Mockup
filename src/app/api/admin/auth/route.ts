@@ -18,6 +18,12 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { password } = body;
 
+        console.log("Auth attempt:", {
+            providedPassword: !!password,
+            expectedPasswordSet: !!config.admin.password,
+            match: password === config.admin.password
+        });
+
         if (!password || password !== config.admin.password) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }

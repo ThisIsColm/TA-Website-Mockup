@@ -238,7 +238,7 @@ export default function AboutPage() {
                     <div className="pt-section-sm lg:pt-section">
                         <ScrollReveal className="text-center max-w-5xl mx-auto">
                             <Link href="/about#contact" className="group block py-10 cursor-pointer">
-                                <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-medium group-hover:text-white group-hover:font-medium leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
+                                <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-medium group-hover:text-accent group-hover:font-medium leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
                                     Let&apos;s work together.
                                 </h2>
                                 <p className="text-text-secondary text-[18px] mt-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-100 -mb-350">
