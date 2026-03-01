@@ -38,3 +38,7 @@ next-env.d.ts
 
 # curation database
 /data/*.db
+
+# SQLite temp files
+*.db-wal
+*.db-shm
