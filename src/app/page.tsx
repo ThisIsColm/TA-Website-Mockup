@@ -134,18 +134,22 @@ export default function HomePage() {
                                 {projects.map((project, i) => {
                                     // Editorial Staggered Layout Logic (Desktop)
                                     let gridStyles = "";
-                                    if (i === 0) gridStyles = "lg:col-span-4 lg:col-start-2";
-                                    else if (i === 1) gridStyles = "lg:col-span-6 lg:col-start-6 lg:mt-0 md:mt-16";
-                                    else if (i === 2) gridStyles = "lg:col-span-8 lg:col-start-1 lg:mt-24 lg:-ml-12";
+                                    if (i === 0) gridStyles = "lg:col-span-6 lg:col-start-1";
+                                    else if (i === 1) gridStyles = "lg:col-span-6 lg:col-start-7 lg:mt-0 md:mt-16";
+                                    else if (i === 2) gridStyles = "lg:col-span-8 lg:col-start-1 lg:mt-24";
                                     else if (i === 3) gridStyles = "lg:col-span-8 lg:col-start-5 lg:mt-24 md:mt-16";
-                                    else if (i === 4) gridStyles = "lg:col-span-7 lg:col-start-3 lg:mt-24 md:mt-20";
+                                    else if (i === 4) gridStyles = "lg:col-span-10 lg:col-start-2 lg:mt-24 md:mt-20";
                                     // Fallback for more items
                                     else if (i % 2 === 0) gridStyles = "lg:col-span-6 lg:col-start-1 lg:mt-12";
                                     else gridStyles = "lg:col-span-5 lg:col-start-8 lg:mt-32 md:mt-16";
 
                                     return (
                                         <div key={project.slug} className={gridStyles}>
-                                            <ProjectCard project={project} index={i} />
+                                            <ProjectCard
+                                                project={project}
+                                                index={i}
+                                                aspectRatio={i === 4 ? "aspect-[16/9]" : "aspect-[16/9]"}
+                                            />
                                         </div>
                                     );
                                 })}

@@ -225,17 +225,29 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
     const settleEnd = slideEnd + (unit * 0.4);
 
     // REDUCED GAP: Card 0 starts at 101vh (text is at ~95vh baseline).
-    const yStartVal = index === 0 ? "101vh" : "110vh";
+    const yStartValNum = index === 0 ? 101 : 110;
 
     const isLive = index === sections.length - 1;
-    const targetYNormal = isLive ? "8vh" : `${index * 3}vh`;
     const numericTargetY = isLive ? 8 : (index * 3);
-    const driftAmount = -10;
+
+    // The total amount the stack will drift up over the entire scroll
+    const driftAmount = -6;
+
+    // Calculate proportional drift at each keyframe
+    const driftAt0 = 0;
+    const driftAtEntrance = entranceStart * driftAmount;
+    const driftAtSlideEnd = slideEnd * driftAmount;
+    const driftAtEnd = 1.0 * driftAmount;
 
     const y = useTransform(
         progress,
-        [0, entranceStart, slideEnd],
-        [yStartVal, yStartVal, targetYNormal]
+        [0, entranceStart, slideEnd, 1.0],
+        [
+            `${yStartValNum + driftAt0}vh`,
+            `${yStartValNum + driftAtEntrance}vh`,
+            `${numericTargetY + driftAtSlideEnd}vh`,
+            `${numericTargetY + driftAtEnd}vh`
+        ]
     );
 
     const peakScales = [1.0, 0.85, 0.80, 0.75]; // Scale as it slides in

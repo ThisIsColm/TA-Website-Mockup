@@ -8,9 +8,10 @@ import { Project } from "@/types";
 interface ProjectCardProps {
     project: Project;
     index?: number;
+    aspectRatio?: string;
 }
 
-export default function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+export default function ProjectCard({ project, index = 0, aspectRatio = "aspect-[4/3]" }: ProjectCardProps) {
     return (
         <Link href={`/work/${project.slug}`} className="group block">
             <motion.article
@@ -24,7 +25,7 @@ export default function ProjectCard({ project, index = 0 }: ProjectCardProps) {
                 viewport={{ once: true, margin: "-60px" }}
             >
                 {/* Image Container */}
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[4px] bg-bg-card mb-3 lg:mb-4">
+                <div className={`relative ${aspectRatio} overflow-hidden rounded-[4px] bg-bg-card mb-3 lg:mb-4`}>
                     <Image
                         src={project.coverImage}
                         alt={project.title}
