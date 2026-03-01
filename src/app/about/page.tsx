@@ -79,7 +79,7 @@ export default function AboutPage() {
     return (
         <>
             {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] py-16 lg:py-24">
+            <section className="pt-[72px] py-16 lg:py-24 mt-12">
                 <Container>
                     <ScrollReveal className="max-w-4xl">
                         <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
@@ -118,7 +118,7 @@ export default function AboutPage() {
             {/* ── Philosophy ─────────────────────────────────────────── */}
             <section className="py-section-sm lg:py-section">
                 <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
                         <ScrollReveal>
                             <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
                                 About
@@ -151,7 +151,7 @@ export default function AboutPage() {
             {/* ── Principles ─────────────────────────────────────────── */}
             <section className="py-section-sm lg:py-section border-t border-border">
                 <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
                         <ScrollReveal>
                             <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
                                 Principles
@@ -194,7 +194,7 @@ export default function AboutPage() {
             {/* ── Awards ───────────────────────────────────────────── */}
             <section className="py-section-sm lg:py-section border-t border-border">
                 <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
                         <ScrollReveal>
                             <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
                                 Awards

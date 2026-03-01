@@ -3,7 +3,6 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
-import FilmGrain from "@/components/FilmGrain";
 
 export const metadata: Metadata = {
     title: {
@@ -37,7 +36,6 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-bg text-text-primary font-sans">
-                <FilmGrain />
                 <SmoothScroll>
                     <Header />
                     <main className="min-h-screen">{children}</main>

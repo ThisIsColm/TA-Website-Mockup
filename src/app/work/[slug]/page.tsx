@@ -75,16 +75,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     <Container>
                         <div className="max-w-4xl">
                             <ScrollReveal>
-                                <div className="flex flex-wrap gap-2 mb-6">
-                                    {project.tags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="text-xs font-medium px-3 py-1.5 rounded-[2px] bg-bg-elevated text-text-secondary border border-border"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
                                 <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
                                     {project.title}
                                 </h1>
@@ -177,7 +167,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {/* ── Gallery ────────────────────────────────────────────── */}
                 <section className="pb-16 lg:pb-24">
                     <Container>
-                        <div className="space-y-8">
+                        <div className="space-y-6">
                             {project.galleryImages.map((img, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
                                     <div className="relative aspect-[16/10] rounded-[4px] overflow-hidden bg-bg-card">
@@ -239,18 +229,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <Container>
                     <div className="max-w-4xl">
                         <ScrollReveal>
-                            {ghostPost.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mb-6">
-                                    {ghostPost.tags.map((tag) => (
-                                        <span
-                                            key={tag.id}
-                                            className="text-xs font-medium px-3 py-1.5 rounded-[2px] bg-bg-elevated text-text-secondary border border-border"
-                                        >
-                                            {tag.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
                             <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
                                 {ghostPost.title}
                             </h1>

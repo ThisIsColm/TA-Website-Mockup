@@ -124,7 +124,9 @@ export default function HomePage() {
                                         Not everything we've made, just the work that earned its place here. A curated collection of projects we're proud to put our name on, every frame deliberate, every outcome intentional.
                                     </p>
                                 </div>
-
+                                <span className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 leading-none">
+                                    ({projects.length})
+                                </span>
                             </ScrollReveal>
 
                             {/* 12-Column Asymmetrical Grid */}
@@ -158,9 +160,7 @@ export default function HomePage() {
                                     href="/work"
                                     className="group inline-flex flex-col items-center"
                                 >
-                                    <span className="text-[18px] tracking-wider text-white/80 group-hover:text-accent transition-colors duration-300">
-                                        View all projects
-                                    </span>
+
                                     <div className="h-px w-full bg-white/20 group-hover:bg-accent transition-colors duration-300 mt-1" />
                                 </Link>
                             </ScrollReveal>

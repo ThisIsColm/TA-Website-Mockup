@@ -4,6 +4,7 @@ export interface Project {
     excerpt: string;
     coverImage: string;
     tags: string[];
+    category?: string;
     date: string;
     year: string;
     role: string;
@@ -12,6 +13,7 @@ export interface Project {
     content: string;
     galleryImages: string[];
 }
+
 
 export interface Post {
     slug: string;

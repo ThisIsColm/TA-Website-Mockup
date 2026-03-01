@@ -9,6 +9,7 @@ export const projects: Project[] = [
         coverImage:
             "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&q=80",
         tags: ["Branding", "Identity"],
+        category: "Commercial",
         date: "2025-11-15",
         year: "2025",
         role: "Lead Designer",
@@ -45,6 +46,7 @@ The new brand identity has been adopted across all touchpoints, from digital pla
         coverImage:
             "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80",
         tags: ["Web Design", "Development"],
+        category: "Commercial",
         date: "2025-09-22",
         year: "2025",
         role: "Creative Director",
@@ -81,6 +83,7 @@ The site achieved a 95+ Lighthouse performance score while maintaining complex a
         coverImage:
             "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&q=80",
         tags: ["UI/UX", "Mobile"],
+        category: "Brand Stories",
         date: "2025-07-10",
         year: "2025",
         role: "UX Designer",
@@ -117,6 +120,7 @@ Every design decision was informed by user research. We conducted 40+ user inter
         coverImage:
             "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&q=80",
         tags: ["Branding", "Strategy"],
+        category: "Brand Stories",
         date: "2025-04-18",
         year: "2025",
         role: "Brand Strategist",
@@ -153,6 +157,7 @@ Internal approval rating for the new brand reached 92%. The rebrand has been rol
         coverImage:
             "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
         tags: ["UI/UX", "Dashboard"],
+        category: "Music",
         date: "2025-02-05",
         year: "2025",
         role: "Product Designer",
@@ -189,6 +194,7 @@ User onboarding time decreased by 50%. Support tickets related to "finding data"
         coverImage:
             "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80",
         tags: ["Motion", "3D"],
+        category: "Music",
         date: "2024-12-01",
         year: "2024",
         role: "Motion Designer",
@@ -225,6 +231,7 @@ The keynote video was shared 10,000+ times on social media. Conference organizer
         coverImage:
             "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80",
         tags: ["E-Commerce", "Web Design"],
+        category: "Live",
         date: "2024-10-20",
         year: "2024",
         role: "Lead Designer",
@@ -261,6 +268,7 @@ Online conversion rate increased by 85%. Average order value rose by 30% compare
         coverImage:
             "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&q=80",
         tags: ["Branding", "Identity"],
+        category: "Live",
         date: "2024-08-14",
         year: "2024",
         role: "Brand Designer",

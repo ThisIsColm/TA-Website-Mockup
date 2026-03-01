@@ -22,7 +22,7 @@ const sections: Section[] = [
     },
     {
         title: "Music",
-        image: "/images/music.png",
+        image: "/images/amble.jpg",
     },
     {
         title: "Live",

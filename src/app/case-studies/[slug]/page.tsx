@@ -73,9 +73,6 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                 <section className="pt-[72px] py-16 lg:py-24">
                     <Container>
                         <ScrollReveal className="max-w-3xl mx-auto text-center">
-                            <span className="text-xs font-medium px-3 py-1.5 rounded-[4px] bg-bg-elevated text-text-secondary border border-border">
-                                {post.category}
-                            </span>
                             <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.03em] mt-6">
                                 {post.title}
                             </h1>
@@ -183,11 +180,6 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
             <section className="pt-[72px] py-16 lg:py-24">
                 <Container>
                     <ScrollReveal className="max-w-3xl mx-auto text-center">
-                        {ghostPost.primary_tag && (
-                            <span className="text-xs font-medium px-3 py-1.5 rounded-[4px] bg-bg-elevated text-text-secondary border border-border">
-                                {ghostPost.primary_tag.name}
-                            </span>
-                        )}
                         <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.03em] mt-6">
                             {ghostPost.title}
                         </h1>
