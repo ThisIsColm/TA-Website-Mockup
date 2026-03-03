@@ -4,29 +4,35 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect } from "react";
 import { useLenis } from "lenis/react";
 import Image from "next/image";
+import Link from "next/link";
 import Container from "./Container";
 
 interface Section {
     title: string;
+    slug: string;
     image: string;
 }
 
 const sections: Section[] = [
     {
         title: "Commercial",
+        slug: "commercial",
         image: "/images/tiny_ark_powers_old_but_gold_basketball_001.png",
     },
     {
         title: "Brand Stories",
+        slug: "brand-stories",
         image: "/images/StripeStayCity.png",
     },
     {
         title: "Music",
+        slug: "music",
         image: "/images/amble.jpg",
     },
     {
         title: "Live",
-        image: "/images/live.jpg", // Using placeholder as requested
+        slug: "live",
+        image: "/images/live.jpg",
     },
 ];
 
@@ -296,46 +302,53 @@ function SectionCard({ section, index, progress, totalScrollSlots }: { section: 
             }}
             className="absolute inset-0 w-full h-screen overflow-hidden pointer-events-auto"
         >
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <motion.div
-                    style={{ y: imageY }}
-                    className="relative w-full h-full"
-                >
-                    <Image
-                        src={section.image}
-                        alt={section.title}
-                        fill
-                        className="object-cover"
-                        priority={index === 0}
-                    />
-                </motion.div>
-            </div>
-
-            <div className="relative z-10 h-full w-full flex items-center px-6">
-                <div className="w-full relative flex items-center">
-                    <motion.span
-                        style={{
-                            opacity: textOpacity,
-                            y: textY
-                        }}
-                        className="text-[clamp(1.8rem,4vw,3.5rem)] font-light text-white/50 pr-6"
+            <Link
+                href={`/work?category=${section.slug}`}
+                className="group block relative w-full h-full cursor-pointer"
+            >
+                <div className="absolute inset-0 w-full h-full overflow-hidden">
+                    <motion.div
+                        style={{ y: imageY }}
+                        className="relative w-full h-full"
                     >
-                        {index + 1}
-                    </motion.span>
-
-                    <div className="flex-grow" />
-
-                    <motion.h2
-                        style={{
-                            opacity: textOpacity,
-                            y: textY
-                        }}
-                        className="text-[clamp(2rem,6vw,5.5rem)] font-medium tracking-tight text-white pl-6 pr-4 md:pr-12 lg:pr-24"
-                    >
-                        {section.title}
-                    </motion.h2>
+                        <Image
+                            src={section.image}
+                            alt={section.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                            priority={index === 0}
+                        />
+                        {/* Interactive Overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+                    </motion.div>
                 </div>
-            </div>
+
+                <div className="relative z-10 h-full w-full flex items-center px-6">
+                    <div className="w-full relative flex items-center">
+                        <motion.span
+                            style={{
+                                opacity: textOpacity,
+                                y: textY
+                            }}
+                            className="text-[clamp(1.8rem,4vw,3.5rem)] font-light text-white/50 pr-6"
+                        >
+                            {index + 1}
+                        </motion.span>
+
+                        <div className="flex-grow" />
+
+                        <motion.h2
+                            style={{
+                                opacity: textOpacity,
+                                y: textY
+                            }}
+                            className="text-[clamp(2rem,6vw,5.5rem)] font-medium tracking-tight text-white pl-6 pr-4 md:pr-12 lg:pr-24 transition-colors duration-300"
+                        >
+                            {section.title}
+                        </motion.h2>
+                    </div>
+                </div>
+            </Link>
         </motion.div>
     );
 }
