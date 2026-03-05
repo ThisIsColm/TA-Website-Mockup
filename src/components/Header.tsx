@@ -20,10 +20,54 @@ export default function Header() {
 
     const { scrollY } = useScroll();
 
-    // Smooth resize from large (1) to smaller (0.6)
-    // The animation starts when we scroll (e.g., from 400 to 800px)
-    const logoScale = useTransform(scrollY, [400, 800], [1.5, 0.6]);
-    const logoY = useTransform(scrollY, [400, 800], [0, -15]); // Move it higher when shrunk
+    // Smooth resize from large to smaller
+    const [winSize, setWinSize] = useState({ w: 0, h: 0 });
+
+    useEffect(() => {
+        setWinSize({ w: window.innerWidth, h: window.innerHeight });
+        const handleResize = () => setWinSize({ w: window.innerWidth, h: window.innerHeight });
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const isHome = pathname === "/";
+    // For SSR and initial mount, we need a stable state. 
+    // We'll use the resolved window size if available, otherwise default to a 1440p desktop size to minimize jump.
+    const activeW = winSize.w || 1440;
+    const activeH = winSize.h || 900;
+    const canAnimate = isHome; // We can animate based on scroll regardless of winSize being fully stable, using defaults.
+
+    // 1. Calculate Target Scale (30% bigger than previous maxScale of 4)
+    const maxScale = activeW > 768 ? 7.3 : 2.6;
+    const endScale = 1;
+
+    // 2. Calculate Distances
+    const logoBaseWidth = activeW >= 768 ? 240 : 180;
+
+    // Header offset: header is 72px, logo has mt-6(24px). Approx target center is ~48px.
+    const headerOffset = 48;
+
+    // startY: place it so it sits naturally at the bottom
+    // Scaled height is logoBaseHeight * maxScale. We want the bottom of that to be near activeH.
+    const logoBaseHeight = winSize.w >= 768 ? 50 : 40;
+    const startY = activeH - headerOffset - (logoBaseHeight * maxScale / 2) - 40;
+
+    // Define the scroll range to be exactly startY to achieve 1:1 speed
+    const scrollEnd = startY;
+
+    // 3. Create Transforms
+    // y moves from startY to 0 over scrollEnd scroll (1:1 speed)
+    const y = useTransform(scrollY, [0, scrollEnd], [startY, 0]);
+    // x is 0 because we are left-aligned and originX is 0
+    const x = useTransform(scrollY, [0, scrollEnd], [0, 0]);
+
+    // Scale: only start shrinking after 2/3 of the way up 
+    const scale = useTransform(scrollY, [0, scrollEnd * 0.66, scrollEnd], [maxScale, maxScale, endScale]);
+
+    // Opacity: Outline stays 100% visible till it starts to fade out near the top
+    // Solid fades in to take over the look
+    const outlineOpacity = useTransform(scrollY, [scrollEnd * 0.6, scrollEnd * 0.9], [1, 0]);
+    const solidOpacity = useTransform(scrollY, [scrollEnd * 0.7, scrollEnd], [0, 1]);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -40,34 +84,60 @@ export default function Header() {
         <header
             className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300"
         >
-            <Container className="px-4 md:px-8 lg:px-10">
+            <Container>
                 <nav
                     className="relative flex items-center justify-between h-[72px]"
                     aria-label="Main navigation"
                 >
-                    {/* Logo */}
-                    <Link
-                        href="/"
-                        className="relative z-10 flex items-center mt-6 group"
-                    >
-                        <motion.div
-                            style={{
-                                scale: pathname === "/" ? logoScale : 0.6,
-                                y: pathname === "/" ? logoY : -15,
-                                originX: 0,
-                                originY: 0.5,
-                                WebkitMaskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
-                                WebkitMaskSize: 'contain',
-                                WebkitMaskRepeat: 'no-repeat',
-                                WebkitMaskPosition: 'left center',
-                                maskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
-                                maskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                maskPosition: 'left center',
-                            }}
-                            className="relative w-[180px] md:w-[240px] h-[40px] md:h-[50px] bg-white group-hover:bg-accent transition-colors duration-300"
-                        />
-                    </Link>
+                    {/* Logo Wrapper */}
+                    <div className="relative z-10 flex items-center mt-6 group">
+                        <Link href="/" className="outline-none" aria-label="Home">
+                            <motion.div
+                                style={{
+                                    scale: isHome ? scale : endScale,
+                                    x: isHome ? x : 0,
+                                    y: isHome ? y : 0,
+                                    originX: 0,
+                                    originY: 0.5,
+                                }}
+                                className="relative w-[180px] md:w-[240px] h-[40px] md:h-[50px]"
+                            >
+                                {/* Outline Logo - Visible at bottom-center start */}
+                                {isHome && (
+                                    <motion.div
+                                        style={{ opacity: outlineOpacity }}
+                                        className="absolute inset-0 w-full h-full"
+                                    >
+                                        <img
+                                            src="/images/logo/Tiny_Ark_Logo_Outline_White_2.png"
+                                            alt="Tiny Ark Outline Logo"
+                                            className="w-full h-full object-contain object-left"
+                                        />
+                                    </motion.div>
+                                )}
+
+                                {/* Solid Logo - Fades in as it moves to header */}
+                                <motion.div
+                                    className="absolute inset-0 w-full h-full"
+                                    style={{ opacity: isHome ? solidOpacity : 1 }}
+                                >
+                                    <div
+                                        className="w-full h-full bg-white group-hover:bg-accent transition-colors duration-300"
+                                        style={{
+                                            WebkitMaskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
+                                            WebkitMaskSize: 'contain',
+                                            WebkitMaskRepeat: 'no-repeat',
+                                            WebkitMaskPosition: 'left center',
+                                            maskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
+                                            maskSize: 'contain',
+                                            maskRepeat: 'no-repeat',
+                                            maskPosition: 'left center',
+                                        }}
+                                    />
+                                </motion.div>
+                            </motion.div>
+                        </Link>
+                    </div>
 
                     {/* Center Nav - Desktop */}
                     <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-0 items-center gap-6 group/nav">

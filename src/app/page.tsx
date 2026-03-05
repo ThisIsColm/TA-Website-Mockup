@@ -8,7 +8,6 @@ import PostCard from "@/components/PostCard";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
 import VideoHero from "@/components/VideoHero";
-import SectionStack from "@/components/SectionStack";
 import Statement from "@/components/Statement";
 import { getFeaturedProjects, getRecentPosts } from "@/lib/data";
 import { Project, Post } from "@/types";
@@ -101,10 +100,7 @@ export default function HomePage() {
             </div>
 
             {/* ── Main Content (Slides over Video) ────────────────────────── */}
-            <div className="relative z-20 mt-[-100vh]">
-                {/* ── Section Stack (Includes Philosophy & Cards) ─────────── */}
-                <SectionStack />
-
+            <div className="relative z-20">
                 <Statement
                     text="Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions."
                 />
@@ -160,7 +156,9 @@ export default function HomePage() {
                                     href="/work"
                                     className="group inline-flex flex-col items-center"
                                 >
-
+                                    <span className="text-white text-lg group-hover:text-accent transition-colors">
+                                        View All Work
+                                    </span>
                                     <div className="h-px w-full bg-white/20 group-hover:bg-accent transition-colors duration-300 mt-1" />
                                 </Link>
                             </ScrollReveal>

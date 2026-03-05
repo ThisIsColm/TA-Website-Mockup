@@ -110,9 +110,6 @@ html.lenis body {
 }
 
 /* ── Snap Sections ────────────────────────────────────────── */
-.snap-sections {
-  scroll-snap-type: y mandatory !important;
-}
 
 /* ── Ghost Content Styles ──────────────────────────────────── */
 .ghost-content h1,
