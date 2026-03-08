@@ -53,7 +53,7 @@ function ghostToPost(post: CuratedPost): Post {
         date: post.published_at,
         author: "Tiny Ark",
         coverImage: post.feature_image || "",
-        category: post.tags[0] || "General",
+        category: "Case Study",
         content: "",
     };
 }
@@ -101,23 +101,23 @@ export default function HomePage() {
             </div>
 
             {/* ── Main Content ────────────────────────────────────────── */}
-            <div className="relative z-20">
+            <div className="relative z-[60]">
                 <Statement
-                    text="Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions."
+                    text="Tiny Ark is an independent creative video agency based in Dublin, collaborating globally with brands and cultural institutions."
                 />
 
                 {/* ── Rest of Content (slides after stack) ────────────────── */}
-                <div className="relative z-50 bg-bg">
+                <div className="relative z-[70] bg-bg">
                     {/* ── Featured Projects ─────────────────────────────────────── */}
-                    <section className="pt-40 lg:pt-[16rem] pb-section-sm lg:pb-section">
+                    <section className="pt-24 lg:pt-32 pb-section-sm lg:pb-section">
                         <Container>
                             {/* Custom Editorial Header */}
                             <ScrollReveal className="flex justify-between items-start mb-8">
-                                <div className="max-w-5xl">
-                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 uppercase leading-none">
-                                        A Curated Selection of Films and Campaigns
+                                <div className="max-w-4xl">
+                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-8 leading-none">
+                                        A curated selection of films and campaigns.
                                     </h2>
-                                    <p className="text-white/60 text-[20px] leading-6 max-w-3xl">
+                                    <p className="text-text-secondary text-lg leading-relaxed max-w-3xl">
                                         Not everything we've made, just the work that earned its place here. A curated collection of projects we're proud to put our name on, every frame deliberate, every outcome intentional.
                                     </p>
                                 </div>
@@ -136,11 +136,14 @@ export default function HomePage() {
                                 ))}
                             </div>
 
-                            <ScrollReveal className="mt-12 text-center">
+                            <ScrollReveal className="mt-32 text-center">
                                 <Link
                                     href="/work"
                                     className="group inline-flex flex-col items-center"
                                 >
+                                    <span className="text-[18px] tracking-wider text-white group-hover:text-accent transition-colors duration-300">
+                                        View more work &rarr;
+                                    </span>
                                     <div className="h-px w-full bg-white/20 group-hover:bg-accent transition-colors duration-300 mt-1" />
                                 </Link>
                             </ScrollReveal>
@@ -152,21 +155,32 @@ export default function HomePage() {
                     {/* ── Recent Posts ───────────────────────────────────────────── */}
                     <section className="py-section-sm lg:py-section">
                         <Container>
-                            <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
+                            <ScrollReveal className="flex justify-between items-start mb-8">
                                 <div className="max-w-4xl">
-                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 uppercase leading-none">
-                                        The Thinking That Drives our Work
+                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-8 leading-none">
+                                        The thinking that drives our work and process.
                                     </h2>
-                                    <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
+                                    <p className="text-text-secondary text-lg leading-relaxed max-w-3xl">
                                         Not just the finished film. These case studies explore the thinking, process and creative decisions behind the work. A closer look at how ideas become something worth watching.
                                     </p>
                                 </div>
                             </ScrollReveal>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 -mt-15 lg:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">
                                 {posts.map((post, i) => (
                                     <PostCard key={post.slug} post={post} index={i} />
                                 ))}
                             </div>
+                            <ScrollReveal className="mt-24 text-center">
+                                <Link
+                                    href="/case-studies"
+                                    className="group inline-flex flex-col items-center"
+                                >
+                                    <span className="text-[18px] tracking-wider text-white group-hover:text-accent transition-colors duration-300">
+                                        View more case studies &rarr;
+                                    </span>
+                                    <div className="h-px w-full bg-white/20 group-hover:bg-accent transition-colors duration-300 mt-1" />
+                                </Link>
+                            </ScrollReveal>
                         </Container>
                     </section>
 

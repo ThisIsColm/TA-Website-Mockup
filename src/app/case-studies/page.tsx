@@ -27,7 +27,7 @@ function ghostToPost(post: GhostPost): Post {
         date: post.published_at,
         author: "Tiny Ark",
         coverImage: post.feature_image || "",
-        category: post.primary_tag?.name || post.tags[0]?.name || "Case Study",
+        category: "Case Study",
         content: "",
     };
 }

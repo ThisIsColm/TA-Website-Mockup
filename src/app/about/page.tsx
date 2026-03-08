@@ -90,7 +90,7 @@ export default function AboutPage() {
                             <span className="text-accent">craft and purpose.</span>
                         </h1>
                         <p className="text-lg md:text-xl text-text-secondary mt-8 max-w-2xl leading-relaxed">
-                            Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions.
+                            Tiny Ark is an independent creative video agency based in Dublin, collaborating globally with brands and cultural institutions.
 
                         </p>
                     </ScrollReveal>

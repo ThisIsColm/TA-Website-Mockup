@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Project } from "@/types";
+import Badge from "./Badge";
 
 interface ProjectCardProps {
     project: Project;
@@ -13,7 +14,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, index = 0, aspectRatio = "aspect-[4/3]" }: ProjectCardProps) {
     return (
-        <Link href={`/work/${project.slug}`} className="group block">
+        <Link href={`/work/${project.slug}`} className="group block active:scale-[0.98] transition-transform duration-200">
             <motion.article
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -51,11 +52,7 @@ export default function ProjectCard({ project, index = 0, aspectRatio = "aspect-
 
                         {project.tags && project.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2">
-                                <span
-                                    className="px-3 py-1 text-[10px] md:text-xs font-medium border border-white/20 text-white/70 uppercase tracking-wider"
-                                >
-                                    {project.tags[0]}
-                                </span>
+                                <Badge>{project.tags[0]}</Badge>
                             </div>
                         )}
                     </div>

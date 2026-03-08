@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 export const metadata: Metadata = {
     title: {
@@ -37,9 +36,9 @@ export default function RootLayout({
             </head>
             <body className="bg-bg text-text-primary font-sans">
                 <SmoothScroll>
-                    <Header />
-                    <main className="min-h-screen">{children}</main>
-                    <Footer />
+                    <ConditionalLayout>
+                        {children}
+                    </ConditionalLayout>
                 </SmoothScroll>
             </body>
         </html>

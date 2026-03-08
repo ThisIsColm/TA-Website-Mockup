@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Post } from "@/types";
+import Badge from "./Badge";
 
 interface PostCardProps {
     post: Post;
@@ -18,7 +19,7 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
     });
 
     return (
-        <Link href={`/case-studies/${post.slug}`} className="group block">
+        <Link href={`/case-studies/${post.slug}`} className="group block active:scale-[0.98] transition-transform duration-200">
             <motion.article
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -58,11 +59,7 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
 
                         {post.category && (
                             <div className="flex flex-wrap gap-2">
-                                <span
-                                    className="px-3 py-1 text-[10px] md:text-xs font-medium border border-white/20 text-white/70 uppercase tracking-wider"
-                                >
-                                    {post.category}
-                                </span>
+                                <Badge>{post.category}</Badge>
                             </div>
                         )}
                     </div>
