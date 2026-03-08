@@ -74,7 +74,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                     <Container>
                         <div className="max-w-4xl">
                             <ScrollReveal>
-                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                     {post.title}
                                 </h1>
                                 <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
@@ -120,7 +120,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                 <section>
                     <Container>
                         <ScrollReveal>
-                            <div className="relative aspect-[16/9] rounded-[4px] overflow-hidden bg-bg-card">
+                            <div className="relative aspect-[16/9] overflow-hidden bg-bg-card">
                                 <Image
                                     src={post.coverImage}
                                     alt={post.title}
@@ -264,7 +264,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                     <Container>
                         <ScrollReveal>
                             <div
-                                className="relative rounded-[4px] overflow-hidden bg-black shadow-2xl"
+                                className="relative overflow-hidden bg-black shadow-2xl"
                                 style={{ aspectRatio: ghostPost.video_aspect_ratio || 16 / 9 }}
                             >
                                 {ghostPost.video_html ? (

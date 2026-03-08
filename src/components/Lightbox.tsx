@@ -114,7 +114,7 @@ export default function Lightbox({
                             <img
                                 src={images[currentIndex]}
                                 alt={`Image ${currentIndex + 1}`}
-                                className="max-w-full max-h-[85vh] object-contain rounded-sm shadow-2xl"
+                                className="max-w-full max-h-[85vh] object-contain shadow-2xl"
                             />
 
                             {/* Counter */}

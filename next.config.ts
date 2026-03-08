@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "www.colmmoore.com",
             },
+            {
+                protocol: "https",
+                hostname: "ghost.tinyark.com",
+            },
         ],
     },
 };

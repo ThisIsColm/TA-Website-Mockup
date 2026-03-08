@@ -13,7 +13,7 @@ export default function SectionHeading({
     title,
     count,
     className = "",
-    titleClassName = "text-3xl md:text-4xl font-semibold tracking-[-0.03em] text-text-primary",
+    titleClassName = "text-3xl md:text-4xl font-bold tracking-[-0.03em] text-text-primary",
 }: SectionHeadingProps) {
     return (
         <ScrollReveal className={className}>

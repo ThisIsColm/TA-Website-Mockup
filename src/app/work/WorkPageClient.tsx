@@ -29,7 +29,7 @@ export default function WorkPageClient({ categories }: { categories: Category[] 
                         href={`/work?category=${c.slug}`}
                         className="group block"
                     >
-                        <div className="relative aspect-[16/10] overflow-hidden rounded-[4px] bg-bg-card mb-4">
+                        <div className="relative aspect-[16/10] overflow-hidden bg-bg-card mb-4">
                             <Image
                                 src={c.image}
                                 alt={c.title}
@@ -38,7 +38,7 @@ export default function WorkPageClient({ categories }: { categories: Category[] 
                                 className="object-cover group-hover:scale-[var(--zoom-scale)] transition-transform duration-[var(--zoom-duration)] ease-out"
                             />
                         </div>
-                        <h3 className="text-[28px] md:text-[32px] font-medium text-white leading-[1] group-hover:text-accent transition-colors duration-300">
+                        <h3 className="text-[28px] md:text-[32px] font-bold text-white leading-[1] group-hover:text-accent transition-colors duration-300">
                             {c.title}
                         </h3>
                     </Link>

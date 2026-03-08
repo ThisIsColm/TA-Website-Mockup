@@ -29,25 +29,43 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
                 }}
                 viewport={{ once: true, margin: "-60px" }}
             >
-                {/* Image */}
-                <div className="relative aspect-[16/10] overflow-hidden rounded-[4px] bg-bg-card mb-4">
-                    <Image
-                        src={post.coverImage}
-                        alt={post.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-[var(--zoom-scale)] transition-transform duration-[var(--zoom-duration)] ease-out"
-                    />
-                </div>
+                {/* Content Container - Increased gap between Image and Meta */}
+                <div className="flex flex-col gap-6">
+                    {/* Image */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-bg-card">
+                        <Image
+                            src={post.coverImage}
+                            alt={post.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-[var(--zoom-scale)] transition-transform duration-[var(--zoom-duration)] ease-out"
+                        />
+                    </div>
 
-                {/* Date & Title */}
-                <div className="flex flex-col gap-1">
-                    <span className="text-[22px] leading-[1.2] mt-1 text-text-tertiary">
-                        {formattedDate}
-                    </span>
-                    <h3 className="text-[22px] font-medium text-white leading-[1] mb-6 group-hover:text-accent transition-colors duration-300">
-                        {post.title}
-                    </h3>
+                    {/* Meta - Internal spacing remains gap-4 */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4">
+                            <span className="text-sm text-text-tertiary uppercase tracking-wider">
+                                {formattedDate}
+                            </span>
+                            <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors duration-300 leading-none">
+                                {post.title}
+                            </h3>
+                            <p className="text-sm md:text-base text-text-secondary leading-relaxed line-clamp-2">
+                                {post.excerpt}
+                            </p>
+                        </div>
+
+                        {post.category && (
+                            <div className="flex flex-wrap gap-2">
+                                <span
+                                    className="px-3 py-1 text-[10px] md:text-xs font-medium border border-white/20 text-white/70 uppercase tracking-wider"
+                                >
+                                    {post.category}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </motion.article>
         </Link>

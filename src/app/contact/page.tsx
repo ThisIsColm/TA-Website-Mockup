@@ -14,7 +14,7 @@ export default function ContactPage() {
                 {/* ── Intro Paragraph ────────────────────────────────────── */}
                 <ScrollReveal>
                     <div className="max-w-[1400px]">
-                        <h1 className="text-[clamp(1.8rem,4vw,3.2rem)] font-medium leading-[1.2] tracking-[-0.02em] text-white">
+                        <h1 className="text-[clamp(1.8rem,4vw,3.2rem)] font-bold leading-[1.2] tracking-[-0.02em] text-white">
                             You've seen the work. You know what we're capable of. If you've got a brief, a budget, and the ambition to make something worth remembering, we want to hear from you.
                         </h1>
                     </div>
@@ -25,7 +25,7 @@ export default function ContactPage() {
                     {/* Left: Section Header */}
                     <div>
                         <ScrollReveal>
-                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-none">
+                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none">
                                 Let's Talk
                             </h2>
                         </ScrollReveal>
@@ -38,7 +38,7 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8">
                                     {/* Name */}
                                     <div className="space-y-2">
-                                        <label htmlFor="name" className="text-sm font-semibold text-white">
+                                        <label htmlFor="name" className="text-sm font-bold text-white">
                                             Name
                                         </label>
                                         <input
@@ -53,7 +53,7 @@ export default function ContactPage() {
 
                                     {/* Email */}
                                     <div className="space-y-2">
-                                        <label htmlFor="email" className="text-sm font-semibold text-white">
+                                        <label htmlFor="email" className="text-sm font-bold text-white">
                                             Email
                                         </label>
                                         <input
@@ -69,7 +69,7 @@ export default function ContactPage() {
 
                                 {/* Message */}
                                 <div className="space-y-2">
-                                    <label htmlFor="message" className="text-sm font-semibold text-white">
+                                    <label htmlFor="message" className="text-sm font-bold text-white">
                                         Message
                                     </label>
                                     <textarea
@@ -85,7 +85,7 @@ export default function ContactPage() {
                                 <div className="pt-8">
                                     <button
                                         type="submit"
-                                        className="w-full py-4 bg-white text-black font-semibold text-sm hover:bg-accent hover:text-white transition-all duration-300 rounded-[4px]"
+                                        className="w-full py-4 bg-white text-black font-bold text-sm hover:bg-accent hover:text-white transition-all duration-300"
                                     >
                                         Send it.
                                     </button>

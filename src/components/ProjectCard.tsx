@@ -23,28 +23,42 @@ export default function ProjectCard({ project, index = 0, aspectRatio = "aspect-
                     ease: [0.25, 0.4, 0.25, 1],
                 }}
                 viewport={{ once: true, margin: "-60px" }}
+                className="relative"
             >
-                {/* Image Container */}
-                <div className={`relative ${aspectRatio} overflow-hidden rounded-[4px] bg-bg-card mb-3 lg:mb-4`}>
-                    <Image
-                        src={project.coverImage}
-                        alt={project.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover group-hover:scale-[var(--zoom-scale)] transition-transform duration-[var(--zoom-duration)] ease-out"
-                    />
-                </div>
+                {/* Content Container - Increased gap between Image and Meta */}
+                <div className="flex flex-col gap-6">
+                    {/* Image Container */}
+                    <div className={`relative ${aspectRatio} overflow-hidden bg-bg-card`}>
+                        <Image
+                            src={project.coverImage}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-cover group-hover:scale-[var(--zoom-scale)] transition-transform duration-[var(--zoom-duration)] ease-out"
+                        />
+                    </div>
 
-                {/* Meta */}
-                <div className="flex flex-col gap-0">
-                    <h3 className="text-[22px] -mt-[6px] font-medium text-white group-hover:text-accent transition-colors duration-300 tracking-tight">
-                        {project.title}
-                    </h3>
-                    <p className="text-[22px] -mt-[5px] text-white/50 leading-snug line-clamp-1">
-                        {project.tags && project.tags.length > 0
-                            ? project.tags[0].charAt(0).toUpperCase() + project.tags[0].slice(1)
-                            : project.excerpt}
-                    </p>
+                    {/* Meta - Internal spacing remains gap-4 */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4">
+                            <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors duration-300 tracking-tight leading-none text-balance">
+                                {project.title}
+                            </h3>
+                            <p className="text-sm md:text-base text-text-secondary leading-relaxed line-clamp-2">
+                                {project.excerpt}
+                            </p>
+                        </div>
+
+                        {project.tags && project.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                <span
+                                    className="px-3 py-1 text-[10px] md:text-xs font-medium border border-white/20 text-white/70 uppercase tracking-wider"
+                                >
+                                    {project.tags[0]}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </motion.article>
         </Link>

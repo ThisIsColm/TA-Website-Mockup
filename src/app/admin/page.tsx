@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -15,20 +15,20 @@ type Section = "selectedWork" | "caseStudies";
 const styles = {
     page: "min-h-screen bg-[#0e0f11] text-white font-sans p-6 md:p-10",
     header: "flex items-center justify-between mb-8",
-    title: "text-2xl font-semibold tracking-tight",
+    title: "text-2xl font-bold tracking-tight",
     subtitle: "text-sm text-white/50 mt-1",
-    loginCard: "max-w-sm mx-auto mt-[20vh] bg-[#1a1b1e] rounded-lg p-8 border border-[#2a2b2e]",
-    input: "w-full px-4 py-3 bg-[#141517] border border-[#2a2b2e] rounded-md text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#D86001] transition-colors",
-    btn: "px-5 py-2.5 bg-[#D86001] text-white text-sm font-medium rounded-md hover:bg-[#FF7A29] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-    btnOutline: "px-3 py-1.5 border border-[#2a2b2e] text-white/60 text-xs rounded hover:bg-white/5 transition-colors",
+    loginCard: "max-w-sm mx-auto mt-[20vh] bg-[#1a1b1e] p-8 border border-[#2a2b2e]",
+    input: "w-full px-4 py-3 bg-[#141517] border border-[#2a2b2e] text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#D86001] transition-colors",
+    btn: "px-5 py-2.5 bg-[#D86001] text-white text-sm font-bold hover:bg-[#FF7A29] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+    btnOutline: "px-3 py-1.5 border border-[#2a2b2e] text-white/60 text-xs hover:bg-white/5 transition-colors",
     btnDanger: "px-3 py-1.5 text-red-400/70 text-xs hover:text-red-400 transition-colors",
-    card: "bg-[#1a1b1e] border border-[#2a2b2e] rounded-lg overflow-hidden",
-    badge: "px-2 py-0.5 bg-[#222326] text-white/50 text-[10px] rounded border border-[#2a2b2e]",
-    sectionTitle: "text-lg font-medium mb-4",
+    card: "bg-[#1a1b1e] border border-[#2a2b2e] overflow-hidden",
+    badge: "px-2 py-0.5 bg-[#222326] text-white/50 text-[10px] border border-[#2a2b2e]",
+    sectionTitle: "text-lg font-bold mb-4",
     grid: "grid grid-cols-1 lg:grid-cols-3 gap-6",
-    postItem: "flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group",
-    postThumb: "w-16 h-12 rounded bg-[#222326] object-cover shrink-0",
-    toast: "fixed bottom-6 right-6 px-5 py-3 rounded-lg text-sm font-medium shadow-lg z-50 transition-all",
+    postItem: "flex items-center gap-3 p-3 hover:bg-white/5 transition-colors cursor-pointer group",
+    postThumb: "w-16 h-12 bg-[#222326] object-cover shrink-0",
+    toast: "fixed bottom-6 right-6 px-5 py-3 text-sm font-bold shadow-lg z-50 transition-all",
 };
 
 // ── Component ────────────────────────────────────────────────────
@@ -49,6 +49,10 @@ export default function AdminPage() {
 
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+    // Track if we've loaded initial data to prevent immediate autosave
+    const isInitialMount = useRef(true);
+    const [hasLoadedSelections, setHasLoadedSelections] = useState(false);
 
     // ── Toast helper ─────────────────────────────────────────────
 
@@ -129,6 +133,7 @@ export default function AdminPage() {
                     }))
                 );
             }
+            setHasLoadedSelections(true);
         } catch (err) {
             console.error("Failed to load selections:", err);
         }
@@ -181,7 +186,8 @@ export default function AdminPage() {
 
     // ── Save ─────────────────────────────────────────────────────
 
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
+        if (!authed) return;
         setSaving(true);
         try {
             const res = await fetch("/api/curation/home", {
@@ -199,17 +205,33 @@ export default function AdminPage() {
                 return;
             }
 
-            if (res.ok) {
-                showToast("Selections saved successfully!");
-            } else {
-                showToast("Failed to save", "error");
+            if (!res.ok) {
+                showToast("Failed to autosave", "error");
             }
         } catch {
-            showToast("Connection error", "error");
+            showToast("Connection error during autosave", "error");
         } finally {
             setSaving(false);
         }
-    };
+    }, [selectedWork, caseStudies, authed, showToast, setAuthed]);
+
+    // ── Autosave Effect ──────────────────────────────────────────
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        // Only autosave if we've successfully loaded the initial state
+        if (!hasLoadedSelections) return;
+
+        const timer = setTimeout(() => {
+            handleSave();
+        }, 1000); // 1s debounce
+
+        return () => clearTimeout(timer);
+    }, [selectedWork, caseStudies, handleSave, hasLoadedSelections]);
 
     // ── Tag helpers ──────────────────────────────────────────────
 
@@ -253,9 +275,12 @@ export default function AdminPage() {
                     <h1 className={styles.title}>Content Picker</h1>
                     <p className={styles.subtitle}>Select and order Ghost posts for the homepage</p>
                 </div>
-                <button onClick={handleSave} disabled={saving} className={styles.btn}>
-                    {saving ? "Saving..." : "Save Selections"}
-                </button>
+                <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${saving ? "bg-accent animate-pulse" : "bg-green-500"}`} />
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-widest">
+                        {saving ? "Saving..." : "All changes saved"}
+                    </span>
+                </div>
             </div>
 
             <div className={styles.grid}>
@@ -271,7 +296,7 @@ export default function AdminPage() {
                     />
 
                     {ghostError && (
-                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4 text-sm text-red-300">
+                        <div className="bg-red-500/10 border border-red-500/30 p-4 mb-4 text-sm text-red-300">
                             {ghostError}
                         </div>
                     )}

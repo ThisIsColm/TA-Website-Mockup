@@ -8,8 +8,8 @@ import PostCard from "@/components/PostCard";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
 import VideoHero from "@/components/VideoHero";
-import SectionStack from "@/components/SectionStack";
 import Statement from "@/components/Statement";
+import ClientLogos from "@/components/ClientLogos";
 import { getFeaturedProjects, getRecentPosts } from "@/lib/data";
 import { Project, Post } from "@/types";
 
@@ -100,11 +100,8 @@ export default function HomePage() {
                 <VideoHero />
             </div>
 
-            {/* ── Main Content (Slides over Video) ────────────────────────── */}
-            <div className="relative z-20 mt-[-100vh]">
-                {/* ── Section Stack (Includes Philosophy & Cards) ─────────── */}
-                <SectionStack />
-
+            {/* ── Main Content ────────────────────────────────────────── */}
+            <div className="relative z-20">
                 <Statement
                     text="Tiny Ark is an independent creative video agency based in Dublin, working globally with brands and cultural institutions."
                 />
@@ -115,44 +112,28 @@ export default function HomePage() {
                     <section className="pt-40 lg:pt-[16rem] pb-section-sm lg:pb-section">
                         <Container>
                             {/* Custom Editorial Header */}
-                            <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
-                                <div className="max-w-3xl">
-                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
-                                        Selected Work
+                            <ScrollReveal className="flex justify-between items-start mb-8">
+                                <div className="max-w-5xl">
+                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 uppercase leading-none">
+                                        A Curated Selection of Films and Campaigns
                                     </h2>
                                     <p className="text-white/60 text-[20px] leading-6 max-w-3xl">
                                         Not everything we've made, just the work that earned its place here. A curated collection of projects we're proud to put our name on, every frame deliberate, every outcome intentional.
                                     </p>
                                 </div>
-                                <span className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 leading-none">
-                                    ({projects.length})
-                                </span>
                             </ScrollReveal>
 
-                            {/* 12-Column Asymmetrical Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-y-16 lg:gap-6 items-start">
-                                {projects.map((project, i) => {
-                                    // Editorial Staggered Layout Logic (Desktop)
-                                    let gridStyles = "";
-                                    if (i === 0) gridStyles = "lg:col-span-6 lg:col-start-1";
-                                    else if (i === 1) gridStyles = "lg:col-span-6 lg:col-start-7 lg:mt-0 md:mt-16";
-                                    else if (i === 2) gridStyles = "lg:col-span-8 lg:col-start-1 lg:mt-24";
-                                    else if (i === 3) gridStyles = "lg:col-span-8 lg:col-start-5 lg:mt-24 md:mt-16";
-                                    else if (i === 4) gridStyles = "lg:col-span-10 lg:col-start-2 lg:mt-24 md:mt-20";
-                                    // Fallback for more items
-                                    else if (i % 2 === 0) gridStyles = "lg:col-span-6 lg:col-start-1 lg:mt-12";
-                                    else gridStyles = "lg:col-span-5 lg:col-start-8 lg:mt-32 md:mt-16";
-
-                                    return (
-                                        <div key={project.slug} className={gridStyles}>
-                                            <ProjectCard
-                                                project={project}
-                                                index={i}
-                                                aspectRatio={i === 4 ? "aspect-[16/9]" : "aspect-[16/9]"}
-                                            />
-                                        </div>
-                                    );
-                                })}
+                            {/* Standard 2x2 Grid with doubled row gap */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-32">
+                                {projects.slice(0, 6).map((project, i) => (
+                                    <div key={project.slug}>
+                                        <ProjectCard
+                                            project={project}
+                                            index={i}
+                                            aspectRatio="aspect-[16/9]"
+                                        />
+                                    </div>
+                                ))}
                             </div>
 
                             <ScrollReveal className="mt-12 text-center">
@@ -160,24 +141,24 @@ export default function HomePage() {
                                     href="/work"
                                     className="group inline-flex flex-col items-center"
                                 >
-
                                     <div className="h-px w-full bg-white/20 group-hover:bg-accent transition-colors duration-300 mt-1" />
                                 </Link>
                             </ScrollReveal>
                         </Container>
                     </section>
 
+                    <ClientLogos />
 
                     {/* ── Recent Posts ───────────────────────────────────────────── */}
                     <section className="py-section-sm lg:py-section">
                         <Container>
                             <ScrollReveal className="flex justify-between items-start mb-16 lg:mb-24">
-                                <div className="max-w-2xl">
-                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white mb-4 leading-none">
-                                        How We Think
+                                <div className="max-w-4xl">
+                                    <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 uppercase leading-none">
+                                        The Thinking That Drives our Work
                                     </h2>
                                     <p className="text-white/60 text-[18px] leading-relaxed max-w-s">
-                                        A deeper look at the ideas, process, and craft behind the results. Because great work doesn't happen by accident.
+                                        Not just the finished film. These case studies explore the thinking, process and creative decisions behind the work. A closer look at how ideas become something worth watching.
                                     </p>
                                 </div>
                             </ScrollReveal>
@@ -195,7 +176,7 @@ export default function HomePage() {
                             <div className="border-t border-border pt-section-sm lg:pt-section">
                                 <ScrollReveal className="text-center max-w-5xl mx-auto">
                                     <Link href="/about#contact" className="group block py-10 cursor-pointer">
-                                        <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-medium group-hover:text-accent group-hover:font-medium leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
+                                        <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-bold group-hover:text-accent group-hover:font-bold leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
                                             Let&apos;s work together.
                                         </h2>
                                         <p className="text-text-secondary text-[18px] mt-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-100 -mb-350">

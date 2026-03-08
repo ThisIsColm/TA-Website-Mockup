@@ -42,7 +42,7 @@ export default function Statement({ text, className = "" }: StatementProps) {
                     ref={textRef}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    className="flex flex-wrap gap-x-[0.5em] gap-y-[0.3em] mt-40"
+                    className="flex flex-wrap gap-x-[0.8em] gap-y-[0.5em] mt-40"
                     style={{
                         backgroundImage: `radial-gradient(circle 200px at var(--m-x, -1000px) var(--m-y, -1000px), var(--color-accent) 0%, var(--color-accent) 100%, rgba(255,255,255,1) 100%)`,
                         WebkitBackgroundClip: "text",
@@ -76,7 +76,7 @@ export default function Statement({ text, className = "" }: StatementProps) {
                             <motion.span
                                 key={i}
                                 style={{ opacity: opacityValue }}
-                                className="text-[clamp(2.5rem,6.5vw,6rem)] font-regular leading-[1] text-transparent"
+                                className="text-[clamp(2.5rem,6.5vw,6rem)] font-bold leading-[1] text-transparent"
                             >
                                 {word}
                             </motion.span>

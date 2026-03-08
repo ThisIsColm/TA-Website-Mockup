@@ -36,13 +36,13 @@ export default async function BrandedStoriesPage() {
                         className="mb-12 mt-10"
                         titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-none"
                     />
-                    <div className="bg-bg-card p-8 rounded-lg border border-border">
+                    <div className="bg-bg-card p-8 border border-border">
                         <h2 className="text-xl font-medium mb-4">No Article Selected</h2>
                         <p className="text-text-secondary mb-6">
                             This page is ready to show a specific Ghost blog article.
                             To display an article, edit the <code>TARGET_POST_SLUG</code> constant in:
                         </p>
-                        <code className="block bg-black p-3 rounded mb-6 text-sm">
+                        <code className="block bg-black p-3 mb-6 text-sm">
                             src/app/branded-stories/page.tsx
                         </code>
                         <p className="text-text-secondary">
@@ -119,7 +119,7 @@ export default async function BrandedStoriesPage() {
                     <Container>
                         <ScrollReveal>
                             <div
-                                className="relative rounded-[4px] overflow-hidden bg-black shadow-2xl"
+                                className="relative overflow-hidden bg-black shadow-2xl"
                                 style={{ aspectRatio: ghostPost.video_aspect_ratio || 16 / 9 }}
                             >
                                 {ghostPost.video_html ? (

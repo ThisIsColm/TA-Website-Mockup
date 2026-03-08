@@ -75,7 +75,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     <Container>
                         <div className="max-w-4xl">
                             <ScrollReveal>
-                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                     {project.title}
                                 </h1>
                                 <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
@@ -90,7 +90,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                             className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 pt-8 border-t border-border"
                         >
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                <p className="text-xs font-bold uppercase tracking-[0.15em] text-text-tertiary mb-2">
                                     Role
                                 </p>
                                 <p className="text-sm text-text-primary">{project.role}</p>
@@ -125,7 +125,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <section>
                     <Container>
                         <ScrollReveal>
-                            <div className="relative aspect-[16/9] rounded-[4px] overflow-hidden bg-bg-card">
+                            <div className="relative aspect-[16/9] overflow-hidden bg-bg-card">
                                 <Image
                                     src={project.coverImage}
                                     alt={project.title}
@@ -170,7 +170,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         <div className="space-y-6">
                             {project.galleryImages.map((img, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
-                                    <div className="relative aspect-[16/10] rounded-[4px] overflow-hidden bg-bg-card">
+                                    <div className="relative aspect-[16/10] overflow-hidden bg-bg-card">
                                         <Image
                                             src={img}
                                             alt={`${project.title} gallery image ${i + 1}`}
@@ -275,7 +275,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     <Container>
                         <ScrollReveal>
                             <div
-                                className="relative rounded-[4px] overflow-hidden bg-black shadow-2xl"
+                                className="relative overflow-hidden bg-black shadow-2xl"
                                 style={{ aspectRatio: ghostPost.video_aspect_ratio || 16 / 9 }}
                             >
                                 {ghostPost.video_html ? (
