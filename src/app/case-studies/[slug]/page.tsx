@@ -244,7 +244,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                             <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
                                 Category
                             </p>
-                            <p className="text-sm text-text-primary">
+                            <p className="text-sm text-text-primary capitalize">
                                 {ghostPost.primary_tag?.name || "Case Study"}
                             </p>
                         </div>

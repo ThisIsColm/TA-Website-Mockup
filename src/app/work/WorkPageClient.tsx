@@ -27,7 +27,7 @@ export default function WorkPageClient({ categories }: { categories: Category[] 
                 >
                     <Link
                         href={`/work?category=${c.slug}`}
-                        className="group block"
+                        className="group block active:scale-[0.98] transition-transform duration-200"
                     >
                         <div className="relative aspect-[16/10] overflow-hidden bg-bg-card mb-4">
                             <Image

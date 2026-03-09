@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Container from "@/components/Container";
 import PostList from "@/components/PostList";
 import SectionHeading from "@/components/SectionHeading";
-import { getAllPosts } from "@/lib/data";
-import { fetchAllGhostPosts, GhostPost } from "@/lib/ghost";
+import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
+import { getSelections } from "@/lib/db";
 import { Post } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -36,15 +36,16 @@ export default async function CaseStudiesPage() {
     let posts: Post[] = [];
 
     try {
-        const ghostPosts = await fetchAllGhostPosts();
+        const selection = getSelections("case-studies");
+        const ghostPosts = await fetchPostsByIds(selection.ghostPostIds);
+
         if (ghostPosts && ghostPosts.length > 0) {
             posts = ghostPosts.map(ghostToPost);
         } else {
-            posts = getAllPosts();
+            // No curated posts found or error pulling
         }
     } catch (err) {
-        console.error("[case-studies error] Failed to fetch Ghost posts:", err);
-        posts = getAllPosts();
+        console.error("[case-studies error] Failed to fetch curated Ghost posts:", err);
     }
 
     return (
@@ -53,7 +54,7 @@ export default async function CaseStudiesPage() {
                 <SectionHeading
                     title="Case Studies"
                     className="-mb-10 mt-10"
-                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-none"
+                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                 />
                 <PostList posts={posts} columns={2} />
             </Container>

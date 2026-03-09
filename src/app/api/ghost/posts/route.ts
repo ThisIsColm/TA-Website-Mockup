@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { fetchGhostPosts, searchGhostPosts } from "@/lib/ghost";
+import { getPostMetadata } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
     // Auth check
@@ -22,14 +23,19 @@ export async function GET(request: NextRequest) {
         if (search) {
             // Search locally after fetching all posts
             const posts = await searchGhostPosts(search);
+            const postsWithMeta = posts.map(p => {
+                const meta = getPostMetadata(p.id);
+                return { ...p, director: meta?.director, client: meta?.client };
+            });
+
             return NextResponse.json({
-                posts,
+                posts: postsWithMeta,
                 meta: {
                     pagination: {
                         page: 1,
-                        limit: posts.length,
+                        limit: postsWithMeta.length,
                         pages: 1,
-                        total: posts.length,
+                        total: postsWithMeta.length,
                     },
                 },
             });
@@ -37,7 +43,12 @@ export async function GET(request: NextRequest) {
 
         // Standard paginated fetch
         const data = await fetchGhostPosts(page, limit);
-        return NextResponse.json(data);
+        const postsWithMeta = data.posts.map((p: any) => {
+            const meta = getPostMetadata(p.id);
+            return { ...p, director: meta?.director, client: meta?.client };
+        });
+
+        return NextResponse.json({ ...data, posts: postsWithMeta });
     } catch (err) {
         console.error("[api/ghost/posts] Error:", err);
         return NextResponse.json(

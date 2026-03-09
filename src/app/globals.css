@@ -267,8 +267,24 @@ html.lenis body {
   object-fit: cover;
 }
 
-.ghost-content .kg-embed-card iframe {
-  width: 100%;
+.ghost-content .kg-embed-card,
+.ghost-content .kg-video-card {
+  margin: 2rem 0;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.ghost-content .kg-embed-card iframe,
+.ghost-content .kg-video-card iframe {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9; /* Default aspect ratio */
+}
+
+/* If the card has a specific aspect ratio or is known to be vertical */
+.ghost-content .kg-embed-card[style*="aspect-ratio"],
+.ghost-content .kg-embed-card iframe[style*="aspect-ratio"] {
+  aspect-ratio: auto !important;
 }
 
 .ghost-content .kg-bookmark-card {

@@ -5,7 +5,8 @@ import Container from "@/components/Container";
 import ProjectGrid from "@/components/ProjectGrid";
 import SectionHeading from "@/components/SectionHeading";
 import { getAllProjects } from "@/lib/data";
-import { fetchGhostPosts, GhostPost } from "@/lib/ghost";
+import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
+import { getSelections } from "@/lib/db";
 import { Project } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -72,30 +73,30 @@ export default async function WorkPage({
         const matchingCategory = categories.find((c) => c.slug === category);
         const categoryTitle = matchingCategory ? matchingCategory.title : "Work";
 
-        // Map category slug to Ghost tag
-        const ghostTagMap: Record<string, string> = {
-            "commercial": "commercial",
-            "music": "music",
-            "live": "live",
-            "brand-stories": "documercial"
-        };
-
         let filteredProjects: Project[] = [];
-        const ghostTag = ghostTagMap[category] || category;
 
         try {
-            const { posts } = await fetchGhostPosts(1, 50, `tag:${ghostTag}`);
-            if (posts && posts.length > 0) {
-                filteredProjects = posts.map(ghostToProject);
+            if (matchingCategory) {
+                const sectionKey = `work.${matchingCategory.slug}`;
+                const selection = getSelections(sectionKey);
+                const posts = await fetchPostsByIds(selection.ghostPostIds);
+
+                if (posts && posts.length > 0) {
+                    filteredProjects = posts.map(ghostToProject);
+                } else {
+                    // Fallback to local data if nothing curated
+                    const allProjects = getAllProjects();
+                    filteredProjects = allProjects.filter(
+                        (p) => p.category === matchingCategory.title
+                    );
+                }
             } else {
-                // Fallback to local data
+                // Default fallback
                 const allProjects = getAllProjects();
-                filteredProjects = allProjects.filter(
-                    (p) => matchingCategory && p.category === matchingCategory.title
-                );
+                filteredProjects = allProjects;
             }
         } catch (err) {
-            console.error(`[work category error] Failed to fetch Ghost posts for ${ghostTag}:`, err);
+            console.error(`[work category error] Failed to fetch curated Ghost posts:`, err);
             const allProjects = getAllProjects();
             filteredProjects = allProjects.filter(
                 (p) => matchingCategory && p.category === matchingCategory.title
@@ -108,7 +109,7 @@ export default async function WorkPage({
                     <SectionHeading
                         title={categoryTitle}
                         className="-mb-10 mt-10"
-                        titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-none"
+                        titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                     />
 
                     <div className="mb-12 border-b border-border pb-6 flex items-center justify-between">
@@ -141,7 +142,7 @@ export default async function WorkPage({
                 <SectionHeading
                     title="Work"
                     className="-mb-20 mt-10"
-                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-none"
+                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                 />
 
                 <WorkPageClient categories={categories} />

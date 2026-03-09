@@ -5,8 +5,10 @@ import type { Metadata } from "next";
 import Container from "@/components/Container";
 import ScrollReveal from "@/components/ScrollReveal";
 import GhostContent from "@/components/GhostContent";
+import ProjectCard from "@/components/ProjectCard";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
-import { fetchGhostPostBySlug } from "@/lib/ghost";
+import { fetchGhostPostBySlug, fetchAllGhostPosts, GhostPost } from "@/lib/ghost";
+import { Project } from "@/types";
 
 // Make this page dynamic so it can fetch from Ghost on request
 export const dynamic = "force-dynamic";
@@ -56,6 +58,51 @@ export async function generateMetadata({
     return {};
 }
 
+function ghostToProject(post: GhostPost): Project {
+    return {
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.custom_excerpt || post.excerpt || "",
+        coverImage: post.feature_image || "",
+        tags: post.tags.map(t => t.name),
+        date: post.published_at,
+        year: new Date(post.published_at).getFullYear().toString(),
+        role: "Production",
+        services: post.tags.map(t => t.name),
+        tools: [],
+        content: post.html || "",
+        galleryImages: []
+    };
+}
+
+async function RelatedPosts({ currentSlug }: { currentSlug: string }) {
+    const allGhostPosts = await fetchAllGhostPosts();
+    const relatedPosts = allGhostPosts
+        .filter((p) => p.slug !== currentSlug)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3)
+        .map(ghostToProject);
+
+    if (relatedPosts.length === 0) return null;
+
+    return (
+        <section className="border-t border-border pt-16 lg:pt-24 pb-0">
+            <Container>
+                <ScrollReveal>
+                    <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-bold tracking-[-0.03em] mb-12">
+                        Explore more of our work.
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {relatedPosts.map((rp, i) => (
+                            <ProjectCard key={rp.slug} project={rp} index={i} aspectRatio="aspect-video" />
+                        ))}
+                    </div>
+                </ScrollReveal>
+            </Container>
+        </section>
+    );
+}
+
 export default async function ProjectPage({ params }: ProjectPageProps) {
     const { slug } = await params;
 
@@ -71,7 +118,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         return (
             <article>
                 {/* ── Hero ───────────────────────────────────────────────── */}
-                <section className="pt-[72px] py-16 lg:py-24">
+                <section className="pt-[72px] pt-24 lg:pt-32 pb-8 lg:pb-12">
                     <Container>
                         <div className="max-w-4xl">
                             <ScrollReveal>
@@ -140,7 +187,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </section>
 
                 {/* ── Content ────────────────────────────────────────────── */}
-                <section className="py-16 lg:py-24">
+                <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
                     <Container>
                         <ScrollReveal className="max-w-3xl mx-auto prose-custom">
                             <div
@@ -185,6 +232,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     </Container>
                 </section>
 
+                <RelatedPosts currentSlug={slug} />
+
                 {/* ── Next Project ───────────────────────────────────────── */}
                 {nextProject && (
                     <section className="border-t border-border py-16 lg:py-24">
@@ -216,20 +265,17 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         notFound();
     }
 
-    const formattedDate = new Date(ghostPost.published_at).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
+    const { getPostMetadata } = await import("@/lib/db");
+    const customMeta = getPostMetadata(ghostPost.id);
 
     return (
         <article>
             {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] py-16 lg:py-24">
+            <section className="pt-[72px] pt-24 lg:pt-32 pb-8 lg:pb-12">
                 <Container>
                     <div className="max-w-4xl">
                         <ScrollReveal>
-                            <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                            <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                 {ghostPost.title}
                             </h1>
                             {(ghostPost.custom_excerpt || ghostPost.excerpt) && (
@@ -245,26 +291,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         delay={0.15}
                         className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-14 pt-8 border-t border-border"
                     >
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                Published
-                            </p>
-                            <p className="text-sm text-text-primary">{formattedDate}</p>
-                        </div>
+                        {customMeta?.director && (
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Director
+                                </p>
+                                <p className="text-sm text-text-primary">{customMeta.director}</p>
+                            </div>
+                        )}
+                        {customMeta?.client && (
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
+                                    Client
+                                </p>
+                                <p className="text-sm text-text-primary">{customMeta.client}</p>
+                            </div>
+                        )}
                         {ghostPost.primary_tag && (
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
                                     Category
                                 </p>
-                                <p className="text-sm text-text-primary">{ghostPost.primary_tag.name}</p>
+                                <p className="text-sm text-text-primary capitalize">{ghostPost.primary_tag.name}</p>
                             </div>
                         )}
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                Studio
-                            </p>
-                            <p className="text-sm text-text-primary">Tiny Ark</p>
-                        </div>
                     </ScrollReveal>
                 </Container>
             </section>
@@ -302,7 +352,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
             {/* ── Ghost HTML Content ─────────────────────────────────── */}
             {ghostPost.html && (
-                <section className="py-16 lg:py-24">
+                <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
                     <Container>
                         <ScrollReveal className="max-w-3xl mx-auto">
                             <GhostContent html={ghostPost.html} />
@@ -311,28 +361,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </section>
             )}
 
-            {/* ── Back to Work ──────────────────────────────────────── */}
-            <section className="border-t border-border py-12">
-                <Container>
-                    <div className="text-center">
-                        <Link
-                            href="/work"
-                            className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path
-                                    d="M13 7H1M6 2L1 7l5 5"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                            Back to Work
-                        </Link>
-                    </div>
-                </Container>
-            </section>
+            <RelatedPosts currentSlug={slug} />
         </article>
     );
 }

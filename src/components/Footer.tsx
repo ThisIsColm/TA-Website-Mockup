@@ -20,7 +20,7 @@ const footerLinks = {
 
 export default function Footer() {
     return (
-        <footer className="mt-section-sm lg:mt-section">
+        <footer className="mt-16 lg:mt-24">
             <Container>
                 <div className="border-t border-border py-16 lg:py-24">
                     {/* Links Grid */}

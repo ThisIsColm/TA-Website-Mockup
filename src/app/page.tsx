@@ -73,16 +73,16 @@ export default function HomePage() {
     useEffect(() => {
         async function fetchCurated() {
             try {
-                const res = await fetch("/api/curation/home");
+                const res = await fetch("/api/curation/all");
                 if (!res.ok) return;
                 const data = await res.json();
 
                 // Only replace if we got curated content
-                if (data.selectedWork?.length > 0) {
-                    setProjects(data.selectedWork.map((p: CuratedPost, i: number) => ghostToProject(p, i)));
+                if (data["home.selectedWork"]?.length > 0) {
+                    setProjects(data["home.selectedWork"].map((p: CuratedPost, i: number) => ghostToProject(p, i)));
                 }
-                if (data.caseStudies?.length > 0) {
-                    setPosts(data.caseStudies.map((p: CuratedPost) => ghostToPost(p)));
+                if (data["home.caseStudies"]?.length > 0) {
+                    setPosts(data["home.caseStudies"].map((p: CuratedPost) => ghostToPost(p)));
                 }
             } catch (err) {
                 console.warn("[home] Could not fetch curated data, using fallback:", err);

@@ -29,6 +29,12 @@ function getDb(): Database.Database {
             ghost_post_ids TEXT NOT NULL DEFAULT '[]',
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
+        CREATE TABLE IF NOT EXISTS post_metadata (
+            post_id TEXT PRIMARY KEY,
+            director TEXT,
+            client TEXT,
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
     `);
 
     return db;
@@ -91,4 +97,46 @@ export function getAllSelections(): SectionSelection[] {
         ghostPostIds: JSON.parse(row.ghost_post_ids),
         updatedAt: row.updated_at,
     }));
+}
+
+// ── Metadata API ─────────────────────────────────────────────────
+
+export interface PostMetadata {
+    postId: string;
+    director?: string;
+    client?: string;
+    updatedAt?: string;
+}
+
+export function getPostMetadata(postId: string): PostMetadata | null {
+    const row = getDb()
+        .prepare("SELECT post_id, director, client, updated_at FROM post_metadata WHERE post_id = ?")
+        .get(postId) as { post_id: string; director: string | null; client: string | null; updated_at: string } | undefined;
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        postId: row.post_id,
+        director: row.director || undefined,
+        client: row.client || undefined,
+        updatedAt: row.updated_at,
+    };
+}
+
+export function savePostMetadata(postId: string, metadata: { director?: string; client?: string }): void {
+    const defaultDirector = metadata.director || null;
+    const defaultClient = metadata.client || null;
+
+    getDb()
+        .prepare(
+            `INSERT INTO post_metadata (post_id, director, client, updated_at)
+             VALUES (?, ?, ?, datetime('now'))
+             ON CONFLICT(post_id)
+             DO UPDATE SET director = excluded.director,
+                           client = excluded.client,
+                           updated_at = excluded.updated_at`
+        )
+        .run(postId, defaultDirector, defaultClient);
 }
