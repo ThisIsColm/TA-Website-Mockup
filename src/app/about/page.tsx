@@ -79,7 +79,7 @@ export default function AboutPage() {
     return (
         <>
             {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] py-16 lg:py-24 mt-12">
+            <section className="pt-[72px] pt-16 lg:pt-24 pb-8 mt-12">
                 <Container>
                     <ScrollReveal className="max-w-4xl">
                         <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">

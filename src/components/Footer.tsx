@@ -13,8 +13,8 @@ const footerLinks = {
         { href: "/about", label: "Studio" },
     ],
     social: [
-        { href: "https://instagram.com", label: "Instagram" },
-        { href: "https://linkedin.com", label: "LinkedIn" },
+        { href: "https://www.instagram.com/tinyark/", label: "Instagram" },
+        { href: "https://www.linkedin.com/company/tiny-ark/", label: "LinkedIn" },
     ],
 };
 

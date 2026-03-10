@@ -52,7 +52,7 @@ export default async function CaseStudiesPage() {
         <section className="pt-[72px] py-16 lg:py-24">
             <Container>
                 <SectionHeading
-                    title="Case Studies"
+                    title="Case Studies."
                     className="-mb-10 mt-10"
                     titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                 />

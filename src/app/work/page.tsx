@@ -140,7 +140,7 @@ export default async function WorkPage({
         <section className="pt-[72px] py-16 lg:py-24">
             <Container>
                 <SectionHeading
-                    title="Work"
+                    title="Work."
                     className="-mb-20 mt-10"
                     titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                 />
