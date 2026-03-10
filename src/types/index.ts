@@ -24,4 +24,6 @@ export interface Post {
     coverImage: string;
     category: string;
     content: string;
+    director?: string;
+    client?: string;
 }

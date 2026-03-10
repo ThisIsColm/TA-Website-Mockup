@@ -9,7 +9,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import SectionHeading from "@/components/SectionHeading";
 import VideoHero from "@/components/VideoHero";
 import Statement from "@/components/Statement";
-import ClientLogos from "@/components/ClientLogos";
+import ClientCarousel from "@/components/ClientCarousel";
 import { getFeaturedProjects, getRecentPosts } from "@/lib/data";
 import { Project, Post } from "@/types";
 
@@ -24,6 +24,8 @@ interface CuratedPost {
     excerpt: string;
     published_at: string;
     tags: string[];
+    director?: string;
+    client?: string;
 }
 
 // ── Adapters: Ghost data → existing component shapes ─────────────
@@ -55,6 +57,8 @@ function ghostToPost(post: CuratedPost): Post {
         coverImage: post.feature_image || "",
         category: "Case Study",
         content: "",
+        director: post.director,
+        client: post.client,
     };
 }
 
@@ -67,6 +71,7 @@ export default function HomePage() {
 
     const [projects, setProjects] = useState<Project[]>(fallbackProjects);
     const [posts, setPosts] = useState<Post[]>(fallbackPosts);
+    const [clientPosts, setClientPosts] = useState<Post[]>([]);
     const [loaded, setLoaded] = useState(false);
 
     // Fetch curated data on mount
@@ -83,6 +88,9 @@ export default function HomePage() {
                 }
                 if (data["home.caseStudies"]?.length > 0) {
                     setPosts(data["home.caseStudies"].map((p: CuratedPost) => ghostToPost(p)));
+                }
+                if (data["home.clients"]?.length > 0) {
+                    setClientPosts(data["home.clients"].map((p: CuratedPost) => ghostToPost(p)));
                 }
             } catch (err) {
                 console.warn("[home] Could not fetch curated data, using fallback:", err);
@@ -150,7 +158,7 @@ export default function HomePage() {
                         </Container>
                     </section>
 
-                    <ClientLogos />
+                    <ClientCarousel caseStudies={clientPosts.length > 0 ? clientPosts : posts} />
 
                     {/* ── Recent Posts ───────────────────────────────────────────── */}
                     <section className="py-section-sm lg:py-section">

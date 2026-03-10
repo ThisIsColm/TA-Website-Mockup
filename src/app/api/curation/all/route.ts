@@ -19,7 +19,8 @@ export const SECTIONS = [
     "work.brand-stories",
     "work.music",
     "work.live",
-    "case-studies"
+    "case-studies",
+    "home.clients"
 ] as const;
 
 export type SectionKey = typeof SECTIONS[number];
