@@ -8,12 +8,14 @@ import { Post } from "@/types";
 import Container from "./Container";
 import ScrollReveal from "./ScrollReveal";
 
+// --- SPEED CONFIGURATION ---
+const AUTO_SCROLL_SPEED = 1.0;
+const INTERACTIVE_SPEED_LIMIT = 10; // Max speed at container edges
+const INTERACTIVE_DEADZONE = 0.15;  // Center area (0-1) where scroll is zero
+
 // Local mapping for client logos based on post slug
-// Add real paths to actual logo assets later
 const CLIENT_LOGOS: Record<string, string> = {
-    // Examples if specific logos are known
     "the-guinness-storehouse": "/logos/guinness-white.svg",
-    // We can add fallback text or logic later
 };
 
 interface ClientCarouselProps {
@@ -23,11 +25,11 @@ interface ClientCarouselProps {
 export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true, dragFree: true },
-        [AutoScroll({ playOnInit: true, speed: 1.0, stopOnInteraction: false })]
+        [AutoScroll({ playOnInit: true, speed: AUTO_SCROLL_SPEED, stopOnInteraction: false })]
     );
 
     const [isHovered, setIsHovered] = useState(false);
-    const [mouseFactor, setMouseFactor] = useState(0); // -1 to 1 (left to right)
+    const mouseFactorRef = React.useRef(0); // -1 to 1 (left to right)
 
     // Track mouse position relative to container
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -37,8 +39,7 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
 
         const rect = root.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const factor = (x / rect.width) * 2 - 1; // Convert to -1...1
-        setMouseFactor(factor);
+        mouseFactorRef.current = (x / rect.width) * 2 - 1; // Convert to -1...1
     }, [emblaApi]);
 
     // Interactive Scroll Engine
@@ -49,16 +50,15 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
 
         const animate = () => {
             if (isHovered) {
-                // Calculation: mouse right (factor > 0) -> move left (negative speed in Embla engine terms for infinite loop forward)
+                const factor = mouseFactorRef.current;
+
                 // Threshold to prevent minor movements in center
-                const deadzone = 0.15;
                 let speed = 0;
 
-                if (Math.abs(mouseFactor) > deadzone) {
-                    const normalized = (Math.abs(mouseFactor) - deadzone) / (1 - deadzone);
-                    // speed = magnitude * direction
-                    // mouse right (factor > 0) -> speed negative to move left
-                    speed = normalized * 8 * (mouseFactor > 0 ? -1 : 1);
+                if (Math.abs(factor) > INTERACTIVE_DEADZONE) {
+                    const normalized = (Math.abs(factor) - INTERACTIVE_DEADZONE) / (1 - INTERACTIVE_DEADZONE);
+                    // mouse right (factor > 0) -> move left (negative speed)
+                    speed = normalized * INTERACTIVE_SPEED_LIMIT * (factor > 0 ? -1 : 1);
                 }
 
                 if (speed !== 0) {
@@ -74,7 +74,7 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
 
         requestRef = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(requestRef);
-    }, [emblaApi, isHovered, mouseFactor]);
+    }, [emblaApi, isHovered]);
 
     // Handle AutoScroll play/stop for transitions
     useEffect(() => {
@@ -150,7 +150,7 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => {
                     setIsHovered(false);
-                    setMouseFactor(0);
+                    mouseFactorRef.current = 0;
                 }}
             >
                 {/* Carousel Flex Track */}
