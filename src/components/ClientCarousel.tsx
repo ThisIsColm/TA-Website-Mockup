@@ -3,15 +3,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
-import Link from "next/link";
 import { Post } from "@/types";
 import Container from "./Container";
 import ScrollReveal from "./ScrollReveal";
 
 // --- SPEED CONFIGURATION ---
 const AUTO_SCROLL_SPEED = 1.0;
-const INTERACTIVE_SPEED_LIMIT = 10; // Max speed at container edges
-const INTERACTIVE_DEADZONE = 0.15;  // Center area (0-1) where scroll is zero
 
 // Local mapping for client logos based on post slug
 const CLIENT_LOGOS: Record<string, string> = {
@@ -24,70 +21,11 @@ interface ClientCarouselProps {
 
 export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel(
-        { loop: true, dragFree: true },
+        { loop: true, watchDrag: false },
         [AutoScroll({ playOnInit: true, speed: AUTO_SCROLL_SPEED, stopOnInteraction: false })]
     );
 
-    const [isHovered, setIsHovered] = useState(false);
-    const mouseFactorRef = React.useRef(0); // -1 to 1 (left to right)
 
-    // Track mouse position relative to container
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        if (!emblaApi) return;
-        const root = emblaApi.rootNode();
-        if (!root) return;
-
-        const rect = root.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        mouseFactorRef.current = (x / rect.width) * 2 - 1; // Convert to -1...1
-    }, [emblaApi]);
-
-    // Interactive Scroll Engine
-    useEffect(() => {
-        if (!emblaApi) return;
-
-        let requestRef: number;
-
-        const animate = () => {
-            if (isHovered) {
-                const factor = mouseFactorRef.current;
-
-                // Threshold to prevent minor movements in center
-                let speed = 0;
-
-                if (Math.abs(factor) > INTERACTIVE_DEADZONE) {
-                    const normalized = (Math.abs(factor) - INTERACTIVE_DEADZONE) / (1 - INTERACTIVE_DEADZONE);
-                    // mouse right (factor > 0) -> move left (negative speed)
-                    speed = normalized * INTERACTIVE_SPEED_LIMIT * (factor > 0 ? -1 : 1);
-                }
-
-                if (speed !== 0) {
-                    const engine = emblaApi.internalEngine();
-                    engine.location.add(speed);
-                    engine.target.set(engine.location);
-                    engine.scrollLooper.loop(speed);
-                    emblaApi.emit("scroll");
-                }
-            }
-            requestRef = requestAnimationFrame(animate);
-        };
-
-        requestRef = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(requestRef);
-    }, [emblaApi, isHovered]);
-
-    // Handle AutoScroll play/stop for transitions
-    useEffect(() => {
-        if (!emblaApi) return;
-        const autoScroll = emblaApi.plugins().autoScroll;
-        if (!autoScroll) return;
-
-        if (isHovered) {
-            autoScroll.stop();
-        } else {
-            autoScroll.play();
-        }
-    }, [emblaApi, isHovered]);
 
     // Format display client name safely
     const getClientNameFallback = (slug: string) => {
@@ -100,29 +38,20 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
         return "Client";
     }
 
-    // Ensure exactly 16 thumbnails by picking unique items if possible
+    // Ensure a sufficient number of thumbnails for a smooth loop by repeating the ordered list if necessary
     const displayPosts = React.useMemo(() => {
         if (!caseStudies || caseStudies.length === 0) return [];
 
-        let result: Post[] = [];
-        const pool = [...caseStudies];
+        let result: Post[] = [...caseStudies];
 
-        // Shuffle the pool to ensure variety
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-
-        // Fill up to 16 items
-        while (result.length < 16) {
-            // Append the shuffled pool (or a chunk of it)
-            const remaining = 16 - result.length;
-            const chunk = pool.slice(0, remaining);
-            result = [...result, ...chunk];
+        // If we have very few items, repeat the list to ensure Embla can loop gaplessly
+        // Typically we want at least 12-16 items for a smooth continuous scroll
+        while (result.length > 0 && result.length < 16) {
+            result = [...result, ...caseStudies];
         }
 
         // Map with unique index-based slugs for React keys
-        return result.slice(0, 16).map((post, i) => ({
+        return result.map((post, i) => ({
             ...post,
             slug: `${post.slug}-idx-${i}`
         }));
@@ -144,17 +73,11 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
 
             {/* Carousel Container */}
             <div
-                className="overflow-hidden cursor-grab active:cursor-grabbing w-full"
+                className="overflow-hidden w-full"
                 ref={emblaRef}
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => {
-                    setIsHovered(false);
-                    mouseFactorRef.current = 0;
-                }}
             >
                 {/* Carousel Flex Track */}
-                <div className="flex touch-pan-y gap-8 pl-6 md:pl-10 lg:pl-16">
+                <div className="flex touch-pan-y -ml-8">
                     {displayPosts.map((post) => {
                         const baseSlug = post.slug.split("-idx-")[0]; // handle repeated slugs
                         const logoSrc = CLIENT_LOGOS[baseSlug];
@@ -164,38 +87,39 @@ export default function ClientCarousel({ caseStudies }: ClientCarouselProps) {
                         const displayName = post.director || post.client || getClientNameFallback(baseSlug);
 
                         return (
-                            <Link
+                            <div
                                 key={post.slug}
-                                href={`/case-studies/${baseSlug}`}
-                                className="group relative border border-black/5 overflow-hidden flex-[0_0_45%] sm:flex-[0_0_30%] md:flex-[0_0_22%] lg:flex-[0_0_15%] aspect-[11/16] min-w-0 shrink-0 bg-gray-50 shadow-sm"
+                                className="pl-8 flex-[0_0_45%] sm:flex-[0_0_30%] md:flex-[0_0_22%] lg:flex-[0_0_15%] min-w-0 shrink-0"
                             >
-                                {/* Background Image with Hover Scale */}
-                                <img
-                                    src={post.coverImage || "/placeholder-image.jpg"}
-                                    alt={post.title}
-                                    loading="lazy"
-                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.08]"
-                                />
+                                <div className="relative border border-black/5 overflow-hidden w-full h-full aspect-[11/16] bg-gray-50 shadow-sm">
+                                    {/* Background Image */}
+                                    <img
+                                        src={post.coverImage || "/placeholder-image.jpg"}
+                                        alt={post.title}
+                                        loading="lazy"
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                    />
 
-                                {/* Subtitle Gradient Overlay - Adjusted for visibility on light bg */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent transition-opacity duration-500 group-hover:opacity-70" />
+                                    {/* Subtitle Gradient Overlay - Adjusted for visibility on light bg */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                                {/* Overlay / Logo Centered Container */}
-                                <div className="absolute inset-0 flex items-center justify-center p-4 text-center select-none pointer-events-none">
-                                    {logoSrc ? (
-                                        <img
-                                            src={logoSrc}
-                                            alt={`${post.title} Logo`}
-                                            className="w-auto h-12 md:h-16 lg:h-20 object-contain text-white text-[0px]"
-                                            style={{ filter: "brightness(0) invert(1)" }}
-                                        />
-                                    ) : (
-                                        <h3 className="text-white text-lg md:text-xl lg:text-2xl font-bold tracking-tight opacity-90 drop-shadow-md leading-tight px-2">
-                                            {displayName}
-                                        </h3>
-                                    )}
+                                    {/* Overlay / Logo Centered Container */}
+                                    <div className="absolute inset-0 flex items-center justify-center p-4 text-center select-none pointer-events-none">
+                                        {logoSrc ? (
+                                            <img
+                                                src={logoSrc}
+                                                alt={`${post.title} Logo`}
+                                                className="w-auto h-12 md:h-16 lg:h-20 object-contain text-white text-[0px]"
+                                                style={{ filter: "brightness(0) invert(1)" }}
+                                            />
+                                        ) : (
+                                            <h3 className="text-white text-lg md:text-xl lg:text-2xl font-bold tracking-tight opacity-90 drop-shadow-md leading-tight px-2">
+                                                {displayName}
+                                            </h3>
+                                        )}
+                                    </div>
                                 </div>
-                            </Link>
+                            </div>
                         );
                     })}
                 </div>

@@ -37,3 +37,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# database
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.db3
+*.db-shm
+*.db-wal
