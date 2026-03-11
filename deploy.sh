@@ -9,6 +9,10 @@ PORT="3001"
 echo "==> Deploying $APP_NAME from branch $BRANCH"
 cd "$APP_DIR"
 
+echo "==> Keeping local DB runtime files on server"
+git update-index --skip-worktree data/curation.db-shm || true
+git update-index --skip-worktree data/curation.db-wal || true
+
 echo "==> Fetching latest code"
 git fetch origin "$BRANCH"
 git checkout "$BRANCH"
