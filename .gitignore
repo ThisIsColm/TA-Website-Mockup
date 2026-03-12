@@ -45,3 +45,6 @@ next-env.d.ts
 *.db3
 *.db-shm
 *.db-wal
+data/*.db
+data/*.db-wal
+data/*.db-shm
