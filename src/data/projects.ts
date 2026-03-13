@@ -37,6 +37,7 @@ The new brand identity has been adopted across all touchpoints, from digital pla
             "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&q=80",
             "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=1200&q=80",
         ],
+        vimeoId: "1001230488",
     },
     {
         slug: "nova-studios",
@@ -74,6 +75,7 @@ The site achieved a 95+ Lighthouse performance score while maintaining complex a
             "https://images.unsplash.com/photo-1633218388467-539651dcf81a?w=1200&q=80",
             "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=1200&q=80",
         ],
+        vimeoId: "1001211155",
     },
     {
         slug: "meridian-app",
@@ -111,6 +113,7 @@ Every design decision was informed by user research. We conducted 40+ user inter
             "https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?w=1200&q=80",
             "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=1200&q=80",
         ],
+        vimeoId: "1018596000",
     },
     {
         slug: "atlas-rebrand",

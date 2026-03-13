@@ -44,6 +44,7 @@ function ghostToProject(post: CuratedPost, index: number): Project {
         tools: [],
         content: "",
         galleryImages: [],
+        vimeoId: (post as any).vimeoId,
     };
 }
 
@@ -139,6 +140,7 @@ export default function HomePage() {
                                             project={project}
                                             index={i}
                                             aspectRatio="aspect-[16/9]"
+                                            enablePreview={true}
                                         />
                                     </div>
                                 ))}

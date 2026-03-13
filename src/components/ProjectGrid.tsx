@@ -9,7 +9,7 @@ export default function ProjectGrid({ projects }: ProjectGridProps) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {projects.map((project, index) => (
-                <ProjectCard key={project.slug} project={project} index={index} />
+                <ProjectCard key={project.slug} project={project} index={index} enablePreview={true} />
             ))}
         </div>
     );

@@ -104,6 +104,8 @@ export async function fetchGhostPosts(
         page: String(page),
         limit: String(limit),
         include: "tags",
+        // We need HTML to extract Vimeo IDs for previews
+        formats: "html",
     };
     if (filter) params.filter = filter;
 

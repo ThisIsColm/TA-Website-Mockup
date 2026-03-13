@@ -12,6 +12,7 @@ export interface Project {
     tools: string[];
     content: string;
     galleryImages: string[];
+    vimeoId?: string;
 }
 
 

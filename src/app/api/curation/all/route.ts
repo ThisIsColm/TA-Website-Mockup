@@ -30,6 +30,16 @@ export type SectionKey = typeof SECTIONS[number];
 function formatPost(post: GhostPost) {
     const customMeta = getPostMetadata(post.id);
 
+    // Automatically extract Vimeo ID from HTML if not in custom metadata
+    let vimeoId = undefined;
+    if (post.html) {
+        // Broad regex to find Vimeo IDs in various formats (video/ID, /ID, and supporting h parameter)
+        const vimeoMatch = post.html.match(/(?:vimeo\.com\/video\/|vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+        if (vimeoMatch) {
+            vimeoId = vimeoMatch[1];
+        }
+    }
+
     return {
         id: post.id,
         title: post.title,
@@ -41,6 +51,7 @@ function formatPost(post: GhostPost) {
         tags: post.tags.map((t) => t.name),
         director: customMeta?.director,
         client: customMeta?.client,
+        vimeoId: vimeoId,
     };
 }
 

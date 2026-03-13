@@ -12,6 +12,13 @@ import { Project } from "@/types";
 export const dynamic = "force-dynamic";
 
 function ghostToProject(post: GhostPost): Project {
+    // Extract vimeoId from post HTML for hover previews
+    let vimeoId: string | undefined;
+    if (post.html) {
+        const m = post.html.match(/(?:vimeo\.com\/video\/|vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+        if (m) vimeoId = m[1];
+    }
+
     return {
         slug: post.slug,
         title: post.title,
@@ -24,7 +31,8 @@ function ghostToProject(post: GhostPost): Project {
         services: post.tags.map(t => t.name),
         tools: [],
         content: post.html || "",
-        galleryImages: []
+        galleryImages: [],
+        vimeoId,
     };
 }
 
