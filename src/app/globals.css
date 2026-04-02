@@ -313,3 +313,21 @@ html.lenis body {
 .ghost-content .kg-bookmark-description {
   font-size: 0.85rem;
 }
+
+/* ── Logo Intro Animation ──────────────────────────────────────── */
+html.in-home:not(.start-home) {
+  overflow: hidden;
+}
+
+html.in-home:not(.start-home) body {
+  overflow: hidden;
+}
+
+.logoAnim {
+  opacity: 0;
+  transition: none;
+}
+
+.logoAnim.show {
+  opacity: 1;
+}

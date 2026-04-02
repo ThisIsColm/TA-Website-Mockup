@@ -10,6 +10,7 @@ import SectionHeading from "@/components/SectionHeading";
 import VideoHero from "@/components/VideoHero";
 import Statement from "@/components/Statement";
 import ClientCarousel from "@/components/ClientCarousel";
+import LogoAnimation from "@/components/LogoAnimation";
 import { getFeaturedProjects, getRecentPosts } from "@/lib/data";
 import { Project, Post } from "@/types";
 
@@ -74,6 +75,7 @@ export default function HomePage() {
     const [posts, setPosts] = useState<Post[]>(fallbackPosts);
     const [clientPosts, setClientPosts] = useState<Post[]>([]);
     const [loaded, setLoaded] = useState(false);
+    const [introComplete, setIntroComplete] = useState(false);
 
     // Fetch curated data on mount
     useEffect(() => {
@@ -104,6 +106,11 @@ export default function HomePage() {
 
     return (
         <div className="relative">
+            {/* ── Intro Animation ─────────────────────────────────────── */}
+            {!introComplete && (
+                <LogoAnimation onComplete={() => setIntroComplete(true)} />
+            )}
+
             {/* ── Video Hero (Sticky) ────────────────────────────────────── */}
             <div className="sticky top-0 h-screen w-full z-10">
                 <VideoHero />
