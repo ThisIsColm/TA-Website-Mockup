@@ -55,9 +55,9 @@ export default async function WorkPage() {
         if (curatedPosts && curatedPosts.length > 0) {
             projects = curatedPosts.map(ghostToProject).slice(0, 18);
         } else {
-            const ghostPosts = await fetchGhostPosts(18);
-            if (ghostPosts && ghostPosts.length > 0) {
-                projects = ghostPosts.map(ghostToProject).slice(0, 18);
+            const ghostPostsResponse = await fetchGhostPosts(1, 18);
+            if (ghostPostsResponse.posts && ghostPostsResponse.posts.length > 0) {
+                projects = ghostPostsResponse.posts.map(ghostToProject).slice(0, 18);
             } else {
                 projects = getAllProjects().slice(0, 18);
             }
