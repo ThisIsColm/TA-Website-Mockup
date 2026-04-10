@@ -59,6 +59,12 @@ export async function generateMetadata({
 }
 
 function ghostToProject(post: GhostPost): Project {
+    let vimeoId: string | undefined;
+    if (post.html) {
+        const m = post.html.match(/(?:vimeo\.com\/video\/|vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+        if (m) vimeoId = m[1];
+    }
+
     return {
         slug: post.slug,
         title: post.title,
@@ -71,7 +77,8 @@ function ghostToProject(post: GhostPost): Project {
         services: post.tags.map(t => t.name),
         tools: [],
         content: post.html || "",
-        galleryImages: []
+        galleryImages: [],
+        vimeoId,
     };
 }
 
@@ -94,7 +101,15 @@ async function RelatedPosts({ currentSlug }: { currentSlug: string }) {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {relatedPosts.map((rp, i) => (
-                            <ProjectCard key={rp.slug} project={rp} index={i} aspectRatio="aspect-video" />
+                            <ProjectCard
+                                key={rp.slug}
+                                project={rp}
+                                index={i}
+                                aspectRatio="aspect-[16/9]"
+                                enablePreview={true}
+                                overlayTitleOnThumbnail={true}
+                                compactOverlayTitle={true}
+                            />
                         ))}
                     </div>
                 </ScrollReveal>
@@ -118,14 +133,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         return (
             <article>
                 {/* ── Hero ───────────────────────────────────────────────── */}
-                <section className="pt-[72px] pt-24 lg:pt-32 pb-8 lg:pb-12">
+                <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
                     <Container>
-                        <div className="max-w-4xl">
+                        <div className="max-w-6xl">
                             <ScrollReveal>
                                 <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                     {project.title}
                                 </h1>
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
                                     {project.excerpt}
                                 </p>
                             </ScrollReveal>
@@ -189,7 +204,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 {/* ── Content ────────────────────────────────────────────── */}
                 <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
                     <Container>
-                        <ScrollReveal className="max-w-3xl mx-auto prose-custom">
+                        <ScrollReveal className="prose-custom">
                             <div
                                 className="space-y-6 text-text-secondary text-[17px] leading-relaxed"
                                 dangerouslySetInnerHTML={{
@@ -271,15 +286,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     return (
         <article>
             {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] pt-24 lg:pt-32 pb-8 lg:pb-12">
+            <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
                 <Container>
-                    <div className="max-w-4xl">
+                    <div className="max-w-6xl">
                         <ScrollReveal>
                             <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                 {ghostPost.title}
                             </h1>
                             {(ghostPost.custom_excerpt || ghostPost.excerpt) && (
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
                                     {ghostPost.custom_excerpt || ghostPost.excerpt}
                                 </p>
                             )}
@@ -354,7 +369,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {ghostPost.html && (
                 <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
                     <Container>
-                        <ScrollReveal className="max-w-3xl mx-auto">
+                        <ScrollReveal>
                             <GhostContent html={ghostPost.html} />
                         </ScrollReveal>
                     </Container>

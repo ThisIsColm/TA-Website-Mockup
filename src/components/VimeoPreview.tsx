@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 
 interface VimeoPreviewProps {
     vimeoId: string;
@@ -9,6 +9,27 @@ interface VimeoPreviewProps {
 
 export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
+
+    // 16:9 cards are the visual target on the homepage.
+    // Scale preview to "cover" both narrower and wider source ratios.
+    const previewScale = useMemo(() => {
+        const CARD_ASPECT = 16 / 9;
+        const OVERSCAN = 1.01; // 1% extra to hide edge slivers
+        if (!videoAspectRatio) return OVERSCAN;
+
+        // If source is narrower than card, scale by width ratio.
+        if (videoAspectRatio < CARD_ASPECT) {
+            return (CARD_ASPECT / videoAspectRatio) * OVERSCAN;
+        }
+
+        // If source is wider than card, scale by height ratio.
+        if (videoAspectRatio > CARD_ASPECT) {
+            return (videoAspectRatio / CARD_ASPECT) * OVERSCAN;
+        }
+
+        return OVERSCAN;
+    }, [videoAspectRatio]);
 
     // When hover ends, pause and reset so next hover starts fresh
     useEffect(() => {
@@ -22,6 +43,33 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
             win.postMessage({ method: "play" }, "*");
         }
     }, [isHovered]);
+
+    // Fetch Vimeo oEmbed metadata once so we can infer source aspect ratio.
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadAspectRatio() {
+            try {
+                const res = await fetch(
+                    `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${vimeoId}`)}`
+                );
+                if (!res.ok) return;
+                const data = await res.json();
+                const width = Number(data?.width);
+                const height = Number(data?.height);
+                if (!cancelled && width > 0 && height > 0) {
+                    setVideoAspectRatio(width / height);
+                }
+            } catch {
+                // Ignore metadata failures; default scale=1 keeps existing behavior.
+            }
+        }
+
+        loadAspectRatio();
+        return () => {
+            cancelled = true;
+        };
+    }, [vimeoId]);
 
     // With background=1&autoplay=1, Vimeo starts playing immediately (muted).
     // We keep the iframe always in the DOM so it preloads while the page loads.
@@ -38,7 +86,14 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
                 ref={iframeRef}
                 src={src}
                 allow="autoplay; fullscreen; picture-in-picture"
-                style={{ border: "none", width: "100%", height: "100%", display: "block" }}
+                style={{
+                    border: "none",
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: "center center",
+                }}
                 title="Video preview"
             />
         </div>

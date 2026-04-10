@@ -6,7 +6,7 @@ const footerLinks = {
         { href: "/", label: "Home" },
         { href: "/work", label: "Work" },
         { href: "/about", label: "About" },
-        { href: "/case-studies", label: "Case Studies" },
+        { href: "/insights", label: "Insights" },
     ],
     studio: [
         { href: "/contact", label: "Contact" },
@@ -91,22 +91,9 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Large Footer Logo & Copyright */}
-                    <div className=" border-border pt-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-0 -mb-20">
-                        <div
-                            style={{
-                                WebkitMaskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
-                                WebkitMaskSize: 'contain',
-                                WebkitMaskRepeat: 'no-repeat',
-                                WebkitMaskPosition: 'left center',
-                                maskImage: 'url("https://freight.cargo.site/t/original/i/6a564d8a7a90efebfd12324f6804cfd6346e525d965fa323e5e0dba24e71b8cf/Tiny_Ark_Logo_White.png")',
-                                maskSize: 'contain',
-                                maskRepeat: 'no-repeat',
-                                maskPosition: 'left center',
-                            }}
-                            className="w-[540px] md:w-[500px] h-[120px] md:h-[150px] bg-text-primary/100 -mb-2 max-w-full relative -left-2"
-                        />
-                        <p className="text-[18px] text-text-tertiary md:pb-3 mb-[9px]">
+                    {/* Copyright */}
+                    <div className="pt-12 flex justify-start md:justify-end -mb-20">
+                        <p className="text-[18px] text-text-tertiary mb-[9px]">
                             © {new Date().getFullYear()} Tiny Ark. All rights reserved.
                         </p>
                     </div>

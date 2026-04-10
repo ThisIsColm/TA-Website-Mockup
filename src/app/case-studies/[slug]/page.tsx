@@ -31,7 +31,7 @@ export async function generateMetadata({
             title: post.title,
             description: post.excerpt,
             openGraph: {
-                title: `${post.title} — Tiny Ark Case Studies`,
+                title: `${post.title} — Tiny Ark Insights`,
                 description: post.excerpt,
                 images: [post.coverImage],
             },
@@ -44,7 +44,7 @@ export async function generateMetadata({
             title: ghostPost.title,
             description: ghostPost.custom_excerpt || ghostPost.excerpt,
             openGraph: {
-                title: `${ghostPost.title} — Tiny Ark Case Studies`,
+                title: `${ghostPost.title} — Tiny Ark Insights`,
                 description: ghostPost.custom_excerpt || ghostPost.excerpt,
                 images: ghostPost.feature_image ? [ghostPost.feature_image] : [],
             },
@@ -70,14 +70,14 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         return (
             <article>
                 {/* ── Hero ───────────────────────────────────────────────── */}
-                <section className="pt-[72px] py-16 lg:py-24">
+                <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
                     <Container>
-                        <div className="max-w-4xl">
+                        <div className="max-w-6xl">
                             <ScrollReveal>
                                 <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
                                     {post.title}
                                 </h1>
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
                                     {post.excerpt}
                                 </p>
                             </ScrollReveal>
@@ -137,7 +137,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                 {/* ── Content ────────────────────────────────────────────── */}
                 <section className="py-16 lg:py-24">
                     <Container>
-                        <ScrollReveal className="max-w-3xl mx-auto">
+                        <ScrollReveal>
                             <div
                                 className="space-y-6 text-text-secondary text-[17px] leading-[1.8]"
                                 dangerouslySetInnerHTML={{
@@ -166,28 +166,6 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
                     </Container>
                 </section>
 
-                {/* ── Back to Case Studies ───────────────────────────────── */}
-                <section className="border-t border-border py-12">
-                    <Container>
-                        <div className="text-center">
-                            <Link
-                                href="/case-studies"
-                                className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
-                            >
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                    <path
-                                        d="M13 7H1M6 2L1 7l5 5"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                                Back to Case Studies
-                            </Link>
-                        </div>
-                    </Container>
-                </section>
             </article>
         );
     }
@@ -208,15 +186,15 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     return (
         <article>
             {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] py-16 lg:py-24">
+            <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
                 <Container>
-                    <div className="max-w-4xl">
+                    <div className="max-w-6xl">
                         <ScrollReveal>
                             <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
                                 {ghostPost.title}
                             </h1>
                             {(ghostPost.custom_excerpt || ghostPost.excerpt) && (
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-2xl leading-relaxed">
+                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
                                     {ghostPost.custom_excerpt || ghostPost.excerpt}
                                 </p>
                             )}
@@ -293,35 +271,13 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
             {ghostPost.html && (
                 <section className="py-16 lg:py-24">
                     <Container>
-                        <ScrollReveal className="max-w-3xl mx-auto">
+                        <ScrollReveal>
                             <GhostContent html={ghostPost.html} />
                         </ScrollReveal>
                     </Container>
                 </section>
             )}
 
-            {/* ── Back to Case Studies ───────────────────────────────── */}
-            <section className="border-t border-border py-12">
-                <Container>
-                    <div className="text-center">
-                        <Link
-                            href="/case-studies"
-                            className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path
-                                    d="M13 7H1M6 2L1 7l5 5"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                            Back to Case Studies
-                        </Link>
-                    </div>
-                </Container>
-            </section>
         </article>
     );
 }

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import WorkPageClient from "./WorkPageClient";
 import Container from "@/components/Container";
-import ProjectGrid from "@/components/ProjectGrid";
+import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import { getAllProjects } from "@/lib/data";
 import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
@@ -47,101 +45,26 @@ export const metadata: Metadata = {
     },
 };
 
-const categories = [
-    {
-        title: "Commercial",
-        slug: "commercial",
-        image: "/images/tiny_ark_powers_old_but_gold_basketball_001.png",
-    },
-    {
-        title: "Brand Stories",
-        slug: "brand-stories",
-        image: "/images/StripeStayCity.png",
-    },
-    {
-        title: "Music",
-        slug: "music",
-        image: "/images/amble.jpg",
-    },
-    {
-        title: "Live",
-        slug: "live",
-        image: "/images/live.jpg",
-    },
-];
+export default async function WorkPage() {
+    let projects: Project[] = [];
 
-export default async function WorkPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ category?: string }>;
-}) {
-    const { category } = await searchParams;
+    try {
+        const selection = getSelections("work");
+        const curatedPosts = await fetchPostsByIds(selection.ghostPostIds);
 
-    if (category) {
-        const matchingCategory = categories.find((c) => c.slug === category);
-        const categoryTitle = matchingCategory ? matchingCategory.title : "Work";
-
-        let filteredProjects: Project[] = [];
-
-        try {
-            if (matchingCategory) {
-                const sectionKey = `work.${matchingCategory.slug}`;
-                const selection = getSelections(sectionKey);
-                const posts = await fetchPostsByIds(selection.ghostPostIds);
-
-                if (posts && posts.length > 0) {
-                    filteredProjects = posts.map(ghostToProject);
-                } else {
-                    // Fallback to local data if nothing curated
-                    const allProjects = getAllProjects();
-                    filteredProjects = allProjects.filter(
-                        (p) => p.category === matchingCategory.title
-                    );
-                }
+        if (curatedPosts && curatedPosts.length > 0) {
+            projects = curatedPosts.map(ghostToProject).slice(0, 18);
+        } else {
+            const ghostPosts = await fetchGhostPosts(18);
+            if (ghostPosts && ghostPosts.length > 0) {
+                projects = ghostPosts.map(ghostToProject).slice(0, 18);
             } else {
-                // Default fallback
-                const allProjects = getAllProjects();
-                filteredProjects = allProjects;
+                projects = getAllProjects().slice(0, 18);
             }
-        } catch (err) {
-            console.error(`[work category error] Failed to fetch curated Ghost posts:`, err);
-            const allProjects = getAllProjects();
-            filteredProjects = allProjects.filter(
-                (p) => matchingCategory && p.category === matchingCategory.title
-            );
         }
-
-        return (
-            <section className="pt-[72px] py-16 lg:py-24">
-                <Container>
-                    <SectionHeading
-                        title={categoryTitle}
-                        className="-mb-10 mt-10"
-                        titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
-                    />
-
-                    <div className="mb-12 border-b border-border pb-6 flex items-center justify-between">
-                        <Link
-                            href="/work"
-                            className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path
-                                    d="M13 7H1M6 2L1 7l5 5"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                            Back to Categories
-                        </Link>
-                    </div>
-
-                    <ProjectGrid projects={filteredProjects} />
-                </Container>
-            </section>
-        );
+    } catch (err) {
+        console.error("[work page] Failed to fetch Ghost posts:", err);
+        projects = getAllProjects().slice(0, 18);
     }
 
     return (
@@ -149,11 +72,22 @@ export default async function WorkPage({
             <Container>
                 <SectionHeading
                     title="Work."
-                    className="-mb-20 mt-10"
+                    className="mt-10"
                     titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
                 />
 
-                <WorkPageClient categories={categories} />
+                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+                    {projects.map((project, index) => (
+                        <ProjectCard
+                            key={project.slug}
+                            project={project}
+                            index={index}
+                            aspectRatio="aspect-[16/9]"
+                            enablePreview={true}
+                            overlayTitleOnThumbnail={true}
+                        />
+                    ))}
+                </div>
             </Container>
         </section>
     );

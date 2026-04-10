@@ -19,7 +19,7 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
     });
 
     return (
-        <Link href={`/case-studies/${post.slug}`} className="group block active:scale-[0.98] transition-transform duration-200">
+        <Link href={`/insights/${post.slug}`} className="group block active:scale-[0.98] transition-transform duration-200">
             <motion.article
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}

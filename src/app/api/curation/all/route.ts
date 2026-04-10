@@ -15,10 +15,7 @@ import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 export const SECTIONS = [
     "home.selectedWork",
     "home.caseStudies",
-    "work.commercial",
-    "work.brand-stories",
-    "work.music",
-    "work.live",
+    "work",
     "case-studies",
     "home.clients"
 ] as const;

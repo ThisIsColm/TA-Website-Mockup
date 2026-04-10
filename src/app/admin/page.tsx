@@ -15,45 +15,31 @@ export type CuratedPost = GhostPost & {
 export const SECTIONS = [
     "home.selectedWork",
     "home.caseStudies",
-    "work.commercial",
-    "work.brand-stories",
-    "work.music",
-    "work.live",
+    "work",
     "case-studies",
-    "home.clients"
 ] as const;
 
 export type SectionKey = typeof SECTIONS[number];
 
 const LIMITS: Record<SectionKey, number> = {
-    "home.selectedWork": 6,
+    "home.selectedWork": 10,
     "home.caseStudies": 3,
-    "work.commercial": 6,
-    "work.brand-stories": 6,
-    "work.music": 6,
-    "work.live": 6,
+    "work": 18,
     "case-studies": 20,
-    "home.clients": 16
 };
 
-type Tab = "home" | "work" | "case-studies" | "clients";
+type Tab = "home" | "work" | "case-studies";
 
 const TABS: Record<Tab, { key: SectionKey; title: string }[]> = {
     "home": [
         { key: "home.selectedWork", title: "Home: Selected Work" },
-        { key: "home.caseStudies", title: "Home: Case Studies" }
+        { key: "home.caseStudies", title: "Home: Insights" }
     ],
     "work": [
-        { key: "work.commercial", title: "Work: Commercial" },
-        { key: "work.brand-stories", title: "Work: Brand Stories" },
-        { key: "work.music", title: "Work: Music" },
-        { key: "work.live", title: "Work: Live" }
+        { key: "work", title: "Work Page (18 items)" }
     ],
     "case-studies": [
-        { key: "case-studies", title: "Case Studies Page" }
-    ],
-    "clients": [
-        { key: "home.clients", title: "Clients Carousel (16 items)" }
+        { key: "case-studies", title: "Insights Page" }
     ]
 };
 
@@ -102,12 +88,8 @@ export default function AdminPage() {
     const [selections, setSelections] = useState<Record<SectionKey, CuratedPost[]>>({
         "home.selectedWork": [],
         "home.caseStudies": [],
-        "work.commercial": [],
-        "work.brand-stories": [],
-        "work.music": [],
-        "work.live": [],
+        "work": [],
         "case-studies": [],
-        "home.clients": []
     });
 
     const [saving, setSaving] = useState(false);
@@ -412,20 +394,14 @@ export default function AdminPage() {
 
     const missingInfoCount = activeSections.reduce((acc, sec) => {
         if (sec.key.includes("case-study") || sec.key.includes("case-studies")) return acc;
-        return acc + selections[sec.key].filter(p => {
-            if (sec.key === "home.clients") return !p.director; // For clients, we only use 'director' as 'Display Title'
-            return !p.director || !p.client;
-        }).length;
+        return acc + selections[sec.key].filter(p => !p.director || !p.client).length;
     }, 0);
 
     const tabHasMissingMeta = (tabKey: Tab) => {
         const tabSections = TABS[tabKey];
         return tabSections.some(sec => {
             if (sec.key.includes("case-study") || sec.key.includes("case-studies")) return false;
-            return selections[sec.key].some(p => {
-                if (sec.key === "home.clients") return !p.director;
-                return !p.director || !p.client;
-            });
+            return selections[sec.key].some(p => !p.director || !p.client);
         });
     };
 
@@ -446,13 +422,13 @@ export default function AdminPage() {
 
             {/* Tabs */}
             <div className="flex gap-6 mb-8 border-b border-white/10">
-                {(["home", "work", "case-studies", "clients"] as Tab[]).map((tab) => (
+                {(["home", "work", "case-studies"] as Tab[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`${styles.tabBtn} flex items-center gap-2 ${activeTab === tab ? "border-accent text-accent" : "border-transparent text-white/50 hover:text-white/80"}`}
                     >
-                        {tab === "home" ? "Home Page" : tab === "work" ? "Work Categories" : tab === "clients" ? "Clients Carousel" : "Case Studies"}
+                        {tab === "home" ? "Home Page" : tab === "work" ? "Work" : "Insights"}
                         {tabHasMissingMeta(tab) && (
                             <span title="Missing metadata" className="flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">!</span>
                         )}
@@ -465,7 +441,7 @@ export default function AdminPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
                     <div>
                         <strong className="font-semibold text-red-400 block mb-0.5">Missing Metadata</strong>
-                        You have {missingInfoCount} work {missingInfoCount === 1 ? 'post' : 'posts'} in this tab missing {activeTab === "clients" ? 'Client Name' : 'Director or Client info'}. They are highlighted below in red.
+                        You have {missingInfoCount} work {missingInfoCount === 1 ? 'post' : 'posts'} in this tab missing Director or Client info. They are highlighted below in red.
                     </div>
                 </div>
             )}
@@ -504,8 +480,7 @@ export default function AdminPage() {
                                         ) : (
                                             posts.map((post, index) => {
                                                 // Check if post is in currently visible active sections
-                                                // Disable grey-out logic for the clients tab as requested
-                                                const inActiveSection = activeTab !== "clients" && activeSections.some(sec => selections[sec.key].some(p => p.id === post.id));
+                                                const inActiveSection = activeSections.some(sec => selections[sec.key].some(p => p.id === post.id));
 
                                                 return (
                                                     <Draggable key={`lib-${post.id}`} draggableId={`lib-${post.id}`} index={index}>
@@ -562,9 +537,7 @@ export default function AdminPage() {
                                         >
                                             {selections[key].map((post, i) => {
                                                 const isCaseStudy = key.includes("case-study") || key.includes("case-studies");
-                                                const hasMissingMeta = !isCaseStudy && (
-                                                    key === "home.clients" ? !post.director : (!post.director || !post.client)
-                                                );
+                                                const hasMissingMeta = !isCaseStudy && (!post.director || !post.client);
 
                                                 return (
                                                     <Draggable key={`${key}-${post.id}`} draggableId={`${key}-${post.id}`} index={i}>
@@ -589,13 +562,11 @@ export default function AdminPage() {
                                                                         <p className="text-sm font-medium truncate">{post.title}</p>
                                                                         {(post.director || post.client) && (
                                                                             <p className="text-xs text-text-tertiary truncate">
-                                                                                {key === "home.clients" ? (post.director && `Client: ${post.director}`) : (
-                                                                                    <>
-                                                                                        {post.director && `Dir: ${post.director}`}
-                                                                                        {post.client && post.director && " | "}
-                                                                                        {post.client && `Client: ${post.client}`}
-                                                                                    </>
-                                                                                )}
+                                                                                <>
+                                                                                    {post.director && `Dir: ${post.director}`}
+                                                                                    {post.client && post.director && " | "}
+                                                                                    {post.client && `Client: ${post.client}`}
+                                                                                </>
                                                                             </p>
                                                                         )}
                                                                         {hasMissingMeta && (
@@ -620,31 +591,27 @@ export default function AdminPage() {
                                                                     <div className="p-4 bg-bg-elevated flex flex-col gap-4 shadow-inner">
                                                                         <div className="flex gap-4">
                                                                             <div className="flex-1">
-                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                    {key === "home.clients" ? "DISPLAY TITLE" : "DIRECTOR"}
-                                                                                </label>
+                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">DIRECTOR</label>
                                                                                 <input
                                                                                     type="text"
                                                                                     className={`${styles.input} !py-2`}
                                                                                     value={editDirector}
                                                                                     onKeyDown={(e) => e.key === 'Enter' && savePostMeta(post, key)}
                                                                                     onChange={e => setEditDirector(e.target.value)}
-                                                                                    placeholder={key === "home.clients" ? "e.g. Client Name" : "e.g. John Doe"}
+                                                                                    placeholder="e.g. John Doe"
                                                                                 />
                                                                             </div>
-                                                                            {key !== "home.clients" && (
-                                                                                <div className="flex-1">
-                                                                                    <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">CLIENT</label>
-                                                                                    <input
-                                                                                        type="text"
-                                                                                        className={`${styles.input} !py-2`}
-                                                                                        value={editClient}
-                                                                                        onKeyDown={(e) => e.key === 'Enter' && savePostMeta(post, key)}
-                                                                                        onChange={e => setEditClient(e.target.value)}
-                                                                                        placeholder="e.g. Nike"
-                                                                                    />
-                                                                                </div>
-                                                                            )}
+                                                                            <div className="flex-1">
+                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">CLIENT</label>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    className={`${styles.input} !py-2`}
+                                                                                    value={editClient}
+                                                                                    onKeyDown={(e) => e.key === 'Enter' && savePostMeta(post, key)}
+                                                                                    onChange={e => setEditClient(e.target.value)}
+                                                                                    placeholder="e.g. Nike"
+                                                                                />
+                                                                            </div>
                                                                         </div>
                                                                         <div className="flex justify-end gap-2">
                                                                             <button

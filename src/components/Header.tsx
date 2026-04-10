@@ -9,8 +9,8 @@ import Container from "./Container";
 
 const navLinks = [
     { href: "/work", label: "Work" },
-    { href: "/case-studies", label: "Case Studies" },
     { href: "/about", label: "About" },
+    { href: "/insights", label: "Insights" },
 ];
 
 export default function Header() {

@@ -22,6 +22,7 @@
   /* ── Animation Tweaks ───────────────────────────────────── */
   --zoom-duration: 300ms;
   --zoom-scale: 1.01;
+  --ease-signature: cubic-bezier(0.22, 0.9, 0.2, 1);
 }
 
 /* ── Base Layer ──────────────────────────────────────────── */
@@ -111,6 +112,92 @@ html.lenis body {
 /* ── Snap Sections ────────────────────────────────────────── */
 .snap-sections {
   scroll-snap-type: y mandatory !important;
+}
+
+/* ── Editorial Micro-Delight ──────────────────────────────── */
+@keyframes ink-reveal {
+  from {
+    opacity: 0.05;
+    transform: scaleX(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes image-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+    clip-path: inset(0 22% 0 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes grain-fade {
+  from {
+    opacity: 0.22;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.editorial-image-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.editorial-image {
+  animation: image-reveal 640ms var(--ease-signature) both;
+}
+
+.editorial-image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent 45%),
+    repeating-linear-gradient(0deg,
+      rgba(255, 255, 255, 0.08) 0px,
+      rgba(255, 255, 255, 0.08) 1px,
+      transparent 1px,
+      transparent 3px);
+  mix-blend-mode: soft-light;
+  animation: grain-fade 820ms var(--ease-signature) forwards;
+}
+
+.editorial-image-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    repeating-linear-gradient(0deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 4px);
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+}
+
+.insight-separator {
+  height: 1px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: ink-reveal 560ms var(--ease-signature) forwards;
+  background-image: linear-gradient(90deg, currentColor 0%, currentColor 78%, transparent 100%);
 }
 
 /* ── Ghost Content Styles ──────────────────────────────────── */
