@@ -1,104 +1,139 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Container from "./Container";
 
-const footerLinks = {
-    sitemap: [
-        { href: "/", label: "Home" },
-        { href: "/work", label: "Work" },
-        { href: "/about", label: "About" },
-        { href: "/insights", label: "Insights" },
-    ],
-    studio: [
-        { href: "/contact", label: "Contact" },
-        { href: "/about", label: "Studio" },
-    ],
-    social: [
-        { href: "https://www.instagram.com/tinyark/", label: "Instagram" },
-        { href: "https://www.linkedin.com/company/tiny-ark/", label: "LinkedIn" },
-    ],
-};
-
 export default function Footer() {
-    return (
-        <footer className="mt-16 lg:mt-24">
-            <Container>
-                <div className="border-t border-border py-16 lg:py-24">
-                    {/* Links Grid */}
-                    <div className="flex flex-col md:flex-row justify-between gap-10 md:gap-4 -mt-20 mb-24">
-                        {/* Sitemap (Left) */}
-                        <div className="md:w-1/3 flex justify-start">
-                            <div className="text-left">
-                                <h3 className="text-ss font-bold tracking-[0.15em] text-text-tertiary mb-2 text-white">
-                                    Sitemap
-                                </h3>
-                                <ul className="space-y-0">
-                                    {footerLinks.sitemap.map((link) => (
-                                        <li key={link.label}>
-                                            <Link
-                                                href={link.href}
-                                                className="text-[18px] leading-[0.2] tracking-[-0.02em] text-text-secondary hover:text-accent transition-colors text-white/70"
-                                            >
-                                                {link.label}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+    const pathname = usePathname();
+    const isHome = pathname === "/" || pathname === "";
+
+    // Home: beige footer bar (#EAE4DD) with social icons left and copyright centered.
+    if (isHome) {
+        return (
+            <footer className="bg-[#EAE4DD] text-black">
+                <div className="w-full px-[20px] md:px-[40px]">
+                    <div className="grid grid-cols-3 items-center py-[14px] md:py-[18px]">
+                        {/* Social icons (left) */}
+                        <div className="flex items-center gap-[10px] justify-self-start">
+                            <a
+                                href="https://www.instagram.com/tinyark/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Instagram"
+                                className="text-black hover:text-accent transition-colors"
+                            >
+                                <InstagramIcon />
+                            </a>
+                            <a
+                                href="https://www.linkedin.com/company/tiny-ark/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="LinkedIn"
+                                className="text-black hover:text-accent transition-colors"
+                            >
+                                <LinkedInIcon />
+                            </a>
                         </div>
 
-                        {/* Studio (Center) */}
-                        <div className="md:w-1/3 flex justify-start md:justify-center">
-                            <div className="text-left">
-                                <h3 className="text-s font-bold tracking-[0.15em] text-text-tertiary mb-2 text-white">
-                                    Studio
-                                </h3>
-                                <ul className="space-y-0">
-                                    {footerLinks.studio.map((link) => (
-                                        <li key={link.label}>
-                                            <Link
-                                                href={link.href}
-                                                className="text-[18px] leading-[0.2] tracking-[-0.02em] text-text-secondary hover:text-accent transition-colors text-white/70"
-                                            >
-                                                {link.label}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-
-                        {/* Social (Right) */}
-                        <div className="md:w-1/3 flex justify-start md:justify-end">
-                            <div className="text-left">
-                                <h3 className="text-s font-bold tracking-[0.15em] text-text-tertiary mb-2 text-white">
-                                    Social
-                                </h3>
-                                <ul className="space-y-0">
-                                    {footerLinks.social.map((link) => (
-                                        <li key={link.label}>
-                                            <a
-                                                href={link.href}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-[18px] leading-[0.2] tracking-[-0.02em] text-text-secondary hover:text-accent transition-colors text-white/70"
-                                            >
-                                                {link.label}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Copyright */}
-                    <div className="pt-12 flex justify-start md:justify-end -mb-20">
-                        <p className="text-[18px] text-text-tertiary mb-[9px]">
-                            © {new Date().getFullYear()} Tiny Ark. All rights reserved.
+                        {/* Copyright (centered) */}
+                        <p className="justify-self-center text-[11px] md:text-[12px] tracking-[0.04em] text-black/70">
+                            © {new Date().getFullYear()} TINY ARK.
                         </p>
+
+                        <div className="justify-self-end" aria-hidden="true" />
                     </div>
+                </div>
+            </footer>
+        );
+    }
+
+    // Default (dark) footer used on inner pages
+    return (
+        <footer className="mt-16 lg:mt-24 bg-bg text-text-secondary">
+            <Container>
+                <div className="border-t border-border py-10 lg:py-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-3">
+                        <a
+                            href="https://www.instagram.com/tinyark/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram"
+                            className="text-white hover:text-accent transition-colors"
+                        >
+                            <InstagramIcon />
+                        </a>
+                        <a
+                            href="https://www.linkedin.com/company/tiny-ark/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn"
+                            className="text-white hover:text-accent transition-colors"
+                        >
+                            <LinkedInIcon />
+                        </a>
+                    </div>
+                    <nav className="flex flex-wrap items-center gap-6 text-[15px]">
+                        <Link href="/work" className="hover:text-white transition-colors">
+                            Work
+                        </Link>
+                        <Link href="/about" className="hover:text-white transition-colors">
+                            About
+                        </Link>
+                        <Link href="/insights" className="hover:text-white transition-colors">
+                            Insights
+                        </Link>
+                        <Link href="/contact" className="hover:text-white transition-colors">
+                            Contact
+                        </Link>
+                    </nav>
+                    <p className="text-[12px] tracking-[0.06em] text-text-tertiary">
+                        © {new Date().getFullYear()} TINY ARK.
+                    </p>
                 </div>
             </Container>
         </footer>
+    );
+}
+
+function InstagramIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
+    );
+}
+
+function LinkedInIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
+            <rect x="2" y="9" width="4" height="12" />
+            <circle cx="4" cy="4" r="2" />
+        </svg>
     );
 }

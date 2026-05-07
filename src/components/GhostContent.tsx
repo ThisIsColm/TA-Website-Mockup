@@ -5,9 +5,17 @@ import Lightbox from "./Lightbox";
 
 interface GhostContentProps {
     html: string;
+    /**
+     * Optional className override for the wrapper. Defaults to the dark editorial
+     * styling (used on the legacy insights/post pages). Pass a custom className
+     * (e.g. "case-study-prose") to opt into a different layout/theme.
+     */
+    className?: string;
 }
 
-export default function GhostContent({ html }: GhostContentProps) {
+const DEFAULT_CLASSNAME = "ghost-content space-y-6 text-text-secondary text-[17px] leading-[1.8]";
+
+export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: GhostContentProps) {
     const [images, setImages] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +62,7 @@ export default function GhostContent({ html }: GhostContentProps) {
         <>
             <div
                 ref={contentRef}
-                className="ghost-content space-y-6 text-text-secondary text-[17px] leading-[1.8]"
+                className={className}
                 dangerouslySetInnerHTML={{ __html: html }}
             />
 

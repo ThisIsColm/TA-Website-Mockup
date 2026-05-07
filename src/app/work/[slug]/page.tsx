@@ -2,20 +2,38 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import Container from "@/components/Container";
-import ScrollReveal from "@/components/ScrollReveal";
 import GhostContent from "@/components/GhostContent";
-import ProjectCard from "@/components/ProjectCard";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
-import { fetchGhostPostBySlug, fetchAllGhostPosts, GhostPost } from "@/lib/ghost";
-import { Project } from "@/types";
+import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
 
 // Make this page dynamic so it can fetch from Ghost on request
 export const dynamic = "force-dynamic";
 
+const OUTER = "px-[20px] md:px-[40px]";
+
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function buildMetaHtml(title: string, director?: string): string {
+    const directorHtml = director
+        ? `<p>Director: ${escapeHtml(director)}</p>`
+        : "";
+    return `<div class="case-meta"><h1>${escapeHtml(title)}</h1>${directorHtml}</div>`;
+}
+
 interface ProjectPageProps {
     params: Promise<{ slug: string }>;
 }
+
+// ──────────────────────────────────────────────────────────────────
+// Static params + Metadata
+// ──────────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
     const projects = getAllProjects();
@@ -27,7 +45,6 @@ export async function generateMetadata({
 }: ProjectPageProps): Promise<Metadata> {
     const { slug } = await params;
 
-    // Try hardcoded first
     const project = getProjectBySlug(slug);
     if (project) {
         return {
@@ -36,12 +53,11 @@ export async function generateMetadata({
             openGraph: {
                 title: `${project.title} — Tiny Ark`,
                 description: project.excerpt,
-                images: [project.coverImage],
+                images: project.coverImage ? [project.coverImage] : [],
             },
         };
     }
 
-    // Try Ghost
     const ghostPost = await fetchGhostPostBySlug(slug);
     if (ghostPost) {
         return {
@@ -58,325 +74,210 @@ export async function generateMetadata({
     return {};
 }
 
-function ghostToProject(post: GhostPost): Project {
-    let vimeoId: string | undefined;
-    if (post.html) {
-        const m = post.html.match(/(?:vimeo\.com\/video\/|vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
-        if (m) vimeoId = m[1];
+// ──────────────────────────────────────────────────────────────────
+// Unified case-study shape
+// ──────────────────────────────────────────────────────────────────
+
+interface Credit {
+    label: string;
+    value: string;
+}
+
+interface CaseStudy {
+    title: string;
+    videoHtml: string | null;
+    videoAspectRatio: number | null;
+    coverImage: string | null;
+    html: string | null;
+    director?: string;
+    credits: Credit[];
+}
+
+async function loadCaseStudy(slug: string): Promise<CaseStudy | null> {
+    // Prefer Ghost when available so editorial content stays fresh.
+    const ghostPost = await fetchGhostPostBySlug(slug);
+    if (ghostPost) {
+        const { getPostMetadata } = await import("@/lib/db");
+        const meta = getPostMetadata(ghostPost.id);
+        return ghostToCaseStudy(ghostPost, meta?.director, meta?.client);
+    }
+
+    const project = getProjectBySlug(slug);
+    if (project) {
+        const credits: Credit[] = [];
+        if (project.role) credits.push({ label: "Role", value: project.role });
+        if (project.services?.length)
+            credits.push({ label: "Services", value: project.services.join(", ") });
+        if (project.tools?.length)
+            credits.push({ label: "Tools", value: project.tools.join(", ") });
+        if (project.year) credits.push({ label: "Year", value: project.year });
+
+        return {
+            title: project.title,
+            videoHtml: project.vimeoId ? buildVimeoIframe(project.vimeoId) : null,
+            videoAspectRatio: 16 / 9,
+            coverImage: project.coverImage || null,
+            html: markdownToHtml(project.content),
+            credits,
+        };
+    }
+
+    return null;
+}
+
+function ghostToCaseStudy(
+    post: GhostPost,
+    director?: string,
+    client?: string
+): CaseStudy {
+    const credits: Credit[] = [];
+    if (director) credits.push({ label: "Director", value: director });
+    if (client) credits.push({ label: "Client", value: client });
+    if (post.published_at) {
+        credits.push({
+            label: "Year",
+            value: new Date(post.published_at).getFullYear().toString(),
+        });
+    }
+    if (post.primary_tag?.name) {
+        credits.push({ label: "Category", value: post.primary_tag.name });
+    }
+    const otherTags = post.tags
+        .filter((t) => t.id !== post.primary_tag?.id)
+        .map((t) => t.name);
+    if (otherTags.length) {
+        credits.push({ label: "Services", value: otherTags.join(", ") });
     }
 
     return {
-        slug: post.slug,
         title: post.title,
-        excerpt: post.custom_excerpt || post.excerpt || "",
-        coverImage: post.feature_image || "",
-        tags: post.tags.map(t => t.name),
-        date: post.published_at,
-        year: new Date(post.published_at).getFullYear().toString(),
-        role: "Production",
-        services: post.tags.map(t => t.name),
-        tools: [],
-        content: post.html || "",
-        galleryImages: [],
-        vimeoId,
+        videoHtml: post.video_html || null,
+        videoAspectRatio: post.video_aspect_ratio ?? null,
+        coverImage: post.feature_image,
+        html: post.html || null,
+        director,
+        credits,
     };
 }
 
-async function RelatedPosts({ currentSlug }: { currentSlug: string }) {
-    const allGhostPosts = await fetchAllGhostPosts();
-    const relatedPosts = allGhostPosts
-        .filter((p) => p.slug !== currentSlug)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 3)
-        .map(ghostToProject);
-
-    if (relatedPosts.length === 0) return null;
-
-    return (
-        <section className="border-t border-border pt-16 lg:pt-24 pb-0">
-            <Container>
-                <ScrollReveal>
-                    <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-bold tracking-[-0.03em] mb-12">
-                        Explore more of our work.
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {relatedPosts.map((rp, i) => (
-                            <ProjectCard
-                                key={rp.slug}
-                                project={rp}
-                                index={i}
-                                aspectRatio="aspect-[16/9]"
-                                enablePreview={true}
-                                overlayTitleOnThumbnail={true}
-                                compactOverlayTitle={true}
-                            />
-                        ))}
-                    </div>
-                </ScrollReveal>
-            </Container>
-        </section>
-    );
+function buildVimeoIframe(vimeoId: string): string {
+    const src = `https://player.vimeo.com/video/${vimeoId}?color=D86001&title=0&byline=0&portrait=0`;
+    return `<iframe src="${src}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
 }
+
+function markdownToHtml(markdown: string): string {
+    return markdown
+        .split("\n")
+        .map((line) => {
+            const t = line.trim();
+            if (t.startsWith("## ")) return `<h2>${t.slice(3)}</h2>`;
+            if (t.startsWith("### ")) return `<h3>${t.slice(4)}</h3>`;
+            if (t === "") return "";
+            return `<p>${t}</p>`;
+        })
+        .join("\n");
+}
+
+function getNextProjectFor(currentSlug: string) {
+    const all = getAllProjects();
+    if (all.length === 0) return null;
+    const idx = all.findIndex((p) => p.slug === currentSlug);
+    if (idx === -1) return all[0];
+    return all[(idx + 1) % all.length];
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Page
+// ──────────────────────────────────────────────────────────────────
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
     const { slug } = await params;
+    const data = await loadCaseStudy(slug);
+    if (!data) notFound();
 
-    // ── Try hardcoded project first ──────────────────────────────
-    const project = getProjectBySlug(slug);
-
-    if (project) {
-        // Find next project for "Next Project" link
-        const allProjects = getAllProjects();
-        const currentIndex = allProjects.findIndex((p) => p.slug === slug);
-        const nextProject = allProjects[(currentIndex + 1) % allProjects.length];
-
-        return (
-            <article>
-                {/* ── Hero ───────────────────────────────────────────────── */}
-                <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
-                    <Container>
-                        <div className="max-w-6xl">
-                            <ScrollReveal>
-                                <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
-                                    {project.title}
-                                </h1>
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
-                                    {project.excerpt}
-                                </p>
-                            </ScrollReveal>
-                        </div>
-
-                        {/* Project Meta */}
-                        <ScrollReveal
-                            delay={0.15}
-                            className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 pt-8 border-t border-border"
-                        >
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Role
-                                </p>
-                                <p className="text-sm text-text-primary">{project.role}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Services
-                                </p>
-                                <p className="text-sm text-text-primary">
-                                    {project.services.join(", ")}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Tools
-                                </p>
-                                <p className="text-sm text-text-primary">
-                                    {project.tools.join(", ")}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Year
-                                </p>
-                                <p className="text-sm text-text-primary">{project.year}</p>
-                            </div>
-                        </ScrollReveal>
-                    </Container>
-                </section>
-
-                {/* ── Cover Image ────────────────────────────────────────── */}
-                <section>
-                    <Container>
-                        <ScrollReveal>
-                            <div className="relative aspect-[16/9] overflow-hidden bg-bg-card">
-                                <Image
-                                    src={project.coverImage}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="100vw"
-                                    priority
-                                />
-                            </div>
-                        </ScrollReveal>
-                    </Container>
-                </section>
-
-                {/* ── Content ────────────────────────────────────────────── */}
-                <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
-                    <Container>
-                        <ScrollReveal className="prose-custom">
-                            <div
-                                className="space-y-6 text-text-secondary text-[17px] leading-relaxed"
-                                dangerouslySetInnerHTML={{
-                                    __html: project.content
-                                        .split("\n")
-                                        .map((line) => {
-                                            const trimmed = line.trim();
-                                            if (trimmed.startsWith("## "))
-                                                return `<h2 class="text-2xl font-semibold text-text-primary mt-12 mb-4 tracking-[-0.02em]">${trimmed.slice(3)}</h2>`;
-                                            if (trimmed.startsWith("### "))
-                                                return `<h3 class="text-xl font-medium text-text-primary mt-8 mb-3">${trimmed.slice(4)}</h3>`;
-                                            if (trimmed === "") return "";
-                                            return `<p>${trimmed}</p>`;
-                                        })
-                                        .join("\n"),
-                                }}
-                            />
-                        </ScrollReveal>
-                    </Container>
-                </section>
-
-                {/* ── Gallery ────────────────────────────────────────────── */}
-                <section className="pb-16 lg:pb-24">
-                    <Container>
-                        <div className="space-y-6">
-                            {project.galleryImages.map((img, i) => (
-                                <ScrollReveal key={i} delay={i * 0.1}>
-                                    <div className="relative aspect-[16/10] overflow-hidden bg-bg-card">
-                                        <Image
-                                            src={img}
-                                            alt={`${project.title} gallery image ${i + 1}`}
-                                            fill
-                                            className="object-cover"
-                                            sizes="100vw"
-                                        />
-                                    </div>
-                                </ScrollReveal>
-                            ))}
-                        </div>
-                    </Container>
-                </section>
-
-                <RelatedPosts currentSlug={slug} />
-
-                {/* ── Next Project ───────────────────────────────────────── */}
-                {nextProject && (
-                    <section className="border-t border-border py-16 lg:py-24">
-                        <Container>
-                            <ScrollReveal className="text-center">
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-4">
-                                    Next Project
-                                </p>
-                                <Link
-                                    href={`/work/${nextProject.slug}`}
-                                    className="group inline-block"
-                                >
-                                    <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold tracking-[-0.03em] group-hover:text-accent transition-colors duration-300">
-                                        {nextProject.title}
-                                    </h2>
-                                </Link>
-                            </ScrollReveal>
-                        </Container>
-                    </section>
-                )}
-            </article>
-        );
-    }
-
-    // ── Try Ghost post ───────────────────────────────────────────
-    const ghostPost = await fetchGhostPostBySlug(slug);
-
-    if (!ghostPost) {
-        notFound();
-    }
-
-    const { getPostMetadata } = await import("@/lib/db");
-    const customMeta = getPostMetadata(ghostPost.id);
+    const next = getNextProjectFor(slug);
+    const heroAspect = data.videoAspectRatio || 16 / 9;
 
     return (
-        <article>
-            {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] pt-32 lg:pt-48 pb-8 lg:pb-12">
-                <Container>
-                    <div className="max-w-6xl">
-                        <ScrollReveal>
-                            <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
-                                {ghostPost.title}
-                            </h1>
-                            {(ghostPost.custom_excerpt || ghostPost.excerpt) && (
-                                <p className="text-lg md:text-xl text-text-secondary mt-6 max-w-4xl leading-relaxed">
-                                    {ghostPost.custom_excerpt || ghostPost.excerpt}
-                                </p>
-                            )}
-                        </ScrollReveal>
-                    </div>
-
-                    {/* Post Meta */}
-                    <ScrollReveal
-                        delay={0.15}
-                        className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-14 pt-8 border-t border-border"
+        <article className="bg-white text-black">
+            {/* ── Hero: Vimeo video at top (full-bleed). ───────────── */}
+            {data.videoHtml ? (
+                <section className="relative w-full bg-black">
+                    <div
+                        className="relative w-full"
+                        style={{ aspectRatio: heroAspect }}
                     >
-                        {customMeta?.director && (
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Director
-                                </p>
-                                <p className="text-sm text-text-primary">{customMeta.director}</p>
-                            </div>
-                        )}
-                        {customMeta?.client && (
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Client
-                                </p>
-                                <p className="text-sm text-text-primary">{customMeta.client}</p>
-                            </div>
-                        )}
-                        {ghostPost.primary_tag && (
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-[0.15em] text-text-tertiary mb-2">
-                                    Category
-                                </p>
-                                <p className="text-sm text-text-primary capitalize">{ghostPost.primary_tag.name}</p>
-                            </div>
-                        )}
-                    </ScrollReveal>
-                </Container>
+                        <div
+                            className="absolute inset-0 [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:w-full [&>iframe]:h-full"
+                            dangerouslySetInnerHTML={{ __html: data.videoHtml }}
+                        />
+                    </div>
+                </section>
+            ) : data.coverImage ? (
+                <section className="relative w-full aspect-video bg-black">
+                    <Image
+                        src={data.coverImage}
+                        alt={data.title}
+                        fill
+                        className="object-cover"
+                        sizes="100vw"
+                        priority
+                        unoptimized
+                    />
+                </section>
+            ) : null}
+
+            {/* ── Title + Body content (single grid; full-bleed images) ─ */}
+            <section className="pt-[100px] pb-[60px]">
+                <GhostContent
+                    html={
+                        buildMetaHtml(data.title, data.director) +
+                        (data.html || "")
+                    }
+                    className="case-study-prose"
+                />
             </section>
 
-            {/* ── Hero Video/Image ────────────────────────────────────── */}
-            {(ghostPost.video_html || ghostPost.feature_image) && (
-                <section>
-                    <Container>
-                        <ScrollReveal>
-                            <div
-                                className="relative overflow-hidden bg-black shadow-2xl"
-                                style={{ aspectRatio: ghostPost.video_aspect_ratio || 16 / 9 }}
+            {/* ── Credits ───────────────────────────────────────────── */}
+            {data.credits.length > 0 && (
+                <section className={`pt-[50px] pb-[50px] ${OUTER}`}>
+                    <div className="grid grid-cols-6 gap-[5px]">
+                        <div className="col-span-6 md:col-span-4 md:col-start-3 grid grid-cols-2 md:grid-cols-3 gap-x-[20px] gap-y-[24px]">
+                            {data.credits.map((c) => (
+                                <div key={c.label}>
+                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[4px]">
+                                        {c.label}
+                                    </p>
+                                    <p className="text-[14px] md:text-[15px] font-medium text-black leading-[1.3]">
+                                        {c.value}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* ── Next Project ──────────────────────────────────────── */}
+            {next && next.slug !== slug && (
+                <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
+                    <div className="grid grid-cols-6 gap-[5px]">
+                        <div className="col-span-6 md:col-span-4 md:col-start-3 flex justify-end">
+                            <Link
+                                href={`/work/${next.slug}`}
+                                className="group inline-block text-right"
                             >
-                                {ghostPost.video_html ? (
-                                    <div
-                                        className="absolute inset-0 w-full h-full [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:w-full [&>iframe]:h-full"
-                                        dangerouslySetInnerHTML={{ __html: ghostPost.video_html }}
-                                    />
-                                ) : (
-                                    <Image
-                                        src={ghostPost.feature_image!}
-                                        alt={ghostPost.title}
-                                        fill
-                                        className="object-cover"
-                                        sizes="100vw"
-                                        priority
-                                        unoptimized
-                                    />
-                                )}
-                            </div>
-                        </ScrollReveal>
-                    </Container>
+                                <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
+                                    Next Project
+                                </p>
+                                <h2 className="text-[clamp(1.4rem,2.6vw,2rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors">
+                                    {next.title}
+                                </h2>
+                            </Link>
+                        </div>
+                    </div>
                 </section>
             )}
-
-            {/* ── Ghost HTML Content ─────────────────────────────────── */}
-            {ghostPost.html && (
-                <section className="pt-8 lg:pt-12 pb-16 lg:pb-24">
-                    <Container>
-                        <ScrollReveal>
-                            <GhostContent html={ghostPost.html} />
-                        </ScrollReveal>
-                    </Container>
-                </section>
-            )}
-
-            <RelatedPosts currentSlug={slug} />
         </article>
     );
 }

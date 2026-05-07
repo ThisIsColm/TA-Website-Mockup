@@ -260,10 +260,18 @@ export async function fetchGhostPostBySlug(slug: string): Promise<GhostPost | nu
                         post.video_aspect_ratio = w / h;
                     }
                 }
-
-                // Also strip the surrounding kg-card/kg-embed-card if it exists
-                post.html = post.html.replace(/<div class="kg-card kg-embed-card">[\s\n]*<\/div>/g, "");
             }
+
+            // Strip any empty figure/div wrappers (e.g. leftover kg-embed-card
+            // shells after extracting the iframe). Apply repeatedly in case of
+            // nested empty wrappers.
+            const emptyWrapper =
+                /<(figure|div)\b[^>]*>\s*<\/\1>/gi;
+            let prev: string;
+            do {
+                prev = post.html;
+                post.html = post.html.replace(emptyWrapper, "");
+            } while (post.html !== prev);
         }
 
         if (post) setCache(cacheKey, post);

@@ -15,6 +15,13 @@ interface ProjectCardProps {
     enablePreview?: boolean;
     overlayTitleOnThumbnail?: boolean;
     compactOverlayTitle?: boolean;
+    /**
+     * Controls when the overlay title is visible.
+     * - "always": title is always shown (default, existing behaviour)
+     * - "hover": title is hidden until the card is hovered
+     */
+    titleVisibility?: "always" | "hover";
+    hideExcerpt?: boolean;
 }
 
 export default function ProjectCard({
@@ -24,6 +31,8 @@ export default function ProjectCard({
     enablePreview = false,
     overlayTitleOnThumbnail = false,
     compactOverlayTitle = false,
+    titleVisibility = "always",
+    hideExcerpt = false,
 }: ProjectCardProps) {
     const [isHovered, setIsHovered] = useState(false);
     const titleWords = project.title.trim().split(/\s+/);
@@ -73,62 +82,92 @@ export default function ProjectCard({
 
                         {overlayTitleOnThumbnail && (
                             <>
-                                <div
-                                    className={`absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t transition-all duration-300 ${isHovered
-                                            ? "h-30 md:h-36 from-black/72 via-black/28 to-transparent"
-                                            : "h-24 md:h-28 from-black/46 via-black/14 to-transparent"
+                                {titleVisibility === "hover" ? (
+                                    // Solid dark overlay at 65% opacity covering the entire thumbnail on hover.
+                                    <div
+                                        className={`absolute inset-0 z-10 bg-black transition-opacity duration-300 ${
+                                            isHovered ? "opacity-65" : "opacity-0"
                                         }`}
-                                />
+                                    />
+                                ) : (
+                                    <div
+                                        className={`absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t transition-all duration-300 ${
+                                            isHovered
+                                                ? "h-30 md:h-36 from-black/72 via-black/28 to-transparent"
+                                                : "h-24 md:h-28 from-black/46 via-black/14 to-transparent"
+                                            }`}
+                                    />
+                                )}
                                 <div
-                                    className="absolute left-4 md:left-5 bottom-4 md:bottom-5 z-20 max-w-[82%]"
+                                    className={`absolute z-20 transition-opacity duration-300 ${
+                                        titleVisibility === "hover"
+                                            ? `left-5 sm:left-8 md:left-[50px] bottom-5 sm:bottom-8 md:bottom-[50px] right-5 sm:right-8 md:right-[50px] ${
+                                                  isHovered ? "opacity-100" : "opacity-0"
+                                              }`
+                                            : "left-4 md:left-5 bottom-4 md:bottom-5 max-w-[82%]"
+                                    }`}
                                 >
-                                    <div className={`transition-transform duration-300 ${isHovered ? "-translate-y-2" : "translate-y-0"}`}>
-                                        <motion.h3
-                                            initial="hidden"
-                                            whileInView="visible"
-                                            viewport={{ once: true, margin: "-60px" }}
-                                            variants={{
-                                                hidden: {},
-                                                visible: {
-                                                    transition: {
-                                                        delayChildren: index * 0.05 + 0.08,
-                                                        staggerChildren: 0.06,
+                                    <div className={`transition-transform duration-300 ${isHovered && titleVisibility !== "hover" ? "-translate-y-1" : "translate-y-0"}`}>
+                                        {titleVisibility === "hover" ? (
+                                            <h3
+                                                className={`text-white font-black tracking-[-0.01em] leading-[1.1] ${
+                                                    compactOverlayTitle
+                                                        ? "text-[clamp(2rem,3.4vw,2.8rem)]"
+                                                        : "text-[clamp(2.5rem,4.2vw,3.7rem)]"
+                                                }`}
+                                            >
+                                                {project.title}
+                                            </h3>
+                                        ) : (
+                                            <motion.h3
+                                                initial="hidden"
+                                                whileInView="visible"
+                                                viewport={{ once: true, margin: "-60px" }}
+                                                variants={{
+                                                    hidden: {},
+                                                    visible: {
+                                                        transition: {
+                                                            delayChildren: index * 0.05 + 0.08,
+                                                            staggerChildren: 0.06,
+                                                        },
                                                     },
-                                                },
-                                            }}
-                                            className={`text-white font-black tracking-[-0.02em] uppercase leading-[0.98] ${compactOverlayTitle
-                                                    ? "text-[clamp(0.95rem,1.7vw,1.35rem)]"
-                                                    : "text-[clamp(1.15rem,2.2vw,1.85rem)]"
+                                                }}
+                                                className={`text-white font-black tracking-[-0.02em] uppercase leading-[0.98] ${compactOverlayTitle
+                                                        ? "text-[clamp(0.95rem,1.7vw,1.35rem)]"
+                                                        : "text-[clamp(1.15rem,2.2vw,1.85rem)]"
+                                                    }`}
+                                            >
+                                                {titleWords.map((word, wordIndex) => (
+                                                    <motion.span
+                                                        key={`${word}-${wordIndex}`}
+                                                        variants={{
+                                                            hidden: { opacity: 0, y: 14, clipPath: "inset(0 0 100% 0)" },
+                                                            visible: {
+                                                                opacity: 1,
+                                                                y: 0,
+                                                                clipPath: "inset(0 0 0% 0)",
+                                                                transition: {
+                                                                    duration: 0.45,
+                                                                    ease: [0.25, 0.4, 0.25, 1],
+                                                                },
+                                                            },
+                                                        }}
+                                                        className="inline-block mr-[0.28em]"
+                                                    >
+                                                        {word}
+                                                    </motion.span>
+                                                ))}
+                                            </motion.h3>
+                                        )}
+                                    </div>
+                                    {!hideExcerpt && (
+                                        <p
+                                            className={`text-[0.98rem] md:text-[1.03rem] leading-snug text-white/90 line-clamp-2 overflow-hidden transition-all duration-300 ${isHovered ? "mt-2 max-h-16 opacity-100 translate-y-0" : "mt-0 max-h-0 opacity-0 translate-y-2"
                                                 }`}
                                         >
-                                            {titleWords.map((word, wordIndex) => (
-                                                <motion.span
-                                                    key={`${word}-${wordIndex}`}
-                                                    variants={{
-                                                        hidden: { opacity: 0, y: 14, clipPath: "inset(0 0 100% 0)" },
-                                                        visible: {
-                                                            opacity: 1,
-                                                            y: 0,
-                                                            clipPath: "inset(0 0 0% 0)",
-                                                            transition: {
-                                                                duration: 0.45,
-                                                                ease: [0.25, 0.4, 0.25, 1],
-                                                            },
-                                                        },
-                                                    }}
-                                                    className="inline-block mr-[0.28em]"
-                                                >
-                                                    {word}
-                                                </motion.span>
-                                            ))}
-                                        </motion.h3>
-                                    </div>
-                                    <p
-                                        className={`text-[0.98rem] md:text-[1.03rem] leading-snug text-white/90 line-clamp-2 overflow-hidden transition-all duration-300 ${isHovered ? "mt-2 max-h-16 opacity-100 translate-y-0" : "mt-0 max-h-0 opacity-0 translate-y-2"
-                                            }`}
-                                    >
-                                        {project.excerpt}
-                                    </p>
+                                            {project.excerpt}
+                                        </p>
+                                    )}
                                 </div>
                             </>
                         )}

@@ -19,6 +19,9 @@
   --spacing-section: 8rem;
   --spacing-section-sm: 5rem;
 
+  /* ── Page Padding ───────────────────────────────────────── */
+  --page-padding: 20px;
+
   /* ── Animation Tweaks ───────────────────────────────────── */
   --zoom-duration: 300ms;
   --zoom-scale: 1.01;
@@ -198,6 +201,277 @@ html.lenis body {
   transform: scaleX(0);
   animation: ink-reveal 560ms var(--ease-signature) forwards;
   background-image: linear-gradient(90deg, currentColor 0%, currentColor 78%, transparent 100%);
+}
+
+/* ── Case Study Layout ──────────────────────────────────── */
+/*
+ * Editorial layout for individual case-study pages. Mirrors the homepage
+ * design system: 6-column grid with a 5px gutter, body content sits in a
+ * right-shifted column (cols 3–6) while figures/images break out to the
+ * full grid width.
+ */
+.case-study-prose {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  /* Dense auto-flow lets the right column backfill the row alongside the
+   * left-column meta block (title on row 1, director on row 2 — body items
+   * line up alongside).
+   */
+  grid-auto-flow: dense;
+  column-gap: 5px;
+  row-gap: 0;
+  color: #000;
+  font-family: var(--font-sans);
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 768px) {
+  .case-study-prose {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  :root {
+    --page-padding: 40px;
+  }
+}
+
+.case-study-prose > * {
+  grid-column: 3 / span 4;
+}
+
+/* The meta wrapper is dissolved into the parent grid so its children (h1, p)
+ * become direct grid items — title on row 1, director on row 2. Combined with
+ * grid-auto-flow: dense, the body content (Brief heading + first paragraph)
+ * fills the right column on the same rows.
+ */
+.case-study-prose > .case-meta {
+  display: contents;
+}
+
+.case-study-prose > .case-meta > h1,
+.case-study-prose > .case-meta > p {
+  grid-column: 1 / span 2;
+  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.case-study-prose > .case-meta > h1 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #000;
+}
+
+.case-study-prose > .case-meta > p {
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.65);
+  margin-top: 4px;
+}
+
+.case-study-prose > h2,
+.case-study-prose > h3,
+.case-study-prose > h4 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #000;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+/* Apply top margin only to headings that follow another element (not the first
+ * heading). Using * + h# avoids :first-child issues when the HTML has leading
+ * whitespace/text nodes from Ghost's renderer.
+ */
+.case-study-prose > * + h2,
+.case-study-prose > * + h3,
+.case-study-prose > * + h4 {
+  margin-top: 80px;
+}
+
+/* When the body content is in DOM order: case-meta wrapper, h2, p, ...
+ * Since case-meta uses display: contents, the h2 is the immediate sibling of
+ * the meta wrapper. We want the FIRST h2 (Brief) to have no top margin so it
+ * aligns with the title row.
+ */
+.case-study-prose > .case-meta + h2,
+.case-study-prose > .case-meta + h3,
+.case-study-prose > .case-meta + h4 {
+  margin-top: 0;
+}
+
+.case-study-prose > h2 {
+  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
+}
+
+.case-study-prose > h3 {
+  font-size: clamp(1.25rem, 1.3vw, 2rem);
+}
+
+.case-study-prose > p {
+  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
+  line-height: 1.5;
+  color: #000;
+  margin: 0 0 0 0;
+  grid-column: 3 / span 4;
+}
+
+.case-study-prose > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Tight spacing between heading and the immediately-following paragraph */
+.case-study-prose > h2 + p,
+.case-study-prose > h3 + p {
+  margin-top: 0;
+}
+
+.case-study-prose p a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s;
+}
+
+.case-study-prose p a:hover {
+  color: var(--color-accent-hover);
+}
+
+.case-study-prose strong {
+  font-weight: 700;
+  color: #000;
+}
+
+.case-study-prose > ul,
+.case-study-prose > ol {
+  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
+  line-height: 1.45;
+  color: #000;
+  margin-bottom: 16px;
+  padding-left: 1.25rem;
+  grid-column: 3 / span 4;
+}
+
+.case-study-prose > ul {
+  list-style: disc;
+}
+
+.case-study-prose > ol {
+  list-style: decimal;
+}
+
+.case-study-prose > blockquote {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #000;
+  grid-column: 3 / span 4;
+}
+
+/* ── Full-bleed media (figures, images, embeds) ──────── */
+.case-study-prose > figure,
+.case-study-prose > .kg-card,
+.case-study-prose > .kg-image-card,
+.case-study-prose > .kg-gallery-card,
+.case-study-prose > .kg-embed-card,
+.case-study-prose > .kg-video-card,
+.case-study-prose > img,
+.case-study-prose > video,
+.case-study-prose > iframe {
+  grid-column: 1 / -1;
+  margin-left: calc(-1 * var(--page-padding));
+  margin-right: calc(-1 * var(--page-padding));
+  width: calc(100% + var(--page-padding) * 2);
+  max-width: none;
+  margin-top: 100px;
+  margin-bottom: 80px;
+}
+
+/* Hide empty media wrappers that Ghost may leave behind after iframe extraction */
+.case-study-prose > figure:empty,
+.case-study-prose > .kg-card:empty,
+.case-study-prose > .kg-embed-card:empty,
+.case-study-prose > .kg-video-card:empty,
+.case-study-prose > .kg-image-card:empty {
+  display: none;
+}
+
+.case-study-prose img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.case-study-prose figure {
+  margin: 0;
+}
+
+.case-study-prose figcaption {
+  margin-top: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(0, 0, 0, 0.55);
+  text-align: left;
+}
+
+/* Ghost embed/video card iframes (Vimeo / YouTube) */
+.case-study-prose .kg-embed-card iframe,
+.case-study-prose .kg-video-card iframe {
+  width: 100% !important;
+  aspect-ratio: 16 / 9;
+}
+
+/* Ghost gallery card layout */
+.case-study-prose .kg-gallery-row {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.case-study-prose .kg-gallery-image {
+  flex: 1;
+}
+
+.case-study-prose .kg-gallery-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mobile: collapse the right-shifted column to full width */
+@media (max-width: 768px) {
+  .case-study-prose > *,
+  .case-study-prose > .case-meta > * {
+    grid-column: 1 / -1;
+  }
+
+  .case-study-prose > .case-meta > p {
+    margin-bottom: 24px;
+  }
+
+  .case-study-prose > figure,
+  .case-study-prose > .kg-card,
+  .case-study-prose > .kg-image-card,
+  .case-study-prose > .kg-gallery-card,
+  .case-study-prose > .kg-embed-card,
+  .case-study-prose > .kg-video-card,
+  .case-study-prose > img,
+  .case-study-prose > video,
+  .case-study-prose > iframe {
+    margin-left: -20px;
+    margin-right: -20px;
+    width: calc(100% + 40px);
+    max-width: none;
+  }
+
+  .case-study-prose > * + h2,
+  .case-study-prose > * + h3,
+  .case-study-prose > * + h4 {
+    margin-top: 40px;
+  }
 }
 
 /* ── Ghost Content Styles ──────────────────────────────────── */
