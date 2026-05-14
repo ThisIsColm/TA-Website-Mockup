@@ -7,9 +7,16 @@ interface VimeoPreviewProps {
     isHovered: boolean;
 }
 
+const VIMEO_ORIGIN = "https://player.vimeo.com";
+
+function vimeoCommand(payload: Record<string, unknown>) {
+    return JSON.stringify(payload);
+}
+
 export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
+    const [apiReady, setApiReady] = useState(false);
 
     // 16:9 cards are the visual target on the homepage.
     // Scale preview to "cover" both narrower and wider source ratios.
@@ -34,15 +41,15 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
     // When hover ends, pause and reset so next hover starts fresh
     useEffect(() => {
         const win = iframeRef.current?.contentWindow;
-        if (!win) return;
+        if (!win || !apiReady) return;
 
         if (!isHovered) {
-            win.postMessage({ method: "pause" }, "*");
-            win.postMessage({ method: "setCurrentTime", value: 0 }, "*");
+            win.postMessage(vimeoCommand({ method: "pause" }), VIMEO_ORIGIN);
+            win.postMessage(vimeoCommand({ method: "setCurrentTime", value: 0 }), VIMEO_ORIGIN);
         } else {
-            win.postMessage({ method: "play" }, "*");
+            win.postMessage(vimeoCommand({ method: "play" }), VIMEO_ORIGIN);
         }
-    }, [isHovered]);
+    }, [isHovered, apiReady]);
 
     // Fetch Vimeo oEmbed metadata once so we can infer source aspect ratio.
     useEffect(() => {
@@ -71,21 +78,26 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
         };
     }, [vimeoId]);
 
-    // With background=1&autoplay=1, Vimeo starts playing immediately (muted).
-    // We keep the iframe always in the DOM so it preloads while the page loads.
-    // On hover we just show it; on mouse leave we hide it.
+    // New src: wait for onLoad before postMessage (iframe reuse keeps same ref).
+    useEffect(() => {
+        setApiReady(false);
+    }, [vimeoId]);
+
+    // background=1 + muted + autoplay preloads; we toggle visibility on hover and drive play/pause via API.
     const src = `https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0&portrait=0&playsinline=1&api=1&autopause=0&controls=0`;
 
     return (
         <div
             aria-hidden="true"
-            className={`absolute inset-0 z-10 pointer-events-none transition-opacity duration-300 ease-in-out ${isHovered ? "opacity-100" : "opacity-0"
-                }`}
+            className={`absolute inset-0 z-[15] pointer-events-none transition-opacity duration-300 ease-in-out ${
+                isHovered ? "opacity-100" : "opacity-0"
+            }`}
         >
             <iframe
                 ref={iframeRef}
                 src={src}
                 allow="autoplay; fullscreen; picture-in-picture"
+                onLoad={() => setApiReady(true)}
                 style={{
                     border: "none",
                     width: "100%",

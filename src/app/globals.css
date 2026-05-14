@@ -20,7 +20,13 @@
   --spacing-section-sm: 5rem;
 
   /* ── Page Padding ───────────────────────────────────────── */
-  --page-padding: 20px;
+  /* Proportional outer padding: 5.625vw matches the designer's 1920px spec
+   * (108px outer at 1920) and scales linearly at every viewport width.
+   * Anything outside the main media grid (headers, footers, hero text,
+   * body sections, etc.) should use this — either via the Tailwind class
+   * `px-[5.625vw]` or via `var(--page-padding)` in raw CSS.
+   */
+  --page-padding: 5.625vw;
 
   /* ── Animation Tweaks ───────────────────────────────────── */
   --zoom-duration: 300ms;
@@ -222,18 +228,8 @@ html.lenis body {
   row-gap: 0;
   color: #000;
   font-family: var(--font-sans);
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-@media (min-width: 768px) {
-  .case-study-prose {
-    padding-left: 40px;
-    padding-right: 40px;
-  }
-  :root {
-    --page-padding: 40px;
-  }
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
 }
 
 .case-study-prose > * {
@@ -461,9 +457,9 @@ html.lenis body {
   .case-study-prose > img,
   .case-study-prose > video,
   .case-study-prose > iframe {
-    margin-left: -20px;
-    margin-right: -20px;
-    width: calc(100% + 40px);
+    margin-left: calc(-1 * var(--page-padding));
+    margin-right: calc(-1 * var(--page-padding));
+    width: calc(100% + var(--page-padding) * 2);
     max-width: none;
   }
 

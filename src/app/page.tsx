@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/ProjectCard";
 import { getFeaturedProjects } from "@/lib/data";
@@ -43,8 +43,87 @@ function ghostToProject(post: CuratedPost): Project {
 const HERO_VIMEO_ID = "1169321210";
 const HERO_VIMEO_HASH = "64a496fc25";
 
-// Outer page padding (matches the design system: 40px on desktop, smaller on mobile).
-const OUTER = "px-[20px] md:px-[40px]";
+// Outer page padding: 5.625vw matches the designer's 1920px spec (108px outer)
+// and scales proportionally at every viewport width.
+const OUTER = "px-[5.625vw]";
+
+const LOREM_TEXT =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+
+function TypewriterSection() {
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const [revealedCount, setRevealedCount] = useState(0);
+
+    const words = LOREM_TEXT.split(" ");
+
+    const handleScroll = useCallback(() => {
+        if (!sectionRef.current) return;
+        const rect = sectionRef.current.getBoundingClientRect();
+        const sectionTop = rect.top;
+        const sectionHeight = rect.height;
+        const viewportHeight = window.innerHeight;
+
+        // sectionTop positive = section below viewport top (scrolled up out of view)
+        // sectionTop negative = section above viewport top (scrolled past)
+        // When sectionTop = viewportHeight, section top is at viewport bottom (just entering)
+        // When sectionTop = -sectionHeight, section bottom is at viewport top (just passed)
+        const totalScrollDistance = viewportHeight + sectionHeight;
+        const scrollProgress = Math.max(
+            0,
+            Math.min(1, ((viewportHeight - sectionTop) / totalScrollDistance) * 2)
+        );
+
+        const count = Math.floor(scrollProgress * words.length);
+        setRevealedCount(Math.min(count, words.length));
+    }, [words.length]);
+
+    useEffect(() => {
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [handleScroll]);
+
+    return (
+        <section ref={sectionRef} className={`pt-[100px] pb-[100px] ${OUTER}`}>
+            <div>
+                <p
+                    className="font-bold mb-[50px] text-black"
+                    style={{
+                        fontFamily: "Tenon, sans-serif",
+                        fontSize: "clamp(1.8rem, 4vw, 60px)",
+                        letterSpacing: "-0.01em",
+                        lineHeight: 1.18,
+                        fontWeight: 700,
+                    }}
+                >
+                    {words.map((word, i) => {
+                        const isRevealed = i < revealedCount;
+                        const isNext = i === revealedCount;
+                        return (
+                            <span
+                                key={i}
+                                className="inline-block mr-[0.3em]"
+                                style={{
+                                    opacity: isRevealed ? 1 : isNext ? 0.4 : 0,
+                                    transition: "opacity 0.1s ease",
+                                }}
+                            >
+                                {word}
+                            </span>
+                        );
+                    })}
+                </p>
+                <Link
+                    href="/about"
+                    className="inline-block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
+                    style={{ fontSize: "clamp(1.125rem, 2vw, 38px)" }}
+                >
+                    More about us.
+                </Link>
+            </div>
+        </section>
+    );
+}
 
 export default function HomePage() {
     const fallbackProjects = getFeaturedProjects(8);
@@ -84,32 +163,11 @@ export default function HomePage() {
                 />
             </section>
 
-            {/* ── About / "We are." ───────────────────────────────── */}
-            <section className={`pt-[100px] pb-[100px] ${OUTER}`}>
-                <div className="grid grid-cols-6 gap-[5px]">
-                    <div className="col-span-6 md:col-span-1">
-                        <p className="text-[14px] md:text-[15px] tracking-tight text-black">
-                            We are.
-                        </p>
-                    </div>
-                    <div className="col-span-6 md:col-span-4 md:col-start-3">
-                        <p className="text-[max(1.125rem,3vw)] font-bold mb-[50px] leading-[1.18] tracking-[-0.01em] text-black">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit, sed do eiusmod tempor incididunt ut labore et
-                            dolore magna aliqua.
-                        </p>
-                        <Link
-                            href="/about"
-                            className="inline-block text-[28px] md:text-[28px] text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                        >
-                            More about us.
-                        </Link>
-                    </div>
-                </div>
-            </section>
+            {/* ── About intro (scroll typewriter) ─────────────────────────── */}
+            <TypewriterSection />
 
             {/* ── 2x4 Thumbnail Grid (full-bleed, Vimeo on hover, title on hover) ── */}
-            <section className="pb-[50px]">
+            <section id="work" className="scroll-mt-6 pb-[50px]">
                 <div className="grid grid-cols-2 gap-[2.5px]">
                     {grid.map((project, i) => (
                         <ProjectCard

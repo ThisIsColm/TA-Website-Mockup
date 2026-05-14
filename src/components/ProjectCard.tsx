@@ -72,14 +72,6 @@ export default function ProjectCard({
                                 }`}
                         />
 
-                        {/* Video preview overlay (always rendered when vimeoId exists to allow preload) */}
-                        {showPreview && (
-                            <VimeoPreview
-                                vimeoId={project.vimeoId!}
-                                isHovered={isHovered}
-                            />
-                        )}
-
                         {overlayTitleOnThumbnail && (
                             <>
                                 {titleVisibility === "hover" ? (
@@ -93,7 +85,7 @@ export default function ProjectCard({
                                     <div
                                         className={`absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t transition-all duration-300 ${
                                             isHovered
-                                                ? "h-30 md:h-36 from-black/72 via-black/28 to-transparent"
+                                                ? "h-[60px] md:h-[60px] from-black/72 via-black/28 to-transparent"
                                                 : "h-24 md:h-28 from-black/46 via-black/14 to-transparent"
                                             }`}
                                     />
@@ -110,11 +102,12 @@ export default function ProjectCard({
                                     <div className={`transition-transform duration-300 ${isHovered && titleVisibility !== "hover" ? "-translate-y-1" : "translate-y-0"}`}>
                                         {titleVisibility === "hover" ? (
                                             <h3
-                                                className={`text-white font-black tracking-[-0.01em] leading-[1.1] ${
-                                                    compactOverlayTitle
-                                                        ? "text-[clamp(2rem,3.4vw,2.8rem)]"
-                                                        : "text-[clamp(2.5rem,4.2vw,3.7rem)]"
-                                                }`}
+                                                style={{
+                                                    fontSize: "clamp(1.125rem, 2vw, 60px)",
+                                                    lineHeight: 1.1,
+                                                    letterSpacing: "-0.01em",
+                                                }}
+                                                className="text-white font-black"
                                             >
                                                 {project.title}
                                             </h3>
@@ -170,6 +163,14 @@ export default function ProjectCard({
                                     )}
                                 </div>
                             </>
+                        )}
+
+                        {/* Above hover overlay (z-10), below title (z-20); see VimeoPreview z-[15] */}
+                        {showPreview && (
+                            <VimeoPreview
+                                vimeoId={project.vimeoId!}
+                                isHovered={isHovered}
+                            />
                         )}
                     </div>
 

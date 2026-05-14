@@ -1,0 +1,72 @@
+---
+description: Site-wide proportional page layout and outer padding rule
+alwaysApply: true
+---
+
+# Page Layout & Scaling
+
+The entire site uses **proportional outer padding** that scales with the viewport. The whole composition (header, footer, all page sections) is built around the designer's 1920px reference, and we keep the same proportions at every screen width.
+
+## The Rule
+
+- **Outer page padding:** `5.625vw` on the left and right of every page section.
+  - At 1920px → 108px (matches designer's spec)
+  - At 1024px → 57.6px
+  - At 390px → 21.9px
+- **6-column grid** with **5px gutter** for any layout that explicitly maps to the designer's 6-col system.
+- **No `max-width` constraint** on outer containers. The `5.625vw` padding alone keeps the layout proportional; capping the width breaks scaling on different screens.
+
+## How to Apply It
+
+**Tailwind class (preferred for one-off sections):**
+
+```tsx
+<section className="px-[5.625vw]">…</section>
+```
+
+**Shared `Container` component (use for any page that needs a wrapper):**
+
+```tsx
+import Container from "@/components/Container";
+
+<Container>…</Container>
+```
+
+`Container` already applies `w-full px-[5.625vw]` and is the default wrapper for inner pages (About, Contact, Work, Case Studies, Insights, Branded Stories, etc.).
+
+**CSS variable (use in `globals.css` or any raw CSS):**
+
+```css
+.my-element {
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+}
+```
+
+The variable `--page-padding` is defined in `src/app/globals.css` and equals `5.625vw`.
+
+## Don't Do This
+
+```tsx
+// ❌ Don't hardcode fixed pixel outer padding — it breaks the proportional system.
+<section className="px-[20px] md:px-[40px]">…</section>
+
+// ❌ Don't wrap outer containers in max-width — it creates large empty gaps on
+//    big screens and shrinks the composition on smaller ones.
+<div className="mx-auto max-w-[1704px]">…</div>
+
+// ❌ Don't introduce new breakpoint-based padding for outer containers.
+<section className="px-4 sm:px-6 md:px-8 lg:px-12">…</section>
+```
+
+Component-internal padding (button padding, badge padding, card padding) can still use any fixed values — the rule only applies to **outer page padding** (the gap between content and the viewport edge).
+
+## Typography
+
+Page-level body and heading text should use `clamp()` to scale with viewport while staying readable on small screens. Examples currently in use:
+
+- Lorem-style hero text: `clamp(1.8rem, 4vw, 60px)`
+- Section secondary text: `clamp(1.125rem, 2vw, 38px)`
+- Section headings: `clamp(2.5rem, 2.5vw, 4rem)`
+
+These already scale proportionally up to the 1920px reference, then cap to keep the design system consistent on ultra-wide displays.

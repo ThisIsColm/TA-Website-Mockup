@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/work", label: "Work" },
+    /** Project grid lives on the homepage — menu scrolls to this anchor */
+    { href: "/#work", label: "Work" },
     { href: "/about", label: "About" },
     { href: "/insights", label: "Insights" },
     { href: "/contact", label: "Contact" },
@@ -16,6 +17,17 @@ const navLinks = [
 export default function Header() {
     const pathname = usePathname();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [hash, setHash] = useState("");
+
+    useEffect(() => {
+        setHash(typeof window !== "undefined" ? window.location.hash : "");
+    }, [pathname]);
+
+    useEffect(() => {
+        const onHashChange = () => setHash(window.location.hash);
+        window.addEventListener("hashchange", onHashChange);
+        return () => window.removeEventListener("hashchange", onHashChange);
+    }, []);
 
     useEffect(() => {
         setMenuOpen(false);
@@ -31,14 +43,18 @@ export default function Header() {
         }
     }, [menuOpen]);
 
-    // Header sits over the hero on home and over the dark page bg elsewhere — always white.
-    const fg = "text-white";
-    const bar = "bg-white";
+    // Light pages: orange logo asset. All other pages: white logo on dark/image heroes.
+    const lightBgRoutes = ["/about", "/contact"];
+    const isOverLightBg = !!pathname && lightBgRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
+    const bar = isOverLightBg ? "bg-black" : "bg-white";
+    const headerLogoSrc = isOverLightBg
+        ? "/images/TA_Logo_2026_Orange.png"
+        : "/images/TA_Logo_2026.png";
 
     return (
         <>
             <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
-                <div className="w-full px-[20px] md:px-[40px] pt-[20px] md:pt-[25px]">
+                <div className="w-full px-[5.625vw] pt-[20px] md:pt-[25px]">
                     <nav
                         className="relative flex items-center justify-between"
                         aria-label="Main navigation"
@@ -50,7 +66,7 @@ export default function Header() {
                             aria-label="Tiny Ark home"
                         >
                             <img
-                                src="/images/TA_Logo_2026.png"
+                                src={headerLogoSrc}
                                 alt="Tiny Ark"
                                 style={{ height: "auto", width: "120px" }}
                             />
@@ -81,7 +97,7 @@ export default function Header() {
                         transition={{ duration: 0.35, ease: [0.25, 0.4, 0.25, 1] }}
                         className="fixed inset-0 z-[100] bg-black text-white"
                     >
-                        <div className="w-full px-[20px] md:px-[40px] pt-[20px] md:pt-[50px]">
+                        <div className="w-full px-[5.625vw] pt-[20px] md:pt-[50px]">
                             <div className="flex items-center justify-between">
                                 <Link
                                     href="/"
@@ -106,12 +122,18 @@ export default function Header() {
                             </div>
                         </div>
 
-                        <div className="w-full px-[20px] md:px-[40px] mt-16 md:mt-24">
+                        <div className="w-full px-[5.625vw] mt-16 md:mt-24">
                             <ul className="flex flex-col gap-3 md:gap-5">
                                 {navLinks.map((link, i) => {
                                     const active =
-                                        pathname === link.href ||
-                                        (link.href !== "/" && pathname?.startsWith(link.href + "/"));
+                                        link.href === "/#work"
+                                            ? pathname === "/" && hash === "#work"
+                                            : link.href === "/"
+                                              ? pathname === "/" && hash !== "#work"
+                                              : pathname === link.href ||
+                                                (link.href !== "/" &&
+                                                    link.href !== "/#work" &&
+                                                    pathname?.startsWith(link.href + "/"));
                                     return (
                                         <motion.li
                                             key={link.href}

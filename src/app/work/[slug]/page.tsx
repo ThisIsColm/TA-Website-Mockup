@@ -5,11 +5,12 @@ import type { Metadata } from "next";
 import GhostContent from "@/components/GhostContent";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
+import { getWorkPageNeighbors } from "@/lib/homeWorkGrid";
 
 // Make this page dynamic so it can fetch from Ghost on request
 export const dynamic = "force-dynamic";
 
-const OUTER = "px-[20px] md:px-[40px]";
+const OUTER = "px-[5.625vw]";
 
 function escapeHtml(value: string): string {
     return value
@@ -178,14 +179,6 @@ function markdownToHtml(markdown: string): string {
         .join("\n");
 }
 
-function getNextProjectFor(currentSlug: string) {
-    const all = getAllProjects();
-    if (all.length === 0) return null;
-    const idx = all.findIndex((p) => p.slug === currentSlug);
-    if (idx === -1) return all[0];
-    return all[(idx + 1) % all.length];
-}
-
 // ──────────────────────────────────────────────────────────────────
 // Page
 // ──────────────────────────────────────────────────────────────────
@@ -195,7 +188,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     const data = await loadCaseStudy(slug);
     if (!data) notFound();
 
-    const next = getNextProjectFor(slug);
+    const { prev, next } = await getWorkPageNeighbors(slug);
     const heroAspect = data.videoAspectRatio || 16 / 9;
 
     return (
@@ -258,23 +251,40 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </section>
             )}
 
-            {/* ── Next Project ──────────────────────────────────────── */}
-            {next && next.slug !== slug && (
+            {/* ── Prev / Next (same order as home page grid) ────────── */}
+            {(prev || next) && (
                 <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
-                    <div className="grid grid-cols-6 gap-[5px]">
-                        <div className="col-span-6 md:col-span-4 md:col-start-3 flex justify-end">
-                            <Link
-                                href={`/work/${next.slug}`}
-                                className="group inline-block text-right"
-                            >
-                                <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                    Next Project
-                                </p>
-                                <h2 className="text-[clamp(1.4rem,2.6vw,2rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors">
-                                    {next.title}
-                                </h2>
-                            </Link>
-                        </div>
+                    <div className="grid grid-cols-6 gap-x-[5px] gap-y-[40px] md:gap-y-0 md:items-end">
+                        {prev ? (
+                            <div className="col-span-6 md:col-span-1 md:col-start-1">
+                                <Link
+                                    href={`/work/${prev.slug}`}
+                                    className="group inline-block max-w-full text-left"
+                                >
+                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
+                                        Previous
+                                    </p>
+                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                        {prev.title}
+                                    </h2>
+                                </Link>
+                            </div>
+                        ) : null}
+                        {next ? (
+                            <div className="col-span-6 md:col-span-4 flex md:justify-end md:col-start-3">
+                                <Link
+                                    href={`/work/${next.slug}`}
+                                    className="group inline-block max-w-full text-left md:text-right"
+                                >
+                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
+                                        Next
+                                    </p>
+                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                        {next.title}
+                                    </h2>
+                                </Link>
+                            </div>
+                        ) : null}
                     </div>
                 </section>
             )}

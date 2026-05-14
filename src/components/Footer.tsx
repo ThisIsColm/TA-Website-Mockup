@@ -6,13 +6,22 @@ import Container from "./Container";
 
 export default function Footer() {
     const pathname = usePathname();
-    const isHome = pathname === "/" || pathname === "";
+    const path = (pathname ?? "").replace(/\/$/, "") || "/";
 
-    // Home: beige footer bar (#EAE4DD) with social icons left and copyright centered.
-    if (isHome) {
+    const useBeigeBar =
+        path === "/" ||
+        path === "/about" ||
+        path.startsWith("/about/") ||
+        path.endsWith("/about") ||
+        path.startsWith("/work/") ||
+        path === "/contact" ||
+        path.startsWith("/contact/");
+
+    // Beige footer bar (#EAE4DD) — home, about, work detail, contact, etc.
+    if (useBeigeBar) {
         return (
             <footer className="bg-[#EAE4DD] text-black">
-                <div className="w-full px-[20px] md:px-[40px]">
+                <div className="w-full px-[5.625vw]">
                     <div className="grid grid-cols-3 items-center py-[14px] md:py-[18px]">
                         {/* Social icons (left) */}
                         <div className="flex items-center gap-[10px] justify-self-start">
@@ -74,7 +83,7 @@ export default function Footer() {
                         </a>
                     </div>
                     <nav className="flex flex-wrap items-center gap-6 text-[15px]">
-                        <Link href="/work" className="hover:text-white transition-colors">
+                        <Link href="/#work" className="hover:text-white transition-colors">
                             Work
                         </Link>
                         <Link href="/about" className="hover:text-white transition-colors">

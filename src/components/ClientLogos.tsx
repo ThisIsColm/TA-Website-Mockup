@@ -26,7 +26,7 @@ export default function ClientLogos() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 lg:gap-y-16 py-4">
                     {CLIENTS.map((client, i) => (
                         <ScrollReveal key={client} delay={i * 0.05}>
-                            <Link href="/work" className="group flex items-baseline gap-2 w-max">
+                            <Link href="/#work" className="group flex items-baseline gap-2 w-max">
                                 <span className="text-xl md:text-2xl font-bold text-black group-hover:text-accent transition-colors duration-300 tracking-tight">
                                     {client}
                                 </span>

@@ -1,254 +1,262 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import Container from "@/components/Container";
-import ScrollReveal from "@/components/ScrollReveal";
+import RotatingTagline from "./RotatingTagline";
 
 export const metadata: Metadata = {
     title: "About",
     description:
-        "Learn about Tiny Ark — a creative design studio crafting digital experiences with intention and precision.",
+        "Tiny Ark is an independent creative video agency based in Dublin, collaborating globally with brands and cultural institutions.",
     openGraph: {
         title: "About — Tiny Ark",
         description:
-            "A creative design studio crafting digital experiences with intention and precision.",
+            "An independent creative video agency based in Dublin, collaborating globally with brands and cultural institutions.",
     },
 };
 
-const services = [
-    {
-        title: "Brand Strategy",
-        description:
-            "We define the strategic foundation — positioning, voice, and visual direction — that gives your brand clarity and purpose.",
-    },
-    {
-        title: "Visual Identity",
-        description:
-            "From logos to comprehensive brand systems, we create visual identities that are distinctive, cohesive, and enduring.",
-    },
-    {
-        title: "Web Design & Development",
-        description:
-            "We design and build websites that perform beautifully — fast, accessible, and optimized for conversion.",
-    },
-    {
-        title: "UI/UX Design",
-        description:
-            "Human-centered design for digital products. We craft interfaces that are intuitive, delightful, and effective.",
-    },
-    {
-        title: "Motion Design",
-        description:
-            "We bring interfaces and brands to life with purposeful motion — from micro-interactions to full brand animations.",
-    },
-    {
-        title: "Design Systems",
-        description:
-            "Scalable, documented component libraries and token systems that accelerate your team and ensure consistency.",
-    },
+const SERVICES = [
+    "Concept Development",
+    "Research",
+    "Production MGMT",
+    "Travel Coordination",
+    "Remote & Live Editing",
+    "Motion Design",
 ];
 
-const values = [
-    {
-        number: "01",
-        title: "Craft Over Convention",
-        description:
-            "We obsess over the details. Every pixel, every transition, every word is considered and intentional.",
-    },
-    {
-        number: "02",
-        title: "Strategy First",
-        description:
-            "Beautiful design without purpose is decoration. We ground every creative decision in strategic thinking.",
-    },
-    {
-        number: "03",
-        title: "Collaborative Process",
-        description:
-            "The best work happens together. We partner closely with our clients, sharing insights and iterating as a team.",
-    },
-    {
-        number: "04",
-        title: "Accessible by Default",
-        description:
-            "Great design works for everyone. We build inclusively, ensuring our work reaches the widest possible audience.",
-    },
+/**
+ * Team grid assets (see `public/images/team/README.md`):
+ * - `photoSrc`: portrait, design size **280×320** (or 2× for retina). JPG / WebP / PNG.
+ * - `nameAssetSrc`: handwritten name as **transparent PNG** (width scales; keep safe margin).
+ * - `nameLabel`: fallback label if `nameAssetSrc` is omitted (orange bar + text).
+ */
+interface TeamMember {
+    role: string;
+    nameLabel?: string;
+    photoSrc?: string;
+    nameAssetSrc?: string;
+}
+
+const TEAM: TeamMember[] = [
+    { nameLabel: "Nathan Reilly", role: "CEO" },
+    { role: "Head of Production" },
+    { nameLabel: "Mark O'Brien", role: "Creative Director" },
+    { nameLabel: "Elise Doherty", role: "Director" },
+    { nameLabel: "Leon Forristal", role: "Director of Photography" },
+    { role: "Technical Director" },
+    { nameLabel: "Colm Moore", role: "Head of Post Production" },
+    { nameLabel: "Rory Bradley", role: "Senior Editor" },
+    { nameLabel: "Beatriz Gonçalves", role: "Senior Motion Designer" },
+    { role: "Producer" },
+    { nameLabel: "Rosie Spearing", role: "Assistant Producer" },
+    { nameLabel: "AJ", role: "CTO" },
 ];
+
+const BEIGE = "#EAE4DD";
 
 export default function AboutPage() {
     return (
-        <>
-            {/* ── Hero ───────────────────────────────────────────────── */}
-            <section className="pt-[72px] pt-16 lg:pt-24 pb-8 mt-12">
+        <div className="bg-white text-black">
+            {/* ── Hero statement ─────────────────────────────────────── */}
+            <section className="pt-[140px] md:pt-[180px] pb-[100px] md:pb-[140px]">
                 <Container>
-                    <ScrollReveal className="max-w-4xl">
-                        <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.04em]">
-                            We are a creative
-                            <br />
-                            studio built on
-                            <br />
-                            <span className="text-accent">craft and purpose.</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-text-secondary mt-8 max-w-2xl leading-relaxed">
-                            Tiny Ark is an independent creative video agency based in Dublin, collaborating globally with brands and cultural institutions.
-
+                    <div className="grid grid-cols-6 gap-[5px]">
+                        <p
+                            className="col-span-6 md:col-span-6 font-bold text-black"
+                            style={{
+                                fontFamily: "Tenon, sans-serif",
+                                fontSize: "clamp(1.8rem, 4vw, 60px)",
+                                letterSpacing: "-0.01em",
+                                lineHeight: 1.18,
+                                fontWeight: 700,
+                            }}
+                        >
+                            Generic &ldquo;About Us&rdquo; statement with references to
+                            services, locations, team expertise etc etc lorem ipsum
+                            dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                            tempor incididunt ut labore et dolore magna aliqua. Ut enim
+                            ad minim veniam, quis nostrud exercitation ullamco.
                         </p>
-                    </ScrollReveal>
+                    </div>
                 </Container>
             </section>
 
-            {/* ── Studio Image ───────────────────────────────────────── */}
-            <section>
+            {/* ── Services / Capabilities ────────────────────────────── */}
+            <section style={{ backgroundColor: BEIGE }} className="pt-[60px] md:pt-[80px] pb-[40px] md:pb-[60px]">
                 <Container>
-                    <ScrollReveal>
-                        <div className="relative aspect-[21/9] overflow-hidden bg-bg-card">
-                            <Image
-                                src="/images/about/studio.jpg"
-                                alt="Tiny Ark studio workspace"
-                                fill
-                                className="object-cover"
-                                sizes="100vw"
-                                priority
-                            />
+                    <div className="grid grid-cols-6 gap-[5px] items-start">
+                        <div className="col-span-6 md:col-span-3">
+                            <RotatingTagline />
                         </div>
-                    </ScrollReveal>
-                </Container>
-            </section>
 
-            {/* ── Philosophy ─────────────────────────────────────────── */}
-            <section className="py-section-sm lg:py-section">
-                <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
-                        <ScrollReveal>
-                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 leading-none">
-                                About
-                            </h2>
-                        </ScrollReveal>
-
-                        <ScrollReveal delay={0.15}>
-                            <div className="space-y-6 text-[18px] leading-relaxed">
-                                <p>
-                                    Tiny Ark began with a simple ambition: to create work that feels timeless in a world obsessed with speed.
-                                </p>
-                                <p>
-                                    Founded as an independent creative studio, Tiny Ark was built on craft — a small, focused team united by a belief that precision, story, and design should never be compromised. What started as a boutique production partnership quickly evolved into a trusted creative collaborator for ambitious brands seeking depth over decoration.
-                                </p>
-                                <p>
-                                    Over the years, Tiny Ark has grown deliberately. Our work expanded from digital content into a multidisciplinary practice that blends strategy, narrative, and execution at the highest level.
-                                </p>
-                                <p>
-                                    Today, we partner with forward-thinking companies to shape ideas into enduring brand experiences. Every engagement begins with clarity. Every output is held to exacting standards.
-                                </p>
-                                <p>
-                                    Because we believe the most powerful brands are not built on noise. They are built on conviction, craft, and restraint.
-                                </p>
+                        <div className="col-span-6 md:col-span-3 bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]">
+                            <p
+                                className="text-black"
+                                style={{
+                                    fontFamily: "Tenon, sans-serif",
+                                    fontSize: "clamp(0.95rem, 1.05vw, 18px)",
+                                    lineHeight: 1.5,
+                                    fontWeight: 400,
+                                }}
+                            >
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                                sed do eiusmod tempor incididunt ut labore et dolore
+                                magna aliqua. Ut enim ad minim veniam, quis nostrud
+                                exercitation ullamco.
+                            </p>
+                            <div className="grid grid-cols-2 gap-[8px]">
+                                {SERVICES.map((s) => (
+                                    <ServicePill key={s} label={s} />
+                                ))}
                             </div>
-                        </ScrollReveal>
-                    </div>
-                </Container>
-            </section>
-
-            {/* ── Principles ─────────────────────────────────────────── */}
-            <section className="py-section-sm lg:py-section border-t border-border">
-                <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
-                        <ScrollReveal>
-                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 leading-none">
-                                Principles
-                            </h2>
-                        </ScrollReveal>
-
-                        <div className="space-y-12">
-                            {[
-                                {
-                                    title: "Craft Over Convention",
-                                    description: "We obsess over the details. Every pixel, every transition, every word is considered and intentional."
-                                },
-                                {
-                                    title: "Strategy First",
-                                    description: "Beautiful design without purpose is decoration. We ground every creative decision in strategic thinking."
-                                },
-                                {
-                                    title: "Collaborative Process",
-                                    description: "The best work happens together. We partner closely with our clients, sharing insights and iterating as a team."
-                                },
-                                {
-                                    title: "Accessible by Default",
-                                    description: "Great design works for everyone. We build inclusively, ensuring our work reaches the widest possible audience."
-                                }
-                            ].map((principle, i) => (
-                                <ScrollReveal key={principle.title} delay={i * 0.1}>
-                                    <h3 className="text-xl font-bold text-white mb-2">{principle.title}</h3>
-                                    <p className="text-text-secondary text-[17px] leading-relaxed">
-                                        {principle.description}
-                                    </p>
-                                </ScrollReveal>
-                            ))}
                         </div>
                     </div>
                 </Container>
             </section>
 
-
-
-            {/* ── Awards ───────────────────────────────────────────── */}
-            <section className="py-section-sm lg:py-section border-t border-border">
+            {/* ── Team grid ──────────────────────────────────────────── */}
+            <section style={{ backgroundColor: BEIGE }} className="pb-[60px] md:pb-[100px]">
                 <Container>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
-                        <ScrollReveal>
-                            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white mb-4 leading-none">
-                                Awards
-                            </h2>
-                        </ScrollReveal>
-
-                        <div className="flex flex-col">
-                            {[
-                                "Forma Awards",
-                                "Linea Prize",
-                                "Aperture Design Award",
-                                "Novum Awards",
-                                "Graphis Honor",
-                                "Clarity Design Prize",
-                                "Structure Awards",
-                                "Archetype Prize",
-                                "Lumen Design Award",
-                                "Frame Awards",
-                                "Axis Design Award",
-                                "Vista Awards",
-                                "Forma Prize",
-                                "Spectrum Awards",
-                                "Modus Design Prize",
-                            ].map((award, i) => (
-                                <ScrollReveal key={award} delay={i * 0.05}>
-                                    <div className="py-3 border-b border-white/10 flex justify-between items-center group">
-                                        <span className="text-[17px] text-white/90 group-hover:text-white transition-colors">
-                                            {award}
-                                        </span>
-                                    </div>
-                                </ScrollReveal>
-                            ))}
-                        </div>
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-[5px]">
+                        {TEAM.map((m, i) => (
+                            <TeamCard key={i} {...m} />
+                        ))}
                     </div>
                 </Container>
             </section>
 
-            {/* ── CTA Section ───────────────────────────────────────────── */}
-            <section className="pb-section-sm lg:pb-section border-t border-border">
+            {/* ── "Let's work together." CTA (white — matches home, then beige footer) ─ */}
+            <section className="pt-[40px] md:pt-[60px] pb-[100px] md:pb-[140px] bg-white">
                 <Container>
-                    <div className="pt-section-sm lg:pt-section">
-                        <ScrollReveal className="text-center max-w-5xl mx-auto">
-                            <Link href="/contact" className="group block py-10 cursor-pointer">
-                                <h2 className="text-[clamp(3rem,7vw,6rem)] text-white/85 font-bold group-hover:text-accent group-hover:font-bold leading-[1.05] tracking-[-0.03em] transition-all duration-250 transform translate-y-4 group-hover:-translate-y-2">
-                                    Let&apos;s work together.
-                                </h2>
-                                <p className="text-text-secondary text-[18px] mt-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-100 -mb-350">
-                                    Have a project in mind? We&apos;d love to hear about it.
-                                </p>
-                            </Link>
-                        </ScrollReveal>
-                    </div>
+                    <h2
+                        className="text-black"
+                        style={{
+                            fontFamily: "Tenon, sans-serif",
+                            fontSize: "clamp(2.5rem, 2.5vw, 4rem)",
+                            letterSpacing: "-0.02em",
+                            lineHeight: 1.1,
+                            fontWeight: 900,
+                        }}
+                    >
+                        Let&rsquo;s work together.
+                    </h2>
+                    <ul className="mt-[20px] md:mt-[24px] space-y-[2px]">
+                        <li>
+                            <a
+                                href="mailto:nathan@tinyark.com"
+                                className="text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
+                                style={{
+                                    fontSize: "clamp(1.5rem, 1.5vw, 2.5rem)",
+                                    lineHeight: 1.5,
+                                }}
+                            >
+                                nathan@tinyark.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="mailto:gabi@tinyark.com"
+                                className="text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
+                                style={{
+                                    fontSize: "clamp(1.5rem, 1.5vw, 2.5rem)",
+                                    lineHeight: 1.5,
+                                }}
+                            >
+                                gabi@tinyark.com
+                            </a>
+                        </li>
+                    </ul>
                 </Container>
             </section>
-        </>
+        </div>
+    );
+}
+
+function ServicePill({ label }: { label: string }) {
+    return (
+        <span
+            className="inline-flex items-center justify-between gap-[6px] border border-accent rounded-full px-[12px] py-[5px] text-accent"
+            style={{
+                fontFamily: "Tenon, sans-serif",
+                fontSize: "clamp(0.7rem, 0.78vw, 13px)",
+                fontWeight: 500,
+            }}
+        >
+            <span className="flex items-center gap-[6px]">
+                <span aria-hidden="true" className="inline-block w-[4px] h-[4px] rounded-full bg-accent" />
+                <span>{label}</span>
+            </span>
+            <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="none"
+                aria-hidden="true"
+                className="shrink-0"
+            >
+                <path
+                    d="M2 8L8 2M8 2H3M8 2V7"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </svg>
+        </span>
+    );
+}
+
+function TeamCard({ nameLabel, nameAssetSrc, role, photoSrc }: TeamMember) {
+    const alt = nameLabel || role;
+
+    return (
+        <div className="flex flex-col">
+            {/* Design spec: portrait 280 × 320 */}
+            <div className="relative aspect-[280/320] bg-[#D7CFC2] overflow-hidden">
+                {photoSrc ? (
+                    <Image
+                        src={photoSrc}
+                        alt={alt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 16vw"
+                    />
+                ) : null}
+
+                {nameAssetSrc ? (
+                    <div className="pointer-events-none absolute left-[8px] bottom-[10px] right-[8px] max-w-[calc(100%-16px)] h-[28%] min-h-[44px]">
+                        <Image
+                            src={nameAssetSrc}
+                            alt=""
+                            fill
+                            className="object-contain object-left-bottom"
+                            sizes="200px"
+                        />
+                    </div>
+                ) : nameLabel ? (
+                    <div
+                        className="absolute left-[10px] bottom-[12px] bg-accent text-white -rotate-[3deg] px-[10px] py-[4px] shadow-[0_2px_6px_rgba(0,0,0,0.18)]"
+                        style={{
+                            fontFamily: "Tenon, sans-serif",
+                            fontStyle: "italic",
+                            fontWeight: 700,
+                            fontSize: "clamp(0.85rem, 1vw, 16px)",
+                            letterSpacing: "0.02em",
+                        }}
+                    >
+                        {nameLabel}
+                    </div>
+                ) : null}
+            </div>
+            <p
+                className="text-black mt-[10px] leading-tight"
+                style={{
+                    fontFamily: "Tenon, sans-serif",
+                    fontSize: "clamp(0.75rem, 0.78vw, 14px)",
+                    fontWeight: 700,
+                }}
+            >
+                {role}
+            </p>
+        </div>
     );
 }
