@@ -18,7 +18,10 @@ export default function Footer() {
     // Beige footer bar (#EAE4DD) — home, about, work detail, contact, etc.
     if (useBeigeBar) {
         return (
-            <footer className="bg-[#EAE4DD] text-black">
+            <footer
+                data-header-surface="neutral"
+                className="bg-[#EAE4DD] text-black"
+            >
                 <div className="w-full px-[5.625vw]">
                     <div className="grid grid-cols-3 items-center py-[14px] md:py-[18px]">
                         {/* Social icons (left) */}

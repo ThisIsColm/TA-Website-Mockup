@@ -72,7 +72,10 @@ export default async function InsightsPage() {
     });
 
     return (
-        <section className="bg-white pt-[100px] md:pt-[110px] pb-[100px] md:pb-[140px]">
+        <section
+            data-header-surface="white"
+            className="bg-white pt-[100px] md:pt-[110px] pb-[100px] md:pb-[140px]"
+        >
             <Container>
                 {/* Page title — centred, ~100px space below before the grid */}
                 <h1
@@ -109,7 +112,10 @@ export default async function InsightsPage() {
                                             href={`/insights/${post.slug}`}
                                             className="group block"
                                         >
-                                            <div className="relative w-full aspect-[565/370] overflow-hidden bg-[#D7CFC2]">
+                                            <div
+                                                data-header-surface="dark"
+                                                className="relative w-full aspect-[565/370] overflow-hidden bg-[#D7CFC2]"
+                                            >
                                                 {post.coverImage ? (
                                                     <Image
                                                         src={post.coverImage}

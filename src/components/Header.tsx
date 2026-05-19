@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useHeaderContrast } from "@/hooks/useHeaderContrast";
 
 // "Home" is reached via the logo; menu lists Work / About / Insights to match the design.
 const navLinks = [
@@ -17,16 +18,15 @@ const navLinks = [
 const LOGO_WHITE = "/images/TA_Logo_2026.png";
 const LOGO_ORANGE = "/images/TA_Logo_2026_Orange.png";
 
+const CHROME_FADE =
+    "transition-opacity duration-300 ease-out motion-reduce:transition-none";
+
 function LogoLink({
-    defaultSrc,
-    hoverSrc,
-    hoverClassName = "",
+    isOverWhiteBg,
     className = "",
     onClick,
 }: {
-    defaultSrc: string;
-    hoverSrc: string;
-    hoverClassName?: string;
+    isOverWhiteBg: boolean;
     className?: string;
     onClick?: () => void;
 }) {
@@ -38,18 +38,71 @@ function LogoLink({
             aria-label="Tiny Ark home"
         >
             <span className="relative block w-[120px]">
+                {/* Default: white on dark surfaces */}
                 <img
-                    src={defaultSrc}
+                    src={LOGO_WHITE}
                     alt=""
-                    className="block h-auto w-full transition-opacity duration-300 ease-out group-hover:opacity-0"
+                    className={`block h-auto w-full ${CHROME_FADE} ${
+                        isOverWhiteBg
+                            ? "opacity-0"
+                            : "opacity-100 group-hover:opacity-0"
+                    }`}
                 />
+                {/* Default: orange on white surfaces */}
                 <img
-                    src={hoverSrc}
+                    src={LOGO_ORANGE}
+                    alt=""
+                    className={`absolute inset-0 block h-auto w-full ${CHROME_FADE} ${
+                        isOverWhiteBg
+                            ? "opacity-100 group-hover:opacity-0"
+                            : "opacity-0"
+                    }`}
+                />
+                {/* Hover: black on white surfaces */}
+                <img
+                    src={LOGO_WHITE}
+                    alt=""
+                    className={`absolute inset-0 block h-auto w-full brightness-0 ${CHROME_FADE} ${
+                        isOverWhiteBg
+                            ? "opacity-0 group-hover:opacity-100"
+                            : "opacity-0"
+                    }`}
+                />
+                {/* Hover: orange on dark surfaces */}
+                <img
+                    src={LOGO_ORANGE}
                     alt="Tiny Ark"
-                    className={`absolute inset-0 block h-auto w-full opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 ${hoverClassName}`}
+                    className={`absolute inset-0 block h-auto w-full ${CHROME_FADE} ${
+                        isOverWhiteBg
+                            ? "opacity-0"
+                            : "opacity-0 group-hover:opacity-100"
+                    }`}
                 />
             </span>
         </Link>
+    );
+}
+
+function ChromeBar({
+    isOverWhiteBg,
+    className = "",
+}: {
+    isOverWhiteBg: boolean;
+    className?: string;
+}) {
+    return (
+        <span className={`absolute block w-6 h-[2px] ${className}`}>
+            <span
+                className={`absolute inset-0 bg-white ${CHROME_FADE} ${
+                    isOverWhiteBg ? "opacity-0" : "opacity-100"
+                }`}
+            />
+            <span
+                className={`absolute inset-0 bg-black ${CHROME_FADE} ${
+                    isOverWhiteBg ? "opacity-100" : "opacity-0"
+                }`}
+            />
+        </span>
     );
 }
 
@@ -57,7 +110,9 @@ export default function Header() {
     const pathname = usePathname();
     const [menuOpen, setMenuOpen] = useState(false);
     const [hash, setHash] = useState("");
+    const headerRef = useRef<HTMLElement>(null);
     const menuWrapRef = useRef<HTMLDivElement>(null);
+    const isOverWhiteBg = useHeaderContrast(headerRef);
 
     useEffect(() => {
         setHash(typeof window !== "undefined" ? window.location.hash : "");
@@ -94,29 +149,21 @@ export default function Header() {
         };
     }, [menuOpen]);
 
-    // Light pages: orange logo asset, black icon + black menu text.
-    // All other pages: white logo on dark/image heroes, white icon + white menu text.
-    const lightBgRoutes = ["/about", "/insights"];
-    const isOverLightBg =
-        !!pathname &&
-        lightBgRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
-    const bar = isOverLightBg ? "bg-black" : "bg-white";
-    const headerLogoDefault = isOverLightBg ? LOGO_ORANGE : LOGO_WHITE;
-    const headerLogoHover = isOverLightBg ? LOGO_WHITE : LOGO_ORANGE;
-    const menuTextColor = isOverLightBg ? "text-black" : "text-white";
+    // White background: orange logo, black burger + menu text.
+    // Dark/image/video: white logo + white burger. Beige preserves current theme.
+    const menuTextColor = isOverWhiteBg ? "text-black" : "text-white";
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+        <header
+            ref={headerRef}
+            className="fixed top-0 left-0 right-0 z-50 bg-transparent"
+        >
             <div className="w-full px-[5.625vw] pt-[20px] md:pt-[25px]">
                 <nav
                     className="relative flex items-start justify-between"
                     aria-label="Main navigation"
                 >
-                    <LogoLink
-                        defaultSrc={headerLogoDefault}
-                        hoverSrc={headerLogoHover}
-                        hoverClassName={isOverLightBg ? "brightness-0" : ""}
-                    />
+                    <LogoLink isOverWhiteBg={isOverWhiteBg} />
 
                     <div ref={menuWrapRef} className="relative z-10">
                         {/* Hamburger ↔ X toggle */}
@@ -126,20 +173,23 @@ export default function Header() {
                             aria-label={menuOpen ? "Close menu" : "Open menu"}
                             aria-expanded={menuOpen}
                         >
-                            <span
-                                className={`absolute block w-6 h-[2px] ${bar} transition-transform duration-300 ease-out ${
+                            <ChromeBar
+                                isOverWhiteBg={isOverWhiteBg}
+                                className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen
                                         ? "rotate-45"
                                         : "-translate-y-[7px]"
                                 }`}
                             />
-                            <span
-                                className={`absolute block w-6 h-[2px] ${bar} transition-opacity duration-200 ease-out ${
+                            <ChromeBar
+                                isOverWhiteBg={isOverWhiteBg}
+                                className={`transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen ? "opacity-0" : "opacity-100"
                                 }`}
                             />
-                            <span
-                                className={`absolute block w-6 h-[2px] ${bar} transition-transform duration-300 ease-out ${
+                            <ChromeBar
+                                isOverWhiteBg={isOverWhiteBg}
+                                className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen
                                         ? "-rotate-45"
                                         : "translate-y-[7px]"
@@ -184,7 +234,7 @@ export default function Header() {
                                                 <Link
                                                     href={link.href}
                                                     onClick={() => setMenuOpen(false)}
-                                                    className={`block leading-[1.15] tracking-[-0.01em] transition-[color,transform] duration-150 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:-translate-x-[30px] hover:text-accent ${
+                                                    className={`block leading-[1.15] tracking-[-0.01em] transition-[color,transform,opacity] duration-300 ease-out motion-reduce:transition-none hover:-translate-x-[30px] hover:text-accent ${
                                                         active ? "text-accent" : menuTextColor
                                                     }`}
                                                     style={{

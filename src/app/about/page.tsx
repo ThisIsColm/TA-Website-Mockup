@@ -76,7 +76,10 @@ export default function AboutPage() {
     return (
         <div className="bg-white text-black">
             {/* ── Hero statement (right-aligned, cols 3–6) ───────────── */}
-            <section className="pt-[140px] md:pt-[180px] pb-[80px] md:pb-[120px]">
+            <section
+                data-header-surface="white"
+                className="pt-[140px] md:pt-[180px] pb-[80px] md:pb-[120px]"
+            >
                 <Container>
                     <div className="grid grid-cols-6 gap-[5px]">
                         <div className="col-span-6 md:col-start-3 md:col-span-4 @container">
@@ -124,14 +127,21 @@ export default function AboutPage() {
             </section>
 
             {/* ── Services / Capabilities (beige band) ───────────────── */}
-            <section style={{ backgroundColor: BEIGE }} className="pt-[60px] md:pt-[80px] pb-[60px] md:pb-[100px]">
+            <section
+                data-header-surface="neutral"
+                style={{ backgroundColor: BEIGE }}
+                className="pt-[60px] md:pt-[80px] pb-[60px] md:pb-[100px]"
+            >
                 <Container>
                     <div className="grid grid-cols-6 gap-[5px] items-start">
                         <div className="col-span-6 md:col-span-3 @container">
                             <RotatingTagline />
                         </div>
 
-                        <div className="col-span-6 md:col-span-3 @container bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]">
+                        <div
+                            data-header-surface="white"
+                            className="col-span-6 md:col-span-3 @container bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]"
+                        >
                             <div className="min-w-0 w-full overflow-x-auto [scrollbar-width:thin]">
                                 <p
                                     className="text-black whitespace-nowrap"
@@ -161,10 +171,16 @@ export default function AboutPage() {
             </section>
 
             {/* ── Our people (team grid) ─────────────────────────────── */}
-            <section className="bg-white pt-[60px] md:pt-[80px] pb-[40px] md:pb-[60px]">
+            <section
+                data-header-surface="white"
+                className="bg-white pt-[60px] md:pt-[80px] pb-[40px] md:pb-[60px]"
+            >
                 <Container>
                     <SectionHeading>Our people</SectionHeading>
-                    <div className="mt-[24px] md:mt-[32px] grid grid-cols-2 md:grid-cols-6 gap-x-[5px] gap-y-[50px] md:gap-y-[60px]">
+                    <div
+                        data-header-surface="dark"
+                        className="mt-[24px] md:mt-[32px] grid grid-cols-2 md:grid-cols-6 gap-x-[5px] gap-y-[50px] md:gap-y-[60px]"
+                    >
                         {TEAM.map((m, i) => (
                             <TeamCard key={i} {...m} />
                         ))}
@@ -173,7 +189,10 @@ export default function AboutPage() {
             </section>
 
             {/* ── People we work with (client logos) ─────────────────── */}
-            <section className="bg-white pt-[40px] md:pt-[60px] pb-[60px] md:pb-[100px]">
+            <section
+                data-header-surface="white"
+                className="bg-white pt-[40px] md:pt-[60px] pb-[60px] md:pb-[100px]"
+            >
                 <Container>
                     <SectionHeading>People we work with</SectionHeading>
                     <div className="mt-[24px] md:mt-[32px] relative w-full">
@@ -192,6 +211,7 @@ export default function AboutPage() {
             {/* ── Let's work together (image + contact details) ──────── */}
             <section
                 id="contact"
+                data-header-surface="white"
                 className="scroll-mt-[100px] bg-white pt-[40px] md:pt-[60px] pb-[100px] md:pb-[140px]"
             >
                 <Container>
@@ -199,7 +219,10 @@ export default function AboutPage() {
                     <div className="grid grid-cols-6 md:grid-cols-12 gap-[5px] items-start md:items-center">
                         <div className="col-span-6 md:col-span-7">
                             {/* Source image is 5524 × 3107 (~16:9) — preserve native ratio */}
-                            <div className="relative w-full aspect-[5524/3107] overflow-hidden bg-[#D7CFC2]">
+                            <div
+                                data-header-surface="dark"
+                                className="relative w-full aspect-[5524/3107] overflow-hidden bg-[#D7CFC2]"
+                            >
                                 <Image
                                     src="/images/contact/fontaines.jpg"
                                     alt="Tiny Ark production still"

@@ -91,7 +91,11 @@ function TypewriterSection() {
     }, [handleScroll]);
 
     return (
-        <section ref={sectionRef} className={`pt-[100px] pb-[100px] ${OUTER}`}>
+        <section
+            ref={sectionRef}
+            data-header-surface="white"
+            className={`pt-[100px] pb-[100px] ${OUTER}`}
+        >
             {/* 6-col grid, 5px gutter; copy starts at col 3 and spans 4 cols */}
             <div className="grid grid-cols-6 gap-[5px]">
                 <div className="col-start-3 col-span-4">
@@ -180,7 +184,10 @@ export default function HomePage() {
     return (
         <div className="bg-white text-black">
             {/* ── Hero (Full-screen Vimeo video) ───────────────────── */}
-            <section className="relative h-screen w-full overflow-hidden bg-black">
+            <section
+                data-header-surface="dark"
+                className="relative h-screen w-full overflow-hidden bg-black"
+            >
                 <iframe
                     src={`https://player.vimeo.com/video/${HERO_VIMEO_ID}?h=${HERO_VIMEO_HASH}&background=1&autoplay=1&loop=1&muted=1&api=1`}
                     className="absolute top-1/2 left-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2"
@@ -193,7 +200,11 @@ export default function HomePage() {
             <TypewriterSection />
 
             {/* ── 2x4 Thumbnail Grid (full-bleed, Vimeo on hover, title on hover) ── */}
-            <section id="work" className="scroll-mt-6 pb-[50px]">
+            <section
+                id="work"
+                data-header-surface="dark"
+                className="scroll-mt-6 pb-[50px]"
+            >
                 <div className="grid grid-cols-2 gap-[2.5px]">
                     {grid.map((project, i) => (
                         <ProjectCard
@@ -211,7 +222,10 @@ export default function HomePage() {
             </section>
 
             {/* ── "Let's work together." CTA ──────────────────────── */}
-            <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
+            <section
+                data-header-surface="white"
+                className={`pt-[50px] pb-[100px] ${OUTER}`}
+            >
                 <h2 className="text-[clamp(2.5rem,2.5vw,4rem)] font-black tracking-[-0.02em] text-black leading-[1.1]">
                     Let&rsquo;s work together.
                 </h2>

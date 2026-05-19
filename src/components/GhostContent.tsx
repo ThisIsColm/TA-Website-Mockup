@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Lightbox from "./Lightbox";
+import { HEADER_SURFACE_UPDATE } from "@/hooks/useHeaderContrast";
 
 interface GhostContentProps {
     html: string;
@@ -15,6 +16,50 @@ interface GhostContentProps {
 
 const DEFAULT_CLASSNAME = "ghost-content space-y-6 text-text-secondary text-[17px] leading-[1.8]";
 
+const MEDIA_MARKERS =
+    "figure, .kg-image-card, .kg-gallery-card, .kg-embed-card, .kg-video-card";
+
+/** Skip tiny icons/decorative images — inset article imagery is usually much taller. */
+const MIN_MEDIA_HEIGHT = 80;
+
+function notifyHeaderSurfaceUpdate() {
+    window.dispatchEvent(new Event(HEADER_SURFACE_UPDATE));
+}
+
+function tagMediaForHeaderContrast(root: HTMLElement) {
+    root.querySelectorAll("[data-ghost-media]").forEach((el) => {
+        el.removeAttribute("data-header-surface");
+        el.removeAttribute("data-ghost-media");
+    });
+
+    const tagIfLarge = (el: Element) => {
+        const node = el as HTMLElement;
+        const rect = node.getBoundingClientRect();
+        const img = node.tagName === "IMG" ? (node as HTMLImageElement) : null;
+        const height = Math.max(rect.height, img?.naturalHeight ?? 0);
+
+        if (height >= MIN_MEDIA_HEIGHT) {
+            node.setAttribute("data-header-surface", "dark");
+            node.setAttribute("data-ghost-media", "true");
+        }
+    };
+
+    const marked = new Set<Element>();
+
+    root.querySelectorAll(MEDIA_MARKERS).forEach((el) => {
+        if (marked.has(el)) return;
+        marked.add(el);
+        tagIfLarge(el);
+    });
+
+    root.querySelectorAll(":scope > img, :scope > video, :scope > iframe").forEach(
+        (el) => {
+            if (el.closest("figure, .kg-image-card, .kg-gallery-card")) return;
+            tagIfLarge(el);
+        }
+    );
+}
+
 export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: GhostContentProps) {
     const [images, setImages] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,10 +69,29 @@ export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: Gh
     useEffect(() => {
         if (!contentRef.current) return;
 
+        const root = contentRef.current;
+
         // Find all images in the content
-        const imgElements = contentRef.current.querySelectorAll("img");
+        const imgElements = root.querySelectorAll("img");
         const urls = Array.from(imgElements).map((img) => img.src);
         setImages(urls);
+
+        const runMediaMarking = () => {
+            tagMediaForHeaderContrast(root);
+            notifyHeaderSurfaceUpdate();
+        };
+
+        runMediaMarking();
+
+        imgElements.forEach((img) => {
+            if (img.complete) return;
+            img.addEventListener("load", runMediaMarking, { once: true });
+        });
+
+        const ro = typeof ResizeObserver !== "undefined"
+            ? new ResizeObserver(runMediaMarking)
+            : null;
+        ro?.observe(root);
 
         // Initial click handler setup
         const handleImageClick = (e: MouseEvent) => {
@@ -42,11 +106,15 @@ export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: Gh
             }
         };
 
-        const currentRef = contentRef.current;
-        currentRef.addEventListener("click", handleImageClick);
+        root.addEventListener("click", handleImageClick);
 
         return () => {
-            currentRef.removeEventListener("click", handleImageClick);
+            root.removeEventListener("click", handleImageClick);
+            ro?.disconnect();
+            root.querySelectorAll("[data-ghost-media]").forEach((el) => {
+                el.removeAttribute("data-header-surface");
+                el.removeAttribute("data-ghost-media");
+            });
         };
     }, [html]);
 
