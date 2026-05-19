@@ -13,9 +13,7 @@ export default function Footer() {
         path === "/about" ||
         path.startsWith("/about/") ||
         path.endsWith("/about") ||
-        path.startsWith("/work/") ||
-        path === "/contact" ||
-        path.startsWith("/contact/");
+        path.startsWith("/work/");
 
     // Beige footer bar (#EAE4DD) — home, about, work detail, contact, etc.
     if (useBeigeBar) {
@@ -91,9 +89,6 @@ export default function Footer() {
                         </Link>
                         <Link href="/insights" className="hover:text-white transition-colors">
                             Insights
-                        </Link>
-                        <Link href="/contact" className="hover:text-white transition-colors">
-                            Contact
                         </Link>
                     </nav>
                     <p className="text-[12px] tracking-[0.06em] text-text-tertiary">

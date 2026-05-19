@@ -367,7 +367,8 @@ html.lenis body {
   grid-column: 3 / span 4;
 }
 
-/* ── Full-bleed media (figures, images, embeds) ──────── */
+/* ── Media (figures, images, embeds)
+   Aligned to the same page padding as the body text rather than full-bleed. */
 .case-study-prose > figure,
 .case-study-prose > .kg-card,
 .case-study-prose > .kg-image-card,
@@ -378,10 +379,7 @@ html.lenis body {
 .case-study-prose > video,
 .case-study-prose > iframe {
   grid-column: 1 / -1;
-  margin-left: calc(-1 * var(--page-padding));
-  margin-right: calc(-1 * var(--page-padding));
-  width: calc(100% + var(--page-padding) * 2);
-  max-width: none;
+  width: 100%;
   margin-top: 100px;
   margin-bottom: 80px;
 }
@@ -457,10 +455,7 @@ html.lenis body {
   .case-study-prose > img,
   .case-study-prose > video,
   .case-study-prose > iframe {
-    margin-left: calc(-1 * var(--page-padding));
-    margin-right: calc(-1 * var(--page-padding));
-    width: calc(100% + var(--page-padding) * 2);
-    max-width: none;
+    width: 100%;
   }
 
   .case-study-prose > * + h2,

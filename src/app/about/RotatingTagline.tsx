@@ -26,7 +26,7 @@ export default function RotatingTagline() {
             className="text-black"
             style={{
                 fontFamily: "Tenon, sans-serif",
-                fontSize: "clamp(1.5rem, 2.6vw, 50px)",
+                fontSize: "clamp(1.5rem, 2.6vw, 36px)",
                 lineHeight: 1.2,
                 letterSpacing: "-0.01em",
             }}

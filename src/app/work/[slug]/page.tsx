@@ -193,7 +193,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
     return (
         <article className="bg-white text-black">
-            {/* ── Hero: Vimeo video at top (full-bleed). ───────────── */}
+            {/* ── Hero: Vimeo video full-bleed; cover image inset with page padding. ─ */}
             {data.videoHtml ? (
                 <section className="relative w-full bg-black">
                     <div
@@ -207,20 +207,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     </div>
                 </section>
             ) : data.coverImage ? (
-                <section className="relative w-full aspect-video bg-black">
-                    <Image
-                        src={data.coverImage}
-                        alt={data.title}
-                        fill
-                        className="object-cover"
-                        sizes="100vw"
-                        priority
-                        unoptimized
-                    />
+                <section className={`relative w-full ${OUTER}`}>
+                    <div className="relative w-full aspect-video bg-black">
+                        <Image
+                            src={data.coverImage}
+                            alt={data.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 88.75vw, 88.75vw"
+                            priority
+                            unoptimized
+                        />
+                    </div>
                 </section>
             ) : null}
 
-            {/* ── Title + Body content (single grid; full-bleed images) ─ */}
+            {/* ── Title + Body content (padded; hero Vimeo is the only full-bleed) ─ */}
             <section className="pt-[100px] pb-[60px]">
                 <GhostContent
                     html={
