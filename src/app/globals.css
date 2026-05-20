@@ -517,11 +517,17 @@ html.lenis body {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   column-gap: 5px;
-  row-gap: 0;
+  /* Consistent vertical rhythm between every block (text, video, image) */
+  row-gap: clamp(28px, 2.5vw, 48px);
   color: #000;
   font-family: var(--font-sans);
   padding-left: var(--page-padding);
   padding-right: var(--page-padding);
+}
+
+.insight-article-prose > * {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .insight-article-prose > h2,
@@ -542,12 +548,6 @@ html.lenis body {
   color: #000;
   line-height: 1.2;
   margin: 0;
-}
-
-.insight-article-prose > * + h2,
-.insight-article-prose > * + h3,
-.insight-article-prose > * + h4 {
-  margin-top: 48px;
 }
 
 .insight-article-prose > h2 {
@@ -571,17 +571,6 @@ html.lenis body {
 
 .insight-article-prose > p {
   color: #000;
-  margin: 0;
-}
-
-.insight-article-prose > p + p {
-  margin-top: 1.25em;
-}
-
-.insight-article-prose > h2 + p,
-.insight-article-prose > h3 + p,
-.insight-article-prose > h4 + p {
-  margin-top: 1em;
 }
 
 .insight-article-prose p a {
@@ -601,27 +590,18 @@ html.lenis body {
 .insight-article-prose > ul,
 .insight-article-prose > ol {
   padding-left: 1.25em;
-  margin: 0;
-}
-
-.insight-article-prose > ul + p,
-.insight-article-prose > ol + p,
-.insight-article-prose > p + ul,
-.insight-article-prose > p + ol {
-  margin-top: 1.25em;
 }
 
 .insight-article-prose > blockquote {
   border-left: 3px solid var(--color-accent);
   padding-left: 1.25em;
-  margin: 0;
   color: rgba(0, 0, 0, 0.75);
 }
 
-.insight-article-prose > figure,
-.insight-article-prose > .kg-card,
+/* Single-column media aligns with body text (cols 3–6) */
+.insight-article-prose > figure:not(.kg-gallery-card),
+.insight-article-prose > .kg-card:not(.kg-gallery-card),
 .insight-article-prose > .kg-image-card,
-.insight-article-prose > .kg-gallery-card,
 .insight-article-prose > .kg-embed-card,
 .insight-article-prose > .kg-video-card,
 .insight-article-prose > img,
@@ -630,13 +610,53 @@ html.lenis body {
   grid-column: 3 / span 4;
   width: 100%;
   max-width: none;
-  margin: 48px 0 0;
+}
+
+.insight-article-prose > figure:not(.kg-gallery-card) {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 2.5vw, 48px);
+}
+
+.insight-article-prose figure figure {
+  margin: 0;
+}
+
+/* Side-by-side image groups span the full 6-column content width */
+.insight-article-prose > .kg-gallery-card,
+.insight-article-prose > figure.kg-gallery-card {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 2.5vw, 48px);
+}
+
+.insight-article-prose .kg-gallery-row {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  width: 100%;
+}
+
+.insight-article-prose .kg-gallery-image {
+  flex: 1;
+  min-width: 0;
+}
+
+.insight-article-prose .kg-gallery-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
 }
 
 .insight-article-prose img {
   width: 100%;
   height: auto;
   display: block;
+  margin: 0;
 }
 
 /* Ghost Vimeo/YouTube — override inline width/height from the editor */
@@ -646,8 +666,7 @@ html.lenis body {
 .insight-article-prose .kg-embed-container {
   width: 100% !important;
   max-width: 100% !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  margin: 0 !important;
 }
 
 .insight-article-prose .kg-embed-card iframe,
@@ -662,6 +681,14 @@ html.lenis body {
 }
 
 @media (max-width: 768px) {
+  .insight-article-prose {
+    row-gap: clamp(24px, 5vw, 32px);
+  }
+
+  .insight-article-prose > figure {
+    gap: clamp(24px, 5vw, 32px);
+  }
+
   .insight-article-prose > h2,
   .insight-article-prose > h3,
   .insight-article-prose > h4,
@@ -672,23 +699,20 @@ html.lenis body {
     grid-column: 1 / -1;
   }
 
-  .insight-article-prose > * + h2,
-  .insight-article-prose > * + h3,
-  .insight-article-prose > * + h4 {
-    margin-top: 32px;
-  }
-
-  .insight-article-prose > figure,
-  .insight-article-prose > .kg-card,
+  .insight-article-prose > figure:not(.kg-gallery-card),
+  .insight-article-prose > .kg-card:not(.kg-gallery-card),
   .insight-article-prose > .kg-image-card,
-  .insight-article-prose > .kg-gallery-card,
   .insight-article-prose > .kg-embed-card,
   .insight-article-prose > .kg-video-card,
   .insight-article-prose > img,
   .insight-article-prose > video,
   .insight-article-prose > iframe {
     grid-column: 1 / -1;
-    margin-top: 32px;
+  }
+
+  .insight-article-prose > .kg-gallery-card,
+  .insight-article-prose > figure.kg-gallery-card {
+    grid-column: 1 / -1;
   }
 }
 
