@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import Container from "@/components/Container";
 import RotatingTagline from "./RotatingTagline";
 import TeamCard, { type TeamCardProps } from "./TeamCard";
@@ -52,7 +53,7 @@ const TEAM: TeamCardProps[] = [
         photoPrefix: "Leon",
         tapeKey: "Leon",
     },
-    { nameLabel: "Blaine Tennick", role: "Technical Director", tapeKey: "Blaine" },
+    { nameLabel: "Blaine Rennicks", role: "Technical Director", tapeKey: "Blaine" },
     {
         nameLabel: "Colm Moore",
         role: "Head of Post Production",
@@ -234,34 +235,16 @@ export default function AboutPage() {
                 </Container>
             </section>
 
-            {/* ── Let's work together (image + contact details) ──────── */}
+            {/* ── Get in touch ───────────────────────────────────────── */}
             <section
-                id="contact"
                 data-header-surface="white"
-                className="scroll-mt-[100px] bg-white pt-[40px] md:pt-[60px] pb-[100px] md:pb-[140px]"
+                className="bg-white pt-[40px] md:pt-[60px] pb-[100px] md:pb-[140px]"
             >
                 <Container>
-                    {/* Use a 12-col grid so the image can span 3.5 of the page's 6 cols (= 7/12). */}
-                    <div className="grid grid-cols-6 md:grid-cols-12 gap-[5px] items-start md:items-center">
-                        <div className="col-span-6 md:col-span-7">
-                            {/* Source image is 5524 × 3107 (~16:9) — preserve native ratio */}
-                            <div
-                                data-header-surface="dark"
-                                className="relative w-full aspect-[5524/3107] overflow-hidden bg-[#D7CFC2]"
-                            >
-                                <Image
-                                    src="/images/contact/fontaines.jpg"
-                                    alt="Tiny Ark production still"
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 100vw, 58vw"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="col-span-6 md:col-span-4 md:col-start-9 pt-[40px] md:pt-0">
-                            <h2
-                                className="text-black"
+                    <div className="flex justify-center text-center">
+                            <Link
+                                href="/contact"
+                                className="inline-block text-black hover:text-accent transition-colors duration-300"
                                 style={{
                                     fontFamily: "Tenon, sans-serif",
                                     fontSize: "clamp(2.5rem, 2.5vw, 4rem)",
@@ -270,39 +253,8 @@ export default function AboutPage() {
                                     fontWeight: 900,
                                 }}
                             >
-                                Let&rsquo;s work together.
-                            </h2>
-
-                            <div className="mt-[32px] md:mt-[40px] space-y-[28px]">
-                                <ContactPerson
-                                    name="Nathan Reilly"
-                                    title="CEO"
-                                    email="nathan@tinyark.com"
-                                    phone="+353 (87) 993 2195"
-                                />
-                                <ContactPerson
-                                    name="Gabi Chrobak"
-                                    title="Head of Production"
-                                    email="gabi@tinyark.com"
-                                />
-                                <address
-                                    className="not-italic text-black"
-                                    style={{
-                                        fontFamily: "Tenon, sans-serif",
-                                        fontSize: "clamp(1rem, 1.1vw, 18px)",
-                                        lineHeight: 1.55,
-                                    }}
-                                >
-                                    43 Talbot St
-                                    <br />
-                                    Mountjoy
-                                    <br />
-                                    Dublin 1
-                                    <br />
-                                    D01 KOE8
-                                </address>
-                            </div>
-                        </div>
+                                Get in touch.
+                            </Link>
                     </div>
                 </Container>
             </section>
@@ -353,62 +305,3 @@ function ServicePill({ label }: { label: string }) {
     );
 }
 
-function ContactPerson({
-    name,
-    title,
-    email,
-    phone,
-}: {
-    name: string;
-    title: string;
-    email: string;
-    phone?: string;
-}) {
-    return (
-        <div>
-            <p
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(1.1rem, 1.25vw, 22px)",
-                    fontWeight: 700,
-                    color: "#000",
-                    lineHeight: 1.15,
-                }}
-            >
-                {name}
-            </p>
-            <p
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(0.85rem, 0.95vw, 15px)",
-                    color: "rgba(0,0,0,0.55)",
-                    marginTop: "4px",
-                }}
-            >
-                {title}
-            </p>
-            <a
-                href={`mailto:${email}`}
-                className="block mt-[8px] text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(1rem, 1.1vw, 18px)",
-                }}
-            >
-                {email}
-            </a>
-            {phone ? (
-                <a
-                    href={`tel:${phone.replace(/\s|\(|\)|-/g, "")}`}
-                    className="block mt-[4px] text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                    style={{
-                        fontFamily: "Tenon, sans-serif",
-                        fontSize: "clamp(1rem, 1.1vw, 18px)",
-                    }}
-                >
-                    {phone}
-                </a>
-            ) : null}
-        </div>
-    );
-}

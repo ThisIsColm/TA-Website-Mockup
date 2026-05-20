@@ -462,11 +462,31 @@ html.lenis body {
   object-fit: cover;
 }
 
-/* Mobile: collapse the right-shifted column to full width */
+/* Mobile: single column — title first, body from col 1 (no right-shifted layout) */
 @media (max-width: 768px) {
+  .case-study-prose {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Undo display:contents so title + director stack at the top */
+  .case-study-prose > .case-meta {
+    display: block;
+  }
+
+  .case-study-prose > .case-meta > h1,
+  .case-study-prose > .case-meta > p,
   .case-study-prose > *,
-  .case-study-prose > .case-meta > * {
-    grid-column: 1 / -1;
+  .case-study-prose > p,
+  .case-study-prose > ul,
+  .case-study-prose > ol,
+  .case-study-prose > blockquote,
+  .case-study-prose > h2,
+  .case-study-prose > h3,
+  .case-study-prose > h4 {
+    grid-column: unset;
+    width: 100%;
+    max-width: 100%;
   }
 
   .case-study-prose > .case-meta > p {

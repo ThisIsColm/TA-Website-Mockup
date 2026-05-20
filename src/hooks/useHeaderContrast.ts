@@ -55,6 +55,12 @@ export function useHeaderContrast(
     const lastThemeRef = useRef(false);
 
     const update = useCallback(() => {
+        if (pathname === "/contact") {
+            lastThemeRef.current = true;
+            setIsOverWhiteBg(true);
+            return;
+        }
+
         const headerBottom =
             headerRef.current?.getBoundingClientRect().bottom ?? 72;
         const surface = getSurfaceUnderHeader(headerBottom);
@@ -70,7 +76,7 @@ export function useHeaderContrast(
         } else {
             setIsOverWhiteBg(lastThemeRef.current);
         }
-    }, [headerRef]);
+    }, [headerRef, pathname]);
 
     useEffect(() => {
         lastThemeRef.current = false;

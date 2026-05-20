@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/ProjectCard";
+import VideoHero from "@/components/VideoHero";
 import { getFeaturedProjects } from "@/lib/data";
 import { Project } from "@/types";
 
@@ -183,18 +184,11 @@ export default function HomePage() {
 
     return (
         <div className="bg-white text-black">
-            {/* ── Hero (Full-screen Vimeo video) ───────────────────── */}
-            <section
-                data-header-surface="dark"
-                className="relative h-screen w-full overflow-hidden bg-black"
-            >
-                <iframe
-                    src={`https://player.vimeo.com/video/${HERO_VIMEO_ID}?h=${HERO_VIMEO_HASH}&background=1&autoplay=1&loop=1&muted=1&api=1`}
-                    className="absolute top-1/2 left-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    title="Tiny Ark showreel"
-                />
-            </section>
+            <VideoHero
+                vimeoId={HERO_VIMEO_ID}
+                vimeoHash={HERO_VIMEO_HASH}
+                title="Tiny Ark showreel"
+            />
 
             {/* ── About intro (scroll typewriter) ─────────────────────────── */}
             <TypewriterSection />
@@ -205,7 +199,7 @@ export default function HomePage() {
                 data-header-surface="dark"
                 className="scroll-mt-6 pb-[50px]"
             >
-                <div className="grid grid-cols-2 gap-[2.5px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-[2.5px]">
                     {grid.map((project, i) => (
                         <ProjectCard
                             key={project.slug || i}

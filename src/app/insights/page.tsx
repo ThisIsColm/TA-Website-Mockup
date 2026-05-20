@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/Container";
+import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getSelections } from "@/lib/db";
 
@@ -112,32 +112,10 @@ export default async function InsightsPage() {
                                             href={`/insights/${post.slug}`}
                                             className="group block"
                                         >
-                                            <div
-                                                data-header-surface="dark"
-                                                className="relative w-full aspect-[565/370] overflow-hidden bg-[#D7CFC2]"
-                                            >
-                                                {post.coverImage ? (
-                                                    <Image
-                                                        src={post.coverImage}
-                                                        alt={post.title}
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="(max-width: 768px) 100vw, 33vw"
-                                                    />
-                                                ) : null}
-                                                <div
-                                                    className="pointer-events-none absolute inset-[1%] z-10 opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
-                                                    aria-hidden="true"
-                                                >
-                                                    <Image
-                                                        src="/images/squiggle-hover.png"
-                                                        alt=""
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="(max-width: 768px) 100vw, 33vw"
-                                                    />
-                                                </div>
-                                            </div>
+                                            <InsightsPostThumbnail
+                                                coverImage={post.coverImage}
+                                                title={post.title}
+                                            />
 
                                             <p
                                                 className="mt-[25px] text-black"

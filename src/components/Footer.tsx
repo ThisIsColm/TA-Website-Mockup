@@ -8,19 +8,23 @@ export default function Footer() {
     const pathname = usePathname();
     const path = (pathname ?? "").replace(/\/$/, "") || "/";
 
-    const useBeigeBar =
+    const useSlimBar =
         path === "/" ||
         path === "/about" ||
         path.startsWith("/about/") ||
         path.endsWith("/about") ||
-        path.startsWith("/work/");
+        path.startsWith("/work/") ||
+        path === "/contact";
 
-    // Beige footer bar (#EAE4DD) — home, about, work detail, contact, etc.
-    if (useBeigeBar) {
+    const slimBarBg = path === "/contact" ? "bg-white" : "bg-[#EAE4DD]";
+    const slimBarSurface = path === "/contact" ? "white" : "neutral";
+
+    // Slim footer bar — beige on home/about/work; white on contact
+    if (useSlimBar) {
         return (
             <footer
-                data-header-surface="neutral"
-                className="bg-[#EAE4DD] text-black"
+                data-header-surface={slimBarSurface}
+                className={`${slimBarBg} text-black`}
             >
                 <div className="w-full px-[5.625vw]">
                     <div className="grid grid-cols-3 items-center py-[14px] md:py-[18px]">

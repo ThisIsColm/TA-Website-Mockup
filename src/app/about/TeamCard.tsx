@@ -78,7 +78,10 @@ export default function TeamCard({
     };
 
     const hasPhotos = frames.length > 0;
-    const alt = nameLabel || role;
+    const displayName = (nameLabel?.trim() || role).trim();
+    /** One description per card; stacked frames 2–3 are hidden from AT to avoid triple announcements. */
+    const photoAlt = `Portrait of ${displayName}`;
+
     const tapeSrc = tapeKey ? `/images/team/tape/Tape_${tapeKey}.png` : null;
 
     return (
@@ -90,13 +93,16 @@ export default function TeamCard({
                 onFocus={handleEnter}
                 onBlur={handleLeave}
                 tabIndex={hasPhotos ? 0 : -1}
+                role={!hasPhotos ? "img" : undefined}
+                aria-label={!hasPhotos ? photoAlt : undefined}
             >
                 {hasPhotos
                     ? frames.map((src, idx) => (
                           <Image
                               key={src}
                               src={src}
-                              alt={idx === 0 ? alt : ""}
+                              alt={idx === 0 ? photoAlt : ""}
+                              aria-hidden={idx !== 0}
                               fill
                               priority={idx === 0}
                               className="object-cover"
@@ -124,8 +130,8 @@ export default function TeamCard({
                         width={TAPE_W}
                         height={TAPE_H}
                         aria-hidden
-                        className="pointer-events-none absolute bottom-0 left-0 z-[3] w-[min(97.5%,250px)] h-auto max-w-none"
-                        sizes="(max-width: 768px) 50vw, 15vw"
+                        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[3] w-full h-auto"
+                        sizes="(max-width: 768px) 50vw, 16vw"
                     />
                 ) : null}
             </div>
