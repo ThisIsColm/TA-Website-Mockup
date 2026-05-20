@@ -627,9 +627,9 @@ html.lenis body {
 .insight-article-prose > img,
 .insight-article-prose > video,
 .insight-article-prose > iframe {
-  /* Full content width (6 cols), still inside page padding — not viewport bleed */
-  grid-column: 1 / -1;
+  grid-column: 3 / span 4;
   width: 100%;
+  max-width: none;
   margin: 48px 0 0;
 }
 
@@ -639,9 +639,25 @@ html.lenis body {
   display: block;
 }
 
+/* Ghost Vimeo/YouTube — override inline width/height from the editor */
+.insight-article-prose .kg-embed-card,
+.insight-article-prose .kg-video-card,
+.insight-article-prose figure.kg-embed-card,
+.insight-article-prose .kg-embed-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .insight-article-prose .kg-embed-card iframe,
-.insight-article-prose .kg-video-card iframe {
-  width: 100%;
+.insight-article-prose .kg-video-card iframe,
+.insight-article-prose figure iframe,
+.insight-article-prose > iframe {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
   aspect-ratio: 16 / 9;
 }
 
@@ -671,6 +687,7 @@ html.lenis body {
   .insight-article-prose > img,
   .insight-article-prose > video,
   .insight-article-prose > iframe {
+    grid-column: 1 / -1;
     margin-top: 32px;
   }
 }
