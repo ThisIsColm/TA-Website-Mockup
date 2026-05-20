@@ -2,38 +2,20 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import Container from "@/components/Container";
 import GhostContent from "@/components/GhostContent";
+import InsightArticleHeader from "@/components/InsightArticleHeader";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
+import { getPostMetadata } from "@/lib/db";
 import { getInsightsPageNeighbors } from "@/lib/insightsGrid";
 
-// Make this page dynamic so it can fetch from Ghost on request
 export const dynamic = "force-dynamic";
 
 const OUTER = "px-[5.625vw]";
 
-function escapeHtml(value: string): string {
-    return value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function buildMetaHtml(title: string, subtitle?: string): string {
-    const subtitleHtml = subtitle
-        ? `<p>${escapeHtml(subtitle)}</p>`
-        : "";
-    return `<div class="case-meta"><h1>${escapeHtml(title)}</h1>${subtitleHtml}</div>`;
-}
-
 interface InsightPageProps {
     params: Promise<{ slug: string }>;
 }
-
-// ──────────────────────────────────────────────────────────────────
-// Metadata
-// ──────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
     params,
@@ -56,15 +38,6 @@ export async function generateMetadata({
     return {};
 }
 
-// ──────────────────────────────────────────────────────────────────
-// Unified insight shape (mirrors the work case-study shape)
-// ──────────────────────────────────────────────────────────────────
-
-interface Credit {
-    label: string;
-    value: string;
-}
-
 interface Insight {
     title: string;
     videoHtml: string | null;
@@ -72,7 +45,7 @@ interface Insight {
     coverImage: string | null;
     html: string | null;
     subtitle?: string;
-    credits: Credit[];
+    authorId?: string;
 }
 
 async function loadInsight(slug: string): Promise<Insight | null> {
@@ -82,28 +55,7 @@ async function loadInsight(slug: string): Promise<Insight | null> {
 }
 
 function ghostToInsight(post: GhostPost): Insight {
-    const credits: Credit[] = [];
-
-    if (post.published_at) {
-        credits.push({
-            label: "Published",
-            value: new Date(post.published_at).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }),
-        });
-    }
-    credits.push({ label: "Author", value: "Tiny Ark" });
-    if (post.primary_tag?.name) {
-        credits.push({ label: "Category", value: post.primary_tag.name });
-    }
-    const otherTags = post.tags
-        .filter((t) => t.id !== post.primary_tag?.id)
-        .map((t) => t.name);
-    if (otherTags.length) {
-        credits.push({ label: "Tags", value: otherTags.join(", ") });
-    }
+    const meta = getPostMetadata(post.id);
 
     return {
         title: post.title,
@@ -112,13 +64,9 @@ function ghostToInsight(post: GhostPost): Insight {
         coverImage: post.feature_image,
         html: post.html || null,
         subtitle: post.custom_excerpt || undefined,
-        credits,
+        authorId: meta?.insightAuthorId,
     };
 }
-
-// ──────────────────────────────────────────────────────────────────
-// Page
-// ──────────────────────────────────────────────────────────────────
 
 export default async function InsightPage({ params }: InsightPageProps) {
     const { slug } = await params;
@@ -130,76 +78,60 @@ export default async function InsightPage({ params }: InsightPageProps) {
 
     return (
         <article className="bg-white text-black">
-            {/* ── Hero: Vimeo video full-bleed; cover image inset with page padding. ─ */}
+            <div data-header-surface="white">
+                <InsightArticleHeader
+                    title={data.title}
+                    subtitle={data.subtitle}
+                    authorId={data.authorId}
+                />
+            </div>
+
             {data.videoHtml ? (
-                <section
-                    data-header-surface="dark"
-                    className="relative w-full bg-black"
-                >
-                    <div
-                        className="relative w-full"
-                        style={{ aspectRatio: heroAspect }}
-                    >
+                <section data-header-surface="dark" className="w-full">
+                    <Container>
                         <div
-                            className="absolute inset-0 [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:w-full [&>iframe]:h-full"
-                            dangerouslySetInnerHTML={{ __html: data.videoHtml }}
-                        />
-                    </div>
+                            className="relative w-full bg-black"
+                            style={{ aspectRatio: heroAspect }}
+                        >
+                            <div
+                                className="absolute inset-0 [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:w-full [&>iframe]:h-full"
+                                dangerouslySetInnerHTML={{ __html: data.videoHtml }}
+                            />
+                        </div>
+                    </Container>
                 </section>
             ) : data.coverImage ? (
-                <section
-                    data-header-surface="dark"
-                    className={`relative w-full ${OUTER}`}
-                >
-                    <div className="relative w-full aspect-video bg-black">
-                        <Image
-                            src={data.coverImage}
-                            alt={data.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 88.75vw, 88.75vw"
-                            priority
-                            unoptimized
-                        />
-                    </div>
+                <section data-header-surface="dark" className="w-full">
+                    <Container>
+                        <div className="relative w-full aspect-video bg-black">
+                            <Image
+                                src={data.coverImage}
+                                alt={data.title}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 88.75vw, 88.75vw"
+                                priority
+                                unoptimized
+                            />
+                        </div>
+                    </Container>
                 </section>
             ) : null}
 
-            <div data-header-surface="white">
-            {/* ── Title + Body content (padded; hero Vimeo is the only full-bleed) ─ */}
-            <section className="pt-[100px] pb-[60px]">
-                <GhostContent
-                    html={
-                        buildMetaHtml(data.title, data.subtitle) +
-                        (data.html || "")
-                    }
-                    className="case-study-prose"
-                />
-            </section>
-
-            {/* ── Credits ───────────────────────────────────────────── */}
-            {data.credits.length > 0 && (
-                <section className={`pt-[50px] pb-[50px] ${OUTER}`}>
-                    <div className="grid grid-cols-6 gap-[5px]">
-                        <div className="col-span-6 md:col-span-4 md:col-start-3 grid grid-cols-2 md:grid-cols-3 gap-x-[20px] gap-y-[24px]">
-                            {data.credits.map((c) => (
-                                <div key={c.label}>
-                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[4px]">
-                                        {c.label}
-                                    </p>
-                                    <p className="text-[14px] md:text-[15px] font-medium text-black leading-[1.3]">
-                                        {c.value}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+            {data.html ? (
+                <section
+                    data-header-surface="white"
+                    className="pt-[48px] md:pt-[64px] pb-[60px] md:pb-[80px]"
+                >
+                    <GhostContent html={data.html} className="insight-article-prose" />
                 </section>
-            )}
+            ) : null}
 
-            {/* ── Prev / Next (same layout as work case study) ──────── */}
             {(prev || next) && (
-                <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
+                <section
+                    data-header-surface="white"
+                    className={`pt-[50px] pb-[100px] ${OUTER}`}
+                >
                     <div className="grid grid-cols-6 gap-x-[5px] gap-y-[40px] md:gap-y-0 md:items-end">
                         {prev ? (
                             <div className="col-span-6 md:col-span-1 md:col-start-1">
@@ -234,7 +166,6 @@ export default async function InsightPage({ params }: InsightPageProps) {
                     </div>
                 </section>
             )}
-            </div>
         </article>
     );
 }

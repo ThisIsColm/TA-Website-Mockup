@@ -512,6 +512,169 @@ html.lenis body {
   }
 }
 
+/* ── Insight article body (below hero video) ───────────────── */
+.insight-article-prose {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  column-gap: 5px;
+  row-gap: 0;
+  color: #000;
+  font-family: var(--font-sans);
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+}
+
+.insight-article-prose > h2,
+.insight-article-prose > h3,
+.insight-article-prose > h4,
+.insight-article-prose > p,
+.insight-article-prose > ul,
+.insight-article-prose > ol,
+.insight-article-prose > blockquote {
+  grid-column: 3 / span 4;
+}
+
+.insight-article-prose > h2,
+.insight-article-prose > h3,
+.insight-article-prose > h4 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #000;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.insight-article-prose > * + h2,
+.insight-article-prose > * + h3,
+.insight-article-prose > * + h4 {
+  margin-top: 48px;
+}
+
+.insight-article-prose > h2 {
+  font-size: clamp(1.35rem, 1.8vw, 2rem);
+}
+
+.insight-article-prose > h3 {
+  font-size: clamp(1.15rem, 1.4vw, 1.5rem);
+}
+
+/* Body: Figma 36px / 46px lh @ 1920, Tenon 400, -2% tracking */
+.insight-article-prose > p,
+.insight-article-prose > ul,
+.insight-article-prose > ol,
+.insight-article-prose > blockquote {
+  font-size: clamp(1rem, 1.875vw, 36px);
+  line-height: clamp(1.25rem, 2.4vw, 46px);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.insight-article-prose > p {
+  color: #000;
+  margin: 0;
+}
+
+.insight-article-prose > p + p {
+  margin-top: 1.25em;
+}
+
+.insight-article-prose > h2 + p,
+.insight-article-prose > h3 + p,
+.insight-article-prose > h4 + p {
+  margin-top: 1em;
+}
+
+.insight-article-prose p a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.insight-article-prose p a:hover {
+  color: var(--color-accent-hover);
+}
+
+.insight-article-prose strong {
+  font-weight: 700;
+}
+
+.insight-article-prose > ul,
+.insight-article-prose > ol {
+  padding-left: 1.25em;
+  margin: 0;
+}
+
+.insight-article-prose > ul + p,
+.insight-article-prose > ol + p,
+.insight-article-prose > p + ul,
+.insight-article-prose > p + ol {
+  margin-top: 1.25em;
+}
+
+.insight-article-prose > blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1.25em;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.insight-article-prose > figure,
+.insight-article-prose > .kg-card,
+.insight-article-prose > .kg-image-card,
+.insight-article-prose > .kg-gallery-card,
+.insight-article-prose > .kg-embed-card,
+.insight-article-prose > .kg-video-card,
+.insight-article-prose > img,
+.insight-article-prose > video,
+.insight-article-prose > iframe {
+  /* Full content width (6 cols), still inside page padding — not viewport bleed */
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 48px 0 0;
+}
+
+.insight-article-prose img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.insight-article-prose .kg-embed-card iframe,
+.insight-article-prose .kg-video-card iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 768px) {
+  .insight-article-prose > h2,
+  .insight-article-prose > h3,
+  .insight-article-prose > h4,
+  .insight-article-prose > p,
+  .insight-article-prose > ul,
+  .insight-article-prose > ol,
+  .insight-article-prose > blockquote {
+    grid-column: 1 / -1;
+  }
+
+  .insight-article-prose > * + h2,
+  .insight-article-prose > * + h3,
+  .insight-article-prose > * + h4 {
+    margin-top: 32px;
+  }
+
+  .insight-article-prose > figure,
+  .insight-article-prose > .kg-card,
+  .insight-article-prose > .kg-image-card,
+  .insight-article-prose > .kg-gallery-card,
+  .insight-article-prose > .kg-embed-card,
+  .insight-article-prose > .kg-video-card,
+  .insight-article-prose > img,
+  .insight-article-prose > video,
+  .insight-article-prose > iframe {
+    margin-top: 32px;
+  }
+}
+
 /* ── Ghost Content Styles ──────────────────────────────────── */
 .ghost-content h1,
 .ghost-content h2,

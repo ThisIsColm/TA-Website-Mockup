@@ -9,13 +9,23 @@ import {
     serializeCreditsText,
     type CreditEntry,
 } from "@/lib/credits";
+import { getTeamAuthor, TEAM_AUTHORS } from "@/lib/team";
 
 export type CuratedPost = GhostPost & {
     director?: string;
     client?: string;
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
+    insightAuthorId?: string;
 };
+
+function isInsightSection(key: SectionKey): boolean {
+    return (
+        key.includes("case-study") ||
+        key.includes("case-studies") ||
+        key === "home.caseStudies"
+    );
+}
 
 // ── Types & Constants ─────────────────────────────────────────────
 
@@ -91,6 +101,8 @@ export default function AdminPage() {
     const [editClient, setEditClient] = useState("");
     const [editCreditsCol3, setEditCreditsCol3] = useState("");
     const [editCreditsCol5, setEditCreditsCol5] = useState("");
+    const [editInsightAuthor, setEditInsightAuthor] = useState("");
+    const [editingSectionKey, setEditingSectionKey] = useState<SectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
 
     // Unified state for all sections
@@ -179,48 +191,62 @@ export default function AdminPage() {
         }
     }, []);
 
-    const openEditPost = (post: CuratedPost) => {
+    const openEditPost = (post: CuratedPost, sectionKey: SectionKey) => {
         setEditingPostId(post.id);
-        setEditDirector(post.director || "");
-        setEditClient(post.client || "");
-        setEditCreditsCol3(serializeCreditsText(post.creditsCol3));
-        setEditCreditsCol5(serializeCreditsText(post.creditsCol5));
+        setEditingSectionKey(sectionKey);
+        if (isInsightSection(sectionKey)) {
+            setEditInsightAuthor(post.insightAuthorId || "");
+        } else {
+            setEditDirector(post.director || "");
+            setEditClient(post.client || "");
+            setEditCreditsCol3(serializeCreditsText(post.creditsCol3));
+            setEditCreditsCol5(serializeCreditsText(post.creditsCol5));
+        }
     };
 
     const savePostMeta = async (post: CuratedPost, sectionKey: SectionKey) => {
         setIsSavingMeta(true);
+        const insight = isInsightSection(sectionKey);
         try {
             const res = await fetch("/api/metadata", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     postId: post.id,
-                    data: {
-                        director: editDirector,
-                        client: editClient,
-                        creditsCol3: parseCreditsText(editCreditsCol3),
-                        creditsCol5: parseCreditsText(editCreditsCol5),
-                    }
-                })
+                    data: insight
+                        ? { insightAuthorId: editInsightAuthor || null }
+                        : {
+                              director: editDirector,
+                              client: editClient,
+                              creditsCol3: parseCreditsText(editCreditsCol3),
+                              creditsCol5: parseCreditsText(editCreditsCol5),
+                          },
+                }),
             });
 
             if (res.ok) {
-                // Update local state
-                setSelections(prev => {
-                    const newSec = [...prev[sectionKey]];
-                    const i = newSec.findIndex(p => p.id === post.id);
-                    if (i > -1) {
-                        newSec[i] = {
-                            ...newSec[i],
-                            director: editDirector,
-                            client: editClient,
-                            creditsCol3: parseCreditsText(editCreditsCol3),
-                            creditsCol5: parseCreditsText(editCreditsCol5),
-                        };
+                setSelections((prev) => {
+                    const updatePost = (p: CuratedPost): CuratedPost =>
+                        p.id === post.id
+                            ? insight
+                                ? { ...p, insightAuthorId: editInsightAuthor || undefined }
+                                : {
+                                      ...p,
+                                      director: editDirector,
+                                      client: editClient,
+                                      creditsCol3: parseCreditsText(editCreditsCol3),
+                                      creditsCol5: parseCreditsText(editCreditsCol5),
+                                  }
+                            : p;
+
+                    const next = { ...prev };
+                    for (const key of SECTIONS) {
+                        next[key] = prev[key].map(updatePost);
                     }
-                    return { ...prev, [sectionKey]: newSec };
+                    return next;
                 });
                 setEditingPostId(null);
+                setEditingSectionKey(null);
                 showToast("Saved metadata", "success");
             } else {
                 showToast("Failed to save metadata", "error");
@@ -411,17 +437,22 @@ export default function AdminPage() {
 
     const activeSections = TABS[activeTab];
 
-    const missingInfoCount = activeSections.reduce((acc, sec) => {
-        if (sec.key.includes("case-study") || sec.key.includes("case-studies")) return acc;
-        return acc + selections[sec.key].filter(p => !p.director || !p.client).length;
-    }, 0);
+    const postMissingMeta = (post: CuratedPost, sectionKey: SectionKey) =>
+        isInsightSection(sectionKey)
+            ? !post.insightAuthorId
+            : !post.director || !post.client;
+
+    const missingInfoCount = activeSections.reduce(
+        (acc, sec) =>
+            acc + selections[sec.key].filter((p) => postMissingMeta(p, sec.key)).length,
+        0
+    );
 
     const tabHasMissingMeta = (tabKey: Tab) => {
         const tabSections = TABS[tabKey];
-        return tabSections.some(sec => {
-            if (sec.key.includes("case-study") || sec.key.includes("case-studies")) return false;
-            return selections[sec.key].some(p => !p.director || !p.client);
-        });
+        return tabSections.some((sec) =>
+            selections[sec.key].some((p) => postMissingMeta(p, sec.key))
+        );
     };
 
     return (
@@ -555,8 +586,8 @@ export default function AdminPage() {
                                             data-lenis-prevent
                                         >
                                             {selections[key].map((post, i) => {
-                                                const isCaseStudy = key.includes("case-study") || key.includes("case-studies");
-                                                const hasMissingMeta = !isCaseStudy && (!post.director || !post.client);
+                                                const insight = isInsightSection(key);
+                                                const hasMissingMeta = postMissingMeta(post, key);
 
                                                 return (
                                                     <Draggable key={`${key}-${post.id}`} draggableId={`${key}-${post.id}`} index={i}>
@@ -568,8 +599,8 @@ export default function AdminPage() {
                                                                 className={`flex flex-col border-b border-border/50 ${hasMissingMeta ? "border-l-4 border-l-red-500" : ""}`}
                                                             >
                                                                 <div
-                                                                    onClick={() => !isCaseStudy && openEditPost(post)}
-                                                                    className={`flex items-center gap-3 p-3 transition-colors group bg-bg-card ${snapshot.isDragging ? "bg-accent/20 z-50 shadow-2xl border border-accent" : hasMissingMeta ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-bg-elevated"} ${!isCaseStudy ? "cursor-pointer" : ""}`}
+                                                                    onClick={() => openEditPost(post, key)}
+                                                                    className={`flex items-center gap-3 p-3 transition-colors group bg-bg-card cursor-pointer ${snapshot.isDragging ? "bg-accent/20 z-50 shadow-2xl border border-accent" : hasMissingMeta ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-bg-elevated"}`}
                                                                 >
                                                                     <span className="text-xs text-white/30 w-4 shrink-0 cursor-grab">{i + 1}</span>
                                                                     {post.feature_image ? (
@@ -579,7 +610,14 @@ export default function AdminPage() {
                                                                     )}
                                                                     <div className="flex-1 min-w-0">
                                                                         <p className="text-sm font-medium truncate">{post.title}</p>
-                                                                        {(post.director || post.client) && (
+                                                                        {insight && post.insightAuthorId ? (
+                                                                            <p className="text-xs text-text-tertiary truncate">
+                                                                                By{" "}
+                                                                                {getTeamAuthor(post.insightAuthorId)?.name ??
+                                                                                    post.insightAuthorId}
+                                                                            </p>
+                                                                        ) : null}
+                                                                        {!insight && (post.director || post.client) ? (
                                                                             <p className="text-xs text-text-tertiary truncate">
                                                                                 <>
                                                                                     {post.director && `Dir: ${post.director}`}
@@ -587,18 +625,21 @@ export default function AdminPage() {
                                                                                     {post.client && `Client: ${post.client}`}
                                                                                 </>
                                                                             </p>
-                                                                        )}
+                                                                        ) : null}
                                                                         {hasMissingMeta && (
                                                                             <p className="text-xs text-red-400 mt-1 font-medium bg-red-500/10 inline-block px-1.5 py-0.5 rounded">Missing Metadata</p>
                                                                         )}
                                                                     </div>
                                                                     <div className="flex flex-col gap-2">
-                                                                        {!isCaseStudy && (
-                                                                            <button
-                                                                                onClick={(e) => { e.stopPropagation(); openEditPost(post); }}
-                                                                                className="px-3 py-1 text-green-500/80 text-xs hover:text-green-400 active:scale-[0.98] transition-all bg-bg-elevated rounded"
-                                                                            >Edit</button>
-                                                                        )}
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                openEditPost(post, key);
+                                                                            }}
+                                                                            className="px-3 py-1 text-green-500/80 text-xs hover:text-green-400 active:scale-[0.98] transition-all bg-bg-elevated rounded"
+                                                                        >
+                                                                            Edit
+                                                                        </button>
                                                                         <button
                                                                             onClick={(e) => { e.stopPropagation(); removeFromSection(post.id, key); }}
                                                                             className={`${styles.btnDanger} bg-bg-elevated rounded`}
@@ -606,72 +647,136 @@ export default function AdminPage() {
                                                                     </div>
                                                                 </div>
 
-                                                                {editingPostId === post.id && !isCaseStudy && (
+                                                                {editingPostId === post.id &&
+                                                                    editingSectionKey === key && (
                                                                     <div className="p-4 bg-bg-elevated flex flex-col gap-4 shadow-inner">
-                                                                        <div className="flex gap-4">
-                                                                            <div className="flex-1">
-                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">DIRECTOR</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    className={`${styles.input} !py-2`}
-                                                                                    value={editDirector}
-                                                                                    onKeyDown={(e) => e.key === 'Enter' && savePostMeta(post, key)}
-                                                                                    onChange={e => setEditDirector(e.target.value)}
-                                                                                    placeholder="e.g. John Doe"
-                                                                                />
-                                                                            </div>
-                                                                            <div className="flex-1">
-                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">CLIENT</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    className={`${styles.input} !py-2`}
-                                                                                    value={editClient}
-                                                                                    onKeyDown={(e) => e.key === 'Enter' && savePostMeta(post, key)}
-                                                                                    onChange={e => setEditClient(e.target.value)}
-                                                                                    placeholder="e.g. Nike"
-                                                                                />
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        {insight ? (
                                                                             <div>
                                                                                 <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                    CREDITS — COLUMN 3
+                                                                                    AUTHOR
                                                                                 </label>
-                                                                                <textarea
-                                                                                    className={`${styles.input} !py-2 min-h-[180px] resize-y`}
-                                                                                    value={editCreditsCol3}
-                                                                                    onChange={(e) => setEditCreditsCol3(e.target.value)}
-                                                                                    placeholder={"Director\nMark O'Brien\n\nExecutive Producer\nNathan Reilly"}
-                                                                                />
-                                                                                <p className="text-[10px] text-text-tertiary mt-1">
-                                                                                    Title on one line, name on the next. Blank line between entries.
-                                                                                </p>
+                                                                                <select
+                                                                                    className={`${styles.input} !py-2`}
+                                                                                    value={editInsightAuthor}
+                                                                                    onChange={(e) =>
+                                                                                        setEditInsightAuthor(e.target.value)
+                                                                                    }
+                                                                                >
+                                                                                    <option value="">
+                                                                                        Select team member…
+                                                                                    </option>
+                                                                                    {TEAM_AUTHORS.map((author) => (
+                                                                                        <option
+                                                                                            key={author.id}
+                                                                                            value={author.id}
+                                                                                        >
+                                                                                            {author.name}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </select>
                                                                             </div>
-                                                                            <div>
-                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                    CREDITS — COLUMN 5
-                                                                                </label>
-                                                                                <textarea
-                                                                                    className={`${styles.input} !py-2 min-h-[180px] resize-y`}
-                                                                                    value={editCreditsCol5}
-                                                                                    onChange={(e) => setEditCreditsCol5(e.target.value)}
-                                                                                    placeholder={"Hair &amp; Makeup Artist\nAitana Silvana\n\nStyling\nKate Brady, Purple Nwojo"}
-                                                                                />
-                                                                                <p className="text-[10px] text-text-tertiary mt-1">
-                                                                                    Title on one line, name on the next. Blank line between entries.
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
+                                                                        ) : (
+                                                                            <>
+                                                                                <div className="flex gap-4">
+                                                                                    <div className="flex-1">
+                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                            DIRECTOR
+                                                                                        </label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className={`${styles.input} !py-2`}
+                                                                                            value={editDirector}
+                                                                                            onKeyDown={(e) =>
+                                                                                                e.key === "Enter" &&
+                                                                                                savePostMeta(post, key)
+                                                                                            }
+                                                                                            onChange={(e) =>
+                                                                                                setEditDirector(e.target.value)
+                                                                                            }
+                                                                                            placeholder="e.g. John Doe"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="flex-1">
+                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                            CLIENT
+                                                                                        </label>
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            className={`${styles.input} !py-2`}
+                                                                                            value={editClient}
+                                                                                            onKeyDown={(e) =>
+                                                                                                e.key === "Enter" &&
+                                                                                                savePostMeta(post, key)
+                                                                                            }
+                                                                                            onChange={(e) =>
+                                                                                                setEditClient(e.target.value)
+                                                                                            }
+                                                                                            placeholder="e.g. Nike"
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                    <div>
+                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                            CREDITS — COLUMN 3
+                                                                                        </label>
+                                                                                        <textarea
+                                                                                            className={`${styles.input} !py-2 min-h-[180px] resize-y`}
+                                                                                            value={editCreditsCol3}
+                                                                                            onChange={(e) =>
+                                                                                                setEditCreditsCol3(e.target.value)
+                                                                                            }
+                                                                                            placeholder={
+                                                                                                "Director\nMark O'Brien\n\nExecutive Producer\nNathan Reilly"
+                                                                                            }
+                                                                                        />
+                                                                                        <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                            Title on one line, name on the
+                                                                                            next. Blank line between entries.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                            CREDITS — COLUMN 5
+                                                                                        </label>
+                                                                                        <textarea
+                                                                                            className={`${styles.input} !py-2 min-h-[180px] resize-y`}
+                                                                                            value={editCreditsCol5}
+                                                                                            onChange={(e) =>
+                                                                                                setEditCreditsCol5(e.target.value)
+                                                                                            }
+                                                                                            placeholder={
+                                                                                                "Hair &amp; Makeup Artist\nAitana Silvana\n\nStyling\nKate Brady, Purple Nwojo"
+                                                                                            }
+                                                                                        />
+                                                                                        <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                            Title on one line, name on the
+                                                                                            next. Blank line between entries.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </>
+                                                                        )}
                                                                         <div className="flex justify-end gap-2">
                                                                             <button
-                                                                                onClick={() => setEditingPostId(null)}
+                                                                                onClick={() => {
+                                                                                    setEditingPostId(null);
+                                                                                    setEditingSectionKey(null);
+                                                                                }}
                                                                                 className="px-4 py-2 text-xs font-bold text-text-secondary hover:text-white transition-colors"
-                                                                            >Cancel</button>
+                                                                            >
+                                                                                Cancel
+                                                                            </button>
                                                                             <button
                                                                                 onClick={() => savePostMeta(post, key)}
-                                                                                disabled={isSavingMeta}
+                                                                                disabled={
+                                                                                    isSavingMeta ||
+                                                                                    (insight && !editInsightAuthor)
+                                                                                }
                                                                                 className="px-4 py-2 bg-green-600 text-white text-xs font-bold hover:bg-green-500 rounded transition-colors disabled:opacity-50"
-                                                                            >{isSavingMeta ? "Saving..." : "Save"}</button>
+                                                                            >
+                                                                                {isSavingMeta ? "Saving..." : "Save"}
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 )}

@@ -58,6 +58,9 @@ function migratePostMetadataColumns(database: Database.Database): void {
     if (!names.has("credits_col5")) {
         database.exec("ALTER TABLE post_metadata ADD COLUMN credits_col5 TEXT");
     }
+    if (!names.has("insight_author_id")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN insight_author_id TEXT");
+    }
 }
 
 // ── Public API ───────────────────────────────────────────────────
@@ -127,6 +130,7 @@ export interface PostMetadata {
     client?: string;
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
+    insightAuthorId?: string;
     updatedAt?: string;
 }
 
@@ -136,6 +140,7 @@ type MetadataRow = {
     client: string | null;
     credits_col3: string | null;
     credits_col5: string | null;
+    insight_author_id: string | null;
     updated_at: string;
 };
 
@@ -146,6 +151,7 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
         client: row.client || undefined,
         creditsCol3: parseCreditsJson(row.credits_col3),
         creditsCol5: parseCreditsJson(row.credits_col5),
+        insightAuthorId: row.insight_author_id || undefined,
         updatedAt: row.updated_at,
     };
 }
@@ -153,7 +159,9 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
 export function getPostMetadata(postId: string): PostMetadata | null {
     const row = getDb()
         .prepare(
-            "SELECT post_id, director, client, credits_col3, credits_col5, updated_at FROM post_metadata WHERE post_id = ?"
+            `SELECT post_id, director, client, credits_col3, credits_col5,
+                    insight_author_id, updated_at
+             FROM post_metadata WHERE post_id = ?`
         )
         .get(postId) as MetadataRow | undefined;
 
@@ -171,29 +179,50 @@ export function savePostMetadata(
         client?: string;
         creditsCol3?: CreditEntry[];
         creditsCol5?: CreditEntry[];
+        insightAuthorId?: string | null;
     }
 ): void {
-    const defaultDirector = metadata.director || null;
-    const defaultClient = metadata.client || null;
+    const existing = getPostMetadata(postId);
+
+    const defaultDirector =
+        metadata.director !== undefined ? metadata.director || null : existing?.director ?? null;
+    const defaultClient =
+        metadata.client !== undefined ? metadata.client || null : existing?.client ?? null;
     const creditsCol3 =
         metadata.creditsCol3 !== undefined
             ? serializeCreditsJson(metadata.creditsCol3)
-            : null;
+            : existing?.creditsCol3
+              ? serializeCreditsJson(existing.creditsCol3)
+              : null;
     const creditsCol5 =
         metadata.creditsCol5 !== undefined
             ? serializeCreditsJson(metadata.creditsCol5)
-            : null;
+            : existing?.creditsCol5
+              ? serializeCreditsJson(existing.creditsCol5)
+              : null;
+    const insightAuthorId =
+        metadata.insightAuthorId !== undefined
+            ? metadata.insightAuthorId || null
+            : existing?.insightAuthorId ?? null;
 
     getDb()
         .prepare(
-            `INSERT INTO post_metadata (post_id, director, client, credits_col3, credits_col5, updated_at)
-             VALUES (?, ?, ?, ?, ?, datetime('now'))
+            `INSERT INTO post_metadata (post_id, director, client, credits_col3, credits_col5, insight_author_id, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
              ON CONFLICT(post_id)
              DO UPDATE SET director = excluded.director,
                            client = excluded.client,
                            credits_col3 = excluded.credits_col3,
                            credits_col5 = excluded.credits_col5,
+                           insight_author_id = excluded.insight_author_id,
                            updated_at = excluded.updated_at`
         )
-        .run(postId, defaultDirector, defaultClient, creditsCol3, creditsCol5);
+        .run(
+            postId,
+            defaultDirector,
+            defaultClient,
+            creditsCol3,
+            creditsCol5,
+            insightAuthorId
+        );
 }

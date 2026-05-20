@@ -50,6 +50,7 @@ function formatPost(post: GhostPost) {
         client: customMeta?.client,
         creditsCol3: customMeta?.creditsCol3,
         creditsCol5: customMeta?.creditsCol5,
+        insightAuthorId: customMeta?.insightAuthorId,
         vimeoId: vimeoId,
     };
 }

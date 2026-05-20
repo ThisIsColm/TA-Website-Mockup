@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
             client: data.client,
             creditsCol3: data.creditsCol3 as CreditEntry[] | undefined,
             creditsCol5: data.creditsCol5 as CreditEntry[] | undefined,
+            insightAuthorId: data.insightAuthorId as string | null | undefined,
         });
 
         return NextResponse.json({
