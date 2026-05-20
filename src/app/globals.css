@@ -384,6 +384,30 @@ html.lenis body {
   margin-bottom: 80px;
 }
 
+/* Tighter gap before credits when the article ends on a media block.
+   Use :last-of-type too — Ghost often leaves a trailing <p> after the figure,
+   so :last-child never matches the image wrapper. */
+.case-study-prose > figure:last-child,
+.case-study-prose > figure:last-of-type,
+.case-study-prose > .kg-card:last-child,
+.case-study-prose > .kg-card:last-of-type,
+.case-study-prose > .kg-image-card:last-child,
+.case-study-prose > .kg-image-card:last-of-type,
+.case-study-prose > .kg-gallery-card:last-child,
+.case-study-prose > .kg-gallery-card:last-of-type,
+.case-study-prose > .kg-embed-card:last-child,
+.case-study-prose > .kg-embed-card:last-of-type,
+.case-study-prose > .kg-video-card:last-child,
+.case-study-prose > .kg-video-card:last-of-type,
+.case-study-prose > img:last-child,
+.case-study-prose > img:last-of-type,
+.case-study-prose > video:last-child,
+.case-study-prose > video:last-of-type,
+.case-study-prose > iframe:last-child,
+.case-study-prose > iframe:last-of-type {
+  margin-bottom: 20px;
+}
+
 /* Hide empty media wrappers that Ghost may leave behind after iframe extraction */
 .case-study-prose > figure:empty,
 .case-study-prose > .kg-card:empty,
@@ -399,7 +423,10 @@ html.lenis body {
   display: block;
 }
 
-.case-study-prose figure {
+/* Only strip margins on nested figures (e.g. gallery tiles). A bare `.case-study-prose figure`
+   rule used to wipe margins from direct-child Ghost figures and broke spacing before credits. */
+.case-study-prose figure figure,
+.case-study-prose .kg-gallery-card figure {
   margin: 0;
 }
 

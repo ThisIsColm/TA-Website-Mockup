@@ -109,6 +109,14 @@ export default function TeamCard({
                       ))
                     : null}
 
+                {/* Orange tint — photo area only on hover (tape stays above at z-[3]) */}
+                {hasPhotos ? (
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 z-[2] bg-accent opacity-0 mix-blend-multiply transition-opacity duration-200 ease-out group-hover:opacity-70"
+                    />
+                ) : null}
+
                 {tapeSrc ? (
                     <Image
                         src={tapeSrc}

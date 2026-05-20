@@ -207,7 +207,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
             <div data-header-surface="white">
             {/* ── Title + Body content (padded; hero Vimeo is the only full-bleed) ─ */}
-            <section className="pt-[100px] pb-[60px]">
+            <section className="pt-[100px] pb-[15px]">
                 <GhostContent
                     html={
                         buildMetaHtml(data.title, data.director) +
@@ -220,7 +220,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <WorkCreditsSection
                 creditsCol3={data.creditsCol3}
                 creditsCol5={data.creditsCol5}
-                className={`pt-[50px] pb-[50px] ${OUTER}`}
+                className={`pt-[13px] pb-[50px] ${OUTER}`}
             />
 
             {/* ── Prev / Next (same order as home page grid) ────────── */}
