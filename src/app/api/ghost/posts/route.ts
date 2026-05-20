@@ -25,7 +25,13 @@ export async function GET(request: NextRequest) {
             const posts = await searchGhostPosts(search);
             const postsWithMeta = posts.map(p => {
                 const meta = getPostMetadata(p.id);
-                return { ...p, director: meta?.director, client: meta?.client };
+                return {
+                    ...p,
+                    director: meta?.director,
+                    client: meta?.client,
+                    creditsCol3: meta?.creditsCol3,
+                    creditsCol5: meta?.creditsCol5,
+                };
             });
 
             return NextResponse.json({
@@ -45,7 +51,13 @@ export async function GET(request: NextRequest) {
         const data = await fetchGhostPosts(page, limit);
         const postsWithMeta = data.posts.map((p: any) => {
             const meta = getPostMetadata(p.id);
-            return { ...p, director: meta?.director, client: meta?.client };
+            return {
+                ...p,
+                director: meta?.director,
+                client: meta?.client,
+                creditsCol3: meta?.creditsCol3,
+                creditsCol5: meta?.creditsCol5,
+            };
         });
 
         return NextResponse.json({ ...data, posts: postsWithMeta });

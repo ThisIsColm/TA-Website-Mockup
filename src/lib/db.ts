@@ -7,6 +7,8 @@
 
 import Database from "better-sqlite3";
 import path from "path";
+import type { CreditEntry } from "@/lib/credits";
+import { parseCreditsJson, serializeCreditsJson } from "@/lib/credits";
 
 // ── Database singleton ───────────────────────────────────────────
 
@@ -33,11 +35,29 @@ function getDb(): Database.Database {
             post_id TEXT PRIMARY KEY,
             director TEXT,
             client TEXT,
+            credits_col3 TEXT,
+            credits_col5 TEXT,
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
     `);
 
+    migratePostMetadataColumns(db);
+
     return db;
+}
+
+function migratePostMetadataColumns(database: Database.Database): void {
+    const cols = database
+        .prepare("PRAGMA table_info(post_metadata)")
+        .all() as { name: string }[];
+    const names = new Set(cols.map((c) => c.name));
+
+    if (!names.has("credits_col3")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN credits_col3 TEXT");
+    }
+    if (!names.has("credits_col5")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN credits_col5 TEXT");
+    }
 }
 
 // ── Public API ───────────────────────────────────────────────────
@@ -105,38 +125,75 @@ export interface PostMetadata {
     postId: string;
     director?: string;
     client?: string;
+    creditsCol3?: CreditEntry[];
+    creditsCol5?: CreditEntry[];
     updatedAt?: string;
+}
+
+type MetadataRow = {
+    post_id: string;
+    director: string | null;
+    client: string | null;
+    credits_col3: string | null;
+    credits_col5: string | null;
+    updated_at: string;
+};
+
+function rowToMetadata(row: MetadataRow): PostMetadata {
+    return {
+        postId: row.post_id,
+        director: row.director || undefined,
+        client: row.client || undefined,
+        creditsCol3: parseCreditsJson(row.credits_col3),
+        creditsCol5: parseCreditsJson(row.credits_col5),
+        updatedAt: row.updated_at,
+    };
 }
 
 export function getPostMetadata(postId: string): PostMetadata | null {
     const row = getDb()
-        .prepare("SELECT post_id, director, client, updated_at FROM post_metadata WHERE post_id = ?")
-        .get(postId) as { post_id: string; director: string | null; client: string | null; updated_at: string } | undefined;
+        .prepare(
+            "SELECT post_id, director, client, credits_col3, credits_col5, updated_at FROM post_metadata WHERE post_id = ?"
+        )
+        .get(postId) as MetadataRow | undefined;
 
     if (!row) {
         return null;
     }
 
-    return {
-        postId: row.post_id,
-        director: row.director || undefined,
-        client: row.client || undefined,
-        updatedAt: row.updated_at,
-    };
+    return rowToMetadata(row);
 }
 
-export function savePostMetadata(postId: string, metadata: { director?: string; client?: string }): void {
+export function savePostMetadata(
+    postId: string,
+    metadata: {
+        director?: string;
+        client?: string;
+        creditsCol3?: CreditEntry[];
+        creditsCol5?: CreditEntry[];
+    }
+): void {
     const defaultDirector = metadata.director || null;
     const defaultClient = metadata.client || null;
+    const creditsCol3 =
+        metadata.creditsCol3 !== undefined
+            ? serializeCreditsJson(metadata.creditsCol3)
+            : null;
+    const creditsCol5 =
+        metadata.creditsCol5 !== undefined
+            ? serializeCreditsJson(metadata.creditsCol5)
+            : null;
 
     getDb()
         .prepare(
-            `INSERT INTO post_metadata (post_id, director, client, updated_at)
-             VALUES (?, ?, ?, datetime('now'))
+            `INSERT INTO post_metadata (post_id, director, client, credits_col3, credits_col5, updated_at)
+             VALUES (?, ?, ?, ?, ?, datetime('now'))
              ON CONFLICT(post_id)
              DO UPDATE SET director = excluded.director,
                            client = excluded.client,
+                           credits_col3 = excluded.credits_col3,
+                           credits_col5 = excluded.credits_col5,
                            updated_at = excluded.updated_at`
         )
-        .run(postId, defaultDirector, defaultClient);
+        .run(postId, defaultDirector, defaultClient, creditsCol3, creditsCol5);
 }

@@ -28,40 +28,66 @@ const SERVICES = [
  * Team grid:
  * - Each member can supply `photoPrefix` (auto-builds `${prefix}_001/002/003.jpg`)
  *   or `photos` for explicit overrides. Photos are 2:3 portrait (4000×6000).
- * - Members without photos render an empty placeholder slot.
+ * - `tapeKey` maps to `/images/team/tape/Tape_{key}.png` for the name overlay.
+ * - Members without photos render an empty placeholder slot (tape still shows when set).
  */
 const TEAM: TeamCardProps[] = [
-    { nameLabel: "Nathan Reilly", role: "CEO" },
-    { nameLabel: "Gabi Chrobak", role: "Head of Production" },
-    { nameLabel: "Mark O'Brien", role: "Creative Director", photoPrefix: "Mark" },
-    { nameLabel: "Eilis Doherty", role: "Creative Director", photoPrefix: "Eilis" },
+    { nameLabel: "Nathan Reilly", role: "CEO", tapeKey: "Nathan" },
+    { nameLabel: "Gabi Chrobak", role: "Head of Production", tapeKey: "Gabi" },
+    {
+        nameLabel: "Mark O'Brien",
+        role: "Creative Director",
+        photoPrefix: "Mark",
+        tapeKey: "Mark",
+    },
+    {
+        nameLabel: "Eilis Doherty",
+        role: "Creative Director",
+        photoPrefix: "Eilis",
+        tapeKey: "Eilis",
+    },
     {
         nameLabel: "Leon Forristal",
         role: "Director of Photography",
         photoPrefix: "Leon",
+        tapeKey: "Leon",
     },
-    { nameLabel: "Blaine Tennick", role: "Technical Director" },
+    { nameLabel: "Blaine Tennick", role: "Technical Director", tapeKey: "Blaine" },
     {
         nameLabel: "Colm Moore",
         role: "Head of Post Production",
         photoPrefix: "Colm",
+        tapeKey: "Colm",
     },
-    { nameLabel: "Rory Bradley", role: "Senior Editor", photoPrefix: "Rory" },
+    {
+        nameLabel: "Rory Bradley",
+        role: "Senior Editor",
+        photoPrefix: "Rory",
+        tapeKey: "Rory",
+    },
     {
         nameLabel: "Beatriz Gonçalves",
         role: "Senior Motion Designer",
         photoPrefix: "Bea",
+        tapeKey: "Beatriz",
     },
-    { nameLabel: "Kate Brady", role: "Producer", photoPrefix: "Kate" },
+    {
+        nameLabel: "Kate Brady",
+        role: "Producer",
+        photoPrefix: "Kate",
+        tapeKey: "Kate",
+    },
     {
         nameLabel: "Rosie Spearing",
         role: "Assistant Producer",
         photoPrefix: "Rosie",
+        tapeKey: "Rosie",
     },
     {
         // Note: third frame file is `AJ_003.jpg` (uppercase) — use explicit list.
         nameLabel: "Alex James",
         role: "CTO",
+        tapeKey: "AJ",
         photos: [
             "/images/team/Aj_001.jpg",
             "/images/team/Aj_002.jpg",
@@ -142,9 +168,9 @@ export default function AboutPage() {
                             data-header-surface="white"
                             className="col-span-6 md:col-span-3 @container bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]"
                         >
-                            <div className="min-w-0 w-full overflow-x-auto [scrollbar-width:thin]">
+                            <div className="min-w-0 w-full">
                                 <p
-                                    className="text-black whitespace-nowrap"
+                                    className="text-black"
                                     style={{
                                         fontFamily: "Tenon, sans-serif",
                                         fontSize: "clamp(0.85rem, 3cqw, 1.875rem)",

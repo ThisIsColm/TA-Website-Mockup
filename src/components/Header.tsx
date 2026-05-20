@@ -234,7 +234,9 @@ export default function Header() {
                                                 <Link
                                                     href={link.href}
                                                     onClick={() => setMenuOpen(false)}
-                                                    className={`block leading-[1.15] tracking-[-0.01em] transition-[color,transform,opacity] duration-300 ease-out motion-reduce:transition-none hover:-translate-x-[30px] hover:text-accent ${
+                                                    /* Transform on nested span keeps the Link hit box fixed so the
+                                                       cursor stays “over” the item after the slide (no hover jitter). */
+                                                    className={`group block leading-[1.15] tracking-[-0.01em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${
                                                         active ? "text-accent" : menuTextColor
                                                     }`}
                                                     style={{
@@ -243,7 +245,9 @@ export default function Header() {
                                                         fontWeight: 800,
                                                     }}
                                                 >
-                                                    {link.label}.
+                                                    <span className="inline-block origin-right transition-transform duration-300 ease-out motion-reduce:transition-none motion-safe:group-hover:-translate-x-[30px]">
+                                                        {link.label}.
+                                                    </span>
                                                 </Link>
                                             </motion.li>
                                         );

@@ -6,6 +6,8 @@ import Image from "next/image";
 export interface TeamCardProps {
     role: string;
     nameLabel?: string;
+    /** Key for `/images/team/tape/Tape_{key}.png` (e.g. "Mark", "Beatriz", "AJ"). */
+    tapeKey?: string;
     /** Optional explicit list of photo URLs. Takes precedence over `photoPrefix`. */
     photos?: string[];
     /** Optional prefix in `/images/team/`. Generates `${prefix}_001.jpg` … `_003.jpg`. */
@@ -14,9 +16,13 @@ export interface TeamCardProps {
 
 const FRAME_MS = 280; // ~3.5fps stop-motion feel (half speed)
 
+const TAPE_W = 280;
+const TAPE_H = 320;
+
 export default function TeamCard({
     role,
     nameLabel,
+    tapeKey,
     photos,
     photoPrefix,
 }: TeamCardProps) {
@@ -73,6 +79,7 @@ export default function TeamCard({
 
     const hasPhotos = frames.length > 0;
     const alt = nameLabel || role;
+    const tapeSrc = tapeKey ? `/images/team/tape/Tape_${tapeKey}.png` : null;
 
     return (
         <div className="flex flex-col">
@@ -102,32 +109,20 @@ export default function TeamCard({
                       ))
                     : null}
 
-                {/* Orange tint overlay — only shows on hover, and only if photos exist */}
-                {hasPhotos ? (
-                    <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 z-[2] bg-accent opacity-0 mix-blend-multiply transition-opacity duration-200 ease-out group-hover:opacity-70"
+                {tapeSrc ? (
+                    <Image
+                        src={tapeSrc}
+                        alt=""
+                        width={TAPE_W}
+                        height={TAPE_H}
+                        aria-hidden
+                        className="pointer-events-none absolute bottom-0 left-0 z-[3] w-[min(97.5%,250px)] h-auto max-w-none"
+                        sizes="(max-width: 768px) 50vw, 15vw"
                     />
-                ) : null}
-
-                {/* Name label — sits above the tint */}
-                {nameLabel ? (
-                    <div
-                        className="absolute left-[10px] bottom-[12px] z-[3] bg-accent text-white -rotate-[3deg] px-[10px] py-[4px] shadow-[0_2px_6px_rgba(0,0,0,0.18)]"
-                        style={{
-                            fontFamily: "Tenon, sans-serif",
-                            fontStyle: "italic",
-                            fontWeight: 700,
-                            fontSize: "clamp(0.85rem, 1vw, 16px)",
-                            letterSpacing: "0.02em",
-                        }}
-                    >
-                        {nameLabel}
-                    </div>
                 ) : null}
             </div>
             <p
-                className="mt-[10px] text-black"
+                className="mt-[10px] text-black/45"
                 style={{
                     fontFamily: "Tenon, sans-serif",
                     fontSize: "clamp(0.875rem, 1.15vw, 22px)",

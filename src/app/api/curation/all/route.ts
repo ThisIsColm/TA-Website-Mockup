@@ -48,6 +48,8 @@ function formatPost(post: GhostPost) {
         tags: post.tags.map((t) => t.name),
         director: customMeta?.director,
         client: customMeta?.client,
+        creditsCol3: customMeta?.creditsCol3,
+        creditsCol5: customMeta?.creditsCol5,
         vimeoId: vimeoId,
     };
 }

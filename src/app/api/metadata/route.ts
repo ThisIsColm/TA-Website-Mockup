@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
+import type { CreditEntry } from "@/lib/credits";
 import { savePostMetadata } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
@@ -14,14 +15,16 @@ export async function POST(request: NextRequest) {
 
         if (!postId || !data) {
             return NextResponse.json(
-                { error: "Invalid payload format. Expected { postId, data: { director, client } }" },
+                { error: "Invalid payload format. Expected { postId, data: { director, client, creditsCol3, creditsCol5 } }" },
                 { status: 400 }
             );
         }
 
         savePostMetadata(postId, {
             director: data.director,
-            client: data.client
+            client: data.client,
+            creditsCol3: data.creditsCol3 as CreditEntry[] | undefined,
+            creditsCol5: data.creditsCol5 as CreditEntry[] | undefined,
         });
 
         return NextResponse.json({
