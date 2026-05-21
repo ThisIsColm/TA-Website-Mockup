@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { getTeamPhotoPair } from "@/lib/teamPhotos";
 
 export interface TeamCardProps {
     role: string;
     nameLabel?: string;
     /** Key for `/images/team/tape/Tape_{key}.png` (e.g. "Mark", "Beatriz", "AJ"). */
     tapeKey?: string;
-    /** Optional explicit list of photo URLs. Takes precedence over `photoPrefix`. */
-    photos?: string[];
-    /** Optional prefix in `/images/team/`. Generates `${prefix}_001.jpg` … `_003.jpg`. */
+    /** [default, hover] — takes precedence over `photoPrefix`. */
+    photos?: [string, string] | string[];
+    /** Builds `_001` (default) + `_002` (hover) from `/images/team/`. */
     photoPrefix?: string;
 }
-
-const FRAME_MS = 280; // ~3.5fps stop-motion feel (half speed)
 
 const TAPE_W = 280;
 const TAPE_H = 320;
@@ -26,60 +25,18 @@ export default function TeamCard({
     photos,
     photoPrefix,
 }: TeamCardProps) {
-    const frames =
+    const frames: string[] =
         photos && photos.length > 0
-            ? photos
+            ? photos.slice(0, 2)
             : photoPrefix
-              ? [
-                    `/images/team/${photoPrefix}_001.jpg`,
-                    `/images/team/${photoPrefix}_002.jpg`,
-                    `/images/team/${photoPrefix}_003.jpg`,
-                ]
+              ? [...getTeamPhotoPair(photoPrefix)]
               : [];
 
-    const [active, setActive] = useState(0);
     const [hovering, setHovering] = useState(false);
-    const intervalRef = useRef<number | null>(null);
-    const directionRef = useRef(1);
-
-    useEffect(() => {
-        if (!hovering || frames.length <= 1) return;
-        directionRef.current = 1;
-        intervalRef.current = window.setInterval(() => {
-            setActive((i) => {
-                const last = frames.length - 1;
-                let next = i + directionRef.current;
-                if (next > last) {
-                    directionRef.current = -1;
-                    next = last - 1;
-                } else if (next < 0) {
-                    directionRef.current = 1;
-                    next = 1;
-                }
-                return next;
-            });
-        }, FRAME_MS);
-        return () => {
-            if (intervalRef.current !== null) {
-                window.clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        };
-    }, [hovering, frames.length]);
-
-    const handleEnter = () => {
-        directionRef.current = 1;
-        setHovering(true);
-    };
-    const handleLeave = () => {
-        setHovering(false);
-        setActive(0);
-        directionRef.current = 1;
-    };
+    const active = hovering && frames.length > 1 ? 1 : 0;
 
     const hasPhotos = frames.length > 0;
     const displayName = (nameLabel?.trim() || role).trim();
-    /** One description per card; stacked frames 2–3 are hidden from AT to avoid triple announcements. */
     const photoAlt = `Portrait of ${displayName}`;
 
     const tapeSrc = tapeKey ? `/images/team/tape/Tape_${tapeKey}.png` : null;
@@ -88,10 +45,10 @@ export default function TeamCard({
         <div className="flex flex-col">
             <div
                 className="group relative aspect-[2/3] bg-[#D7CFC2] overflow-hidden"
-                onMouseEnter={handleEnter}
-                onMouseLeave={handleLeave}
-                onFocus={handleEnter}
-                onBlur={handleLeave}
+                onMouseEnter={() => setHovering(true)}
+                onMouseLeave={() => setHovering(false)}
+                onFocus={() => setHovering(true)}
+                onBlur={() => setHovering(false)}
                 tabIndex={hasPhotos ? 0 : -1}
                 role={!hasPhotos ? "img" : undefined}
                 aria-label={!hasPhotos ? photoAlt : undefined}
@@ -105,7 +62,7 @@ export default function TeamCard({
                               aria-hidden={idx !== 0}
                               fill
                               priority={idx === 0}
-                              className="object-cover"
+                              className="object-cover transition-opacity duration-200 ease-out motion-reduce:transition-none"
                               sizes="(max-width: 768px) 50vw, 16vw"
                               style={{
                                   opacity: idx === active ? 1 : 0,
@@ -115,7 +72,6 @@ export default function TeamCard({
                       ))
                     : null}
 
-                {/* Orange tint — photo area only on hover (tape stays above at z-[3]) */}
                 {hasPhotos ? (
                     <div
                         aria-hidden="true"

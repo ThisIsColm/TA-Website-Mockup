@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import Container from "@/components/Container";
+import WorkTogetherCta from "@/components/WorkTogetherCta";
 import RotatingTagline from "./RotatingTagline";
 import TeamCard, { type TeamCardProps } from "./TeamCard";
 
@@ -27,14 +27,13 @@ const SERVICES = [
 
 /**
  * Team grid:
- * - Each member can supply `photoPrefix` (auto-builds `${prefix}_001/002/003.jpg`)
- *   or `photos` for explicit overrides. Photos are 2:3 portrait (4000×6000).
- * - `tapeKey` maps to `/images/team/tape/Tape_{key}.png` for the name overlay.
- * - Members without photos render an empty placeholder slot (tape still shows when set).
+ * - `photoPrefix` → `_001.webp` (default) + `_002` (hover) via `getTeamPhotoPair`.
+ * - `photos` for explicit [default, hover] paths when filenames differ.
+ * - `tapeKey` maps to `/images/team/tape/Tape_{key}.png`.
  */
 const TEAM: TeamCardProps[] = [
-    { nameLabel: "Nathan Reilly", role: "CEO", tapeKey: "Nathan" },
-    { nameLabel: "Gabi Chrobak", role: "Head of Production", tapeKey: "Gabi" },
+    { nameLabel: "Nathan Reilly", role: "CEO", photoPrefix: "Nathan", tapeKey: "Nathan" },
+    { nameLabel: "Gabi Chrobak", role: "Head of Production", photoPrefix: "Gabi", tapeKey: "Gabi" },
     {
         nameLabel: "Mark O'Brien",
         role: "Creative Director",
@@ -53,7 +52,12 @@ const TEAM: TeamCardProps[] = [
         photoPrefix: "Leon",
         tapeKey: "Leon",
     },
-    { nameLabel: "Blaine Rennicks", role: "Technical Director", tapeKey: "Blaine" },
+    {
+        nameLabel: "Blaine Rennicks",
+        role: "Technical Director",
+        photoPrefix: "Blaine",
+        tapeKey: "Blaine",
+    },
     {
         nameLabel: "Colm Moore",
         role: "Head of Post Production",
@@ -69,7 +73,7 @@ const TEAM: TeamCardProps[] = [
     {
         nameLabel: "Beatriz Gonçalves",
         role: "Senior Motion Designer",
-        photoPrefix: "Bea",
+        photoPrefix: "Beatriz",
         tapeKey: "Beatriz",
     },
     {
@@ -85,15 +89,10 @@ const TEAM: TeamCardProps[] = [
         tapeKey: "Rosie",
     },
     {
-        // Note: third frame file is `AJ_003.jpg` (uppercase) — use explicit list.
         nameLabel: "Alex James",
         role: "CTO",
+        photoPrefix: "AJ",
         tapeKey: "AJ",
-        photos: [
-            "/images/team/Aj_001.jpg",
-            "/images/team/Aj_002.jpg",
-            "/images/team/AJ_003.jpg",
-        ],
     },
 ];
 
@@ -235,29 +234,7 @@ export default function AboutPage() {
                 </Container>
             </section>
 
-            {/* ── Get in touch ───────────────────────────────────────── */}
-            <section
-                data-header-surface="white"
-                className="bg-white pt-[40px] md:pt-[60px] pb-[100px] md:pb-[140px]"
-            >
-                <Container>
-                    <div className="flex justify-center text-center">
-                            <Link
-                                href="/contact"
-                                className="inline-block text-black hover:text-accent transition-colors duration-300"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "clamp(2.5rem, 2.5vw, 4rem)",
-                                    letterSpacing: "-0.02em",
-                                    lineHeight: 1.1,
-                                    fontWeight: 900,
-                                }}
-                            >
-                                Get in touch.
-                            </Link>
-                    </div>
-                </Container>
-            </section>
+            <WorkTogetherCta />
         </div>
     );
 }

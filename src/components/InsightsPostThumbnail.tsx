@@ -42,7 +42,7 @@ export default function InsightsPostThumbnail({
     return (
         <div
             data-header-surface="dark"
-            className="relative w-full aspect-[565/370] overflow-hidden bg-[#D7CFC2]"
+            className="relative w-full aspect-[535/325] overflow-hidden bg-[#D7CFC2]"
             onMouseEnter={handleEnter}
             onMouseLeave={handleLeave}
         >
@@ -52,7 +52,7 @@ export default function InsightsPostThumbnail({
                     alt={title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 33vw, 30vw"
                 />
             ) : null}
 
@@ -69,7 +69,7 @@ export default function InsightsPostThumbnail({
                         alt=""
                         fill
                         className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        sizes="(max-width: 768px) 33vw, 30vw"
                         style={{
                             opacity: idx === active ? 1 : 0,
                         }}

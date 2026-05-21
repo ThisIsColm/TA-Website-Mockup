@@ -3,6 +3,8 @@
  * Portrait paths align with `/images/team/` assets on the About page.
  */
 
+import { getTeamPhotoDefault } from "@/lib/teamPhotos";
+
 export type TeamAuthorId =
     | "nathan"
     | "gabi"
@@ -26,26 +28,18 @@ export interface TeamAuthor {
 }
 
 export const TEAM_AUTHORS: TeamAuthor[] = [
-    { id: "nathan", name: "Nathan Reilly" },
-    { id: "gabi", name: "Gabi Chrobak" },
+    { id: "nathan", name: "Nathan Reilly", photoPrefix: "Nathan" },
+    { id: "gabi", name: "Gabi Chrobak", photoPrefix: "Gabi" },
     { id: "mark", name: "Mark O'Brien", photoPrefix: "Mark" },
     { id: "eilis", name: "Eilis Doherty", photoPrefix: "Eilis" },
     { id: "leon", name: "Leon Forristal", photoPrefix: "Leon" },
-    { id: "blaine", name: "Blaine Rennicks" },
+    { id: "blaine", name: "Blaine Rennicks", photoPrefix: "Blaine" },
     { id: "colm", name: "Colm Moore", photoPrefix: "Colm" },
     { id: "rory", name: "Rory Bradley", photoPrefix: "Rory" },
-    { id: "bea", name: "Beatriz Gonçalves", photoPrefix: "Bea" },
+    { id: "bea", name: "Beatriz Gonçalves", photoPrefix: "Beatriz" },
     { id: "kate", name: "Kate Brady", photoPrefix: "Kate" },
     { id: "rosie", name: "Rosie Spearing", photoPrefix: "Rosie" },
-    {
-        id: "aj",
-        name: "Alex James",
-        photos: [
-            "/images/team/Aj_001.jpg",
-            "/images/team/Aj_002.jpg",
-            "/images/team/AJ_003.jpg",
-        ],
-    },
+    { id: "aj", name: "Alex James", photoPrefix: "AJ" },
 ];
 
 const authorById = new Map(TEAM_AUTHORS.map((a) => [a.id, a]));
@@ -58,7 +52,7 @@ export function getTeamAuthor(id: string | null | undefined): TeamAuthor | null 
 export function getAuthorPortraitSrc(author: TeamAuthor): string | null {
     if (author.photos?.[0]) return author.photos[0];
     if (author.photoPrefix) {
-        return `/images/team/${author.photoPrefix}_001.jpg`;
+        return getTeamPhotoDefault(author.photoPrefix);
     }
     return null;
 }

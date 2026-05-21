@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Container from "@/components/Container";
+import InsightsIntroIcon from "@/components/InsightsIntroIcon";
 import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
-import { getSelections } from "@/lib/db";
+import { getPostMetadata, getSelections } from "@/lib/db";
+import { getTeamAuthor } from "@/lib/team";
 
 export const dynamic = "force-dynamic";
 
@@ -19,20 +21,29 @@ export const metadata: Metadata = {
 };
 
 interface InsightPost {
+    id: string;
     slug: string;
     title: string;
     excerpt: string;
     coverImage: string;
     date: string;
+    authorName?: string;
 }
 
+const DM_MONO = '"DM Mono", ui-monospace, monospace';
+
 function ghostToInsight(post: GhostPost): InsightPost {
+    const meta = getPostMetadata(post.id);
+    const author = getTeamAuthor(meta?.insightAuthorId);
+
     return {
+        id: post.id,
         slug: post.slug,
         title: post.title,
         excerpt: post.custom_excerpt || post.excerpt || "",
         coverImage: post.feature_image || "",
         date: post.published_at,
+        authorName: author?.name,
     };
 }
 
@@ -42,13 +53,11 @@ function estimateReadTime(text: string) {
 }
 
 function formatDate(iso: string) {
-    return new Date(iso)
-        .toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-        .toUpperCase();
+    return new Date(iso).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
 }
 
 export default async function InsightsPage() {
@@ -64,91 +73,96 @@ export default async function InsightsPage() {
         console.error("[insights] Failed to fetch curated Ghost posts:", err);
     }
 
-    // Distribute posts column-first so reading order flows naturally.
-    // Posts 0,3,6… in col 0; 1,4,7… in col 1; 2,5,8… in col 2.
-    const columns: InsightPost[][] = [[], [], []];
-    posts.forEach((post, i) => {
-        columns[i % 3].push(post);
-    });
-
     return (
         <section
             data-header-surface="white"
             className="bg-white pt-[100px] md:pt-[110px] pb-[100px] md:pb-[140px]"
         >
             <Container>
-                {/* Page title — centred, ~100px space below before the grid */}
-                <h1
-                    className="text-center text-black"
-                    style={{
-                        fontFamily: "Tenon, sans-serif",
-                        fontSize: "clamp(1.5rem, 1.8vw, 30px)",
-                        letterSpacing: "-0.01em",
-                        lineHeight: 1.1,
-                        fontWeight: 800,
-                    }}
-                >
-                    INSIGHTS.
-                </h1>
+                <header className="flex flex-col items-center text-center">
+                    <InsightsIntroIcon className="h-[clamp(4rem,10.625vw,204px)] w-[clamp(4rem,10.625vw,204px)] text-accent" />
+                    <p
+                        className="text-black"
+                        style={{
+                            fontFamily: DM_MONO,
+                            fontSize: "clamp(0.875rem, 1.5625vw, 30px)",
+                            fontWeight: 300,
+                            lineHeight: "clamp(28px, 2.03125vw, 39px)",
+                            letterSpacing: 0,
+                        }}
+                    >
+                        The thinking
+                        <br />
+                        behind the work
+                    </p>
+                </header>
 
-                {/* 3-column grid; middle column offset by half a thumbnail
-                    so its top sits at the vertical centre of the others.
-                    Thumbnail is 565 × 370 → half-height = 32.7434% of col width. */}
-                <div className="mt-[80px] md:mt-[100px] grid grid-cols-1 md:grid-cols-3 gap-x-[5px]">
-                    {columns.map((columnPosts, colIdx) => (
-                        <div
-                            key={colIdx}
-                            className={`flex flex-col gap-[50px] ${
-                                colIdx === 1 ? "md:pt-[32.7434%]" : ""
-                            }`}
-                        >
-                            {columnPosts.map((post) => {
-                                const dateLabel = formatDate(post.date);
-                                const readTime = estimateReadTime(post.excerpt);
+                <div className="mt-[clamp(48px,8.594vw,165px)] flex flex-col gap-[clamp(48px,5.365vw,103px)]">
+                    {posts.map((post) => {
+                        const dateLabel = formatDate(post.date);
+                        const readTime = estimateReadTime(post.excerpt);
+                        const title = post.title.endsWith(".")
+                            ? post.title
+                            : `${post.title}.`;
 
-                                return (
-                                    <article key={post.slug}>
-                                        <Link
-                                            href={`/insights/${post.slug}`}
-                                            className="group block"
+                        return (
+                            <article key={post.slug}>
+                                <Link
+                                    href={`/insights/${post.slug}`}
+                                    className="group grid grid-cols-6 gap-x-[5px] items-start"
+                                >
+                                    <div className="col-span-2 flex flex-col gap-[5px]">
+                                        <InsightsPostThumbnail
+                                            coverImage={post.coverImage}
+                                            title={post.title}
+                                        />
+                                        <p
+                                            className="text-black"
+                                            style={{
+                                                fontFamily: DM_MONO,
+                                                fontSize: "clamp(0.6875rem, 0.9375vw, 18px)",
+                                                fontWeight: 400,
+                                                lineHeight: "clamp(18px, 1.197917vw, 23px)",
+                                                letterSpacing: "-0.02em",
+                                            }}
                                         >
-                                            <InsightsPostThumbnail
-                                                coverImage={post.coverImage}
-                                                title={post.title}
-                                            />
+                                            {dateLabel} &middot; {readTime} min read
+                                        </p>
+                                    </div>
 
+                                    <div className="col-span-4 col-start-3 min-w-0 pl-[clamp(8px,2.396vw,46px)]">
+                                        <h2
+                                            className="max-w-[clamp(280px,43.021vw,826px)] text-black transition-colors duration-200 group-hover:text-accent"
+                                            style={{
+                                                fontFamily: "Tenon, sans-serif",
+                                                fontSize: "clamp(1.5rem, 3.958333vw, 76px)",
+                                                letterSpacing: "-0.02em",
+                                                lineHeight: 1,
+                                                fontWeight: 800,
+                                                color: "#000000",
+                                            }}
+                                        >
+                                            {title}
+                                        </h2>
+                                        {post.authorName ? (
                                             <p
-                                                className="mt-[25px] text-black"
+                                                className="mt-[clamp(20px,2.604vw,50px)] max-w-[clamp(280px,43.021vw,826px)] text-black"
                                                 style={{
-                                                    fontFamily: "Tenon, sans-serif",
-                                                    fontSize: "clamp(0.7rem, 0.78vw, 13px)",
-                                                    letterSpacing: "0.08em",
-                                                    textTransform: "uppercase",
-                                                    fontWeight: 700,
+                                                    fontFamily: DM_MONO,
+                                                    fontSize: "clamp(0.875rem, 1.5625vw, 30px)",
+                                                    fontWeight: 400,
+                                                    lineHeight: "clamp(28px, 2.03125vw, 39px)",
+                                                    letterSpacing: "-0.02em",
                                                 }}
                                             >
-                                                {dateLabel} &middot; {readTime} MIN READ
+                                                By {post.authorName}
                                             </p>
-
-                                            <h2
-                                                className="mt-[25px] text-black transition-colors duration-200 group-hover:text-accent"
-                                                style={{
-                                                    fontFamily: "Tenon, sans-serif",
-                                                    fontSize: "clamp(2.8rem, 2.8vw, 2000px)",
-                                                    letterSpacing: "-0.01em",
-                                                    lineHeight: 1,
-                                                    fontWeight: 800,
-                                                }}
-                                            >
-                                                {post.title}
-                                                {post.title.endsWith(".") ? "" : "."}
-                                            </h2>
-                                        </Link>
-                                    </article>
-                                );
-                            })}
-                        </div>
-                    ))}
+                                        ) : null}
+                                    </div>
+                                </Link>
+                            </article>
+                        );
+                    })}
                 </div>
             </Container>
         </section>

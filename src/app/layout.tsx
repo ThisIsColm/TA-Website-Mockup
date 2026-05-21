@@ -33,6 +33,10 @@ export default function RootLayout({
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
                     rel="stylesheet"
                 />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap"
+                    rel="stylesheet"
+                />
             </head>
             <body className="bg-bg text-text-primary font-sans">
                 <SmoothScroll>

@@ -31,10 +31,10 @@ export default function Footer() {
         path === "/insights" ||
         path.startsWith("/insights/");
 
-    const slimBarBg = path === "/contact" ? "bg-white" : "bg-[#EAE4DD]";
-    const slimBarSurface = path === "/contact" ? "white" : "neutral";
+    const slimBarBg = "bg-[#EAE4DD]";
+    const slimBarSurface = "neutral";
 
-    // Slim footer bar — beige on home/about/work/insights; white on contact
+    // Slim footer bar — beige on home/about/work/insights/contact
     if (useSlimBar) {
         return (
             <footer

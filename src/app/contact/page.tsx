@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
     return (
         <section
-            data-header-surface="white"
+            data-header-surface="neutral"
             className="w-full pt-[100px] md:pt-[120px] pb-[24px]"
         >
             <Container>
