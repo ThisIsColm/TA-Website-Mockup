@@ -4,6 +4,7 @@ import Container from "@/components/Container";
 import WorkTogetherCta from "@/components/WorkTogetherCta";
 import RotatingTagline from "./RotatingTagline";
 import TeamCard, { type TeamCardProps } from "./TeamCard";
+import { typeClass } from "@/lib/typographyStyles";
 
 export const metadata: Metadata = {
     title: "About",
@@ -108,28 +109,15 @@ export default function AboutPage() {
             >
                 <Container>
                     <div className="grid grid-cols-6 gap-[5px]">
-                        <div className="col-span-6 md:col-start-3 md:col-span-4 @container">
+                        <div className="col-span-6 md:col-start-3 md:col-span-4">
                             <h1
-                                className="font-bold text-black"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "max(1.8rem, 3.35cqw)",
-                                    letterSpacing: "-0.01em",
-                                    lineHeight: 1.18,
-                                    fontWeight: 700,
-                                }}
+                                className={`text-[#353535] ${typeClass("about.heroHeading")}`}
                             >
-                                We are Tiny Ark &mdash; an independent <br></br>creative production
-                                company.
+                                We are Tiny Ark &mdash; an independent creative
+                                production company.
                             </h1>
                             <div
-                                className="mt-[28px] md:mt-[80px] w-full space-y-[20px] md:space-y-[24px] text-black"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "max(0.95rem, 3.3cqw)",
-                                    lineHeight: 1.5,
-                                    fontWeight: 400,
-                                }}
+                                className={`mt-[28px] md:mt-[80px] w-full space-y-[20px] md:space-y-[24px] text-black ${typeClass("about.heroBody")}`}
                             >
                                 <p>
                                     We&rsquo;re a team of directors, producers,
@@ -160,24 +148,16 @@ export default function AboutPage() {
             >
                 <Container>
                     <div className="grid grid-cols-6 gap-[5px] items-start">
-                        <div className="col-span-6 md:col-span-3 @container">
+                        <div className="col-span-6 md:col-span-3">
                             <RotatingTagline />
                         </div>
 
                         <div
                             data-header-surface="white"
-                            className="col-span-6 md:col-span-3 @container bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]"
+                            className="col-span-6 md:col-span-3 bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]"
                         >
                             <div className="min-w-0 w-full">
-                                <p
-                                    className="text-black"
-                                    style={{
-                                        fontFamily: "Tenon, sans-serif",
-                                        fontSize: "clamp(0.85rem, 3cqw, 1.875rem)",
-                                        lineHeight: 1.5,
-                                        fontWeight: 400,
-                                    }}
-                                >
+                                <p className={`text-black ${typeClass("about.serviceCardBody")}`}>
                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                     sed do eiusmod tempor incididunt ut labore et dolore
                                     magna aliqua. Ut enim ad minim veniam, quis nostrud
@@ -241,17 +221,7 @@ export default function AboutPage() {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
     return (
-        <h2
-            className="text-black"
-            style={{
-                fontFamily: "Tenon, sans-serif",
-                fontSize: "clamp(1.5rem, 1.875vw, 36px)",
-                fontWeight: 400,
-                fontStyle: "normal",
-                lineHeight: "46px",
-                letterSpacing: "-0.02em",
-            }}
-        >
+        <h2 className={`text-black ${typeClass("about.sectionHeading")}`}>
             {children}
         </h2>
     );
@@ -260,13 +230,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function ServicePill({ label }: { label: string }) {
     return (
         <div
-            className="flex w-full min-w-0 flex-nowrap items-center justify-start gap-[0.35em] overflow-hidden rounded-full border border-accent px-[0.65em] py-[0.32em] text-accent"
-            style={{
-                fontFamily: "Tenon, sans-serif",
-                fontSize: "clamp(0.65rem, 2.75cqw, 1.375rem)",
-                fontWeight: 500,
-                lineHeight: 1.2,
-            }}
+            className={`flex w-full min-w-0 flex-nowrap items-center justify-start gap-[0.35em] overflow-hidden rounded-full border-2 border-accent px-[0.65em] py-[0.32em] text-accent ${typeClass("about.servicePill")}`}
         >
             <span
                 aria-hidden="true"

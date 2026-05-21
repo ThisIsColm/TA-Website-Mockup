@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHeaderContrast } from "@/hooks/useHeaderContrast";
+import { typeClass } from "@/lib/typographyStyles";
 
 // "Home" is reached via the logo; menu lists Work / About / Insights to match the design.
 const navLinks = [
@@ -391,14 +392,9 @@ export default function Header() {
                                                     onClick={() => setMenuOpen(false)}
                                                     /* Transform on nested span keeps the Link hit box fixed so the
                                                        cursor stays “over” the item after the slide (no hover jitter). */
-                                                    className={`group block leading-[1.15] tracking-[-0.01em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${
+                                                    className={`group block leading-[1.15] tracking-[-0.01em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${typeClass("shared.headerNavLink")} ${
                                                         active ? "text-accent" : menuTextColor
                                                     }`}
-                                                    style={{
-                                                        fontFamily: "Tenon, sans-serif",
-                                                        fontSize: "clamp(1.25rem, 1.6vw, 30px)",
-                                                        fontWeight: 800,
-                                                    }}
                                                 >
                                                     <span className="inline-block origin-right transition-transform duration-300 ease-out motion-reduce:transition-none motion-safe:group-hover:-translate-x-[30px]">
                                                         {link.label}.

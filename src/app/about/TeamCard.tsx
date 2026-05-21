@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { getTeamPhotoPair } from "@/lib/teamPhotos";
+import { typeClass } from "@/lib/typographyStyles";
 
 export interface TeamCardProps {
     role: string;
@@ -91,17 +92,7 @@ export default function TeamCard({
                     />
                 ) : null}
             </div>
-            <p
-                className="mt-[10px] text-black/45"
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(0.875rem, 1.15vw, 22px)",
-                    fontWeight: 400,
-                    fontStyle: "normal",
-                    lineHeight: "30px",
-                    letterSpacing: "-0.02em",
-                }}
-            >
+            <p className={`mt-[10px] text-[#353535] ${typeClass("about.teamRole")}`}>
                 {role}
             </p>
         </div>

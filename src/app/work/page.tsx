@@ -5,6 +5,7 @@ import SectionHeading from "@/components/SectionHeading";
 import { getAllProjects } from "@/lib/data";
 import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getSelections } from "@/lib/db";
+import { typeClass } from "@/lib/typographyStyles";
 import { Project } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export default async function WorkPage() {
                 <SectionHeading
                     title="Work."
                     className="mt-10"
-                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
+                    titleClassName={`${typeClass("shared.listingPageTitle")} text-white leading-none`}
                 />
 
                 <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">

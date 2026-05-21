@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Container from "./Container";
+import { typeClass } from "@/lib/typographyStyles";
 
 const INSTAGRAM_ICON = "/images/Social Icons/Instagram/Negative.png";
 const LINKEDIN_ICON = "/images/Social Icons/LinkedIn/Vector.png";
@@ -11,9 +12,8 @@ const LINKEDIN_ICON = "/images/Social Icons/LinkedIn/Vector.png";
 const ICON_W = 62;
 const ICON_H = 59;
 
-/** Figma @ 1920px */
-const FOOTER_TEXT_CLASS =
-    "text-[clamp(0.75rem,0.833vw,16px)] tracking-[0.04em]";
+/** Figma @ 1920px — edit sizes in src/lib/typography.ts → shared.footerCopyright */
+const FOOTER_TEXT_CLASS = typeClass("shared.footerCopyright");
 const FOOTER_ICON_CLASS = "h-[clamp(20px,1.5625vw,30px)] w-auto";
 const FOOTER_ICON_GAP_CLASS = "gap-[clamp(14px,1.302vw,25px)]";
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { typeClass } from "@/lib/typographyStyles";
 
 const PHRASES = [
     "create captivating commercials.",
@@ -22,19 +23,15 @@ export default function RotatingTagline() {
     }, []);
 
     return (
-        <div
-            className="text-black"
-            style={{
-                fontFamily: "Tenon, sans-serif",
-                fontSize: "clamp(1.5rem, 2.6vw, 36px)",
-                lineHeight: 1.2,
-                letterSpacing: "-0.01em",
-            }}
-        >
-            <span className="block" style={{ fontWeight: 400 }}>
+        <div className="text-black">
+            <span
+                className={`block ${typeClass("about.rotatingTaglineLead")}`}
+            >
                 People work with us to
             </span>
-            <span className="relative block min-h-[1.2em] text-accent" style={{ fontWeight: 700 }}>
+            <span
+                className={`relative block min-h-[1.278em] text-accent ${typeClass("about.rotatingTaglineAccent")}`}
+            >
                 <AnimatePresence mode="wait">
                     <motion.span
                         key={index}

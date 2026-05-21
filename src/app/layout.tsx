@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import TypographyStyles from "@/components/TypographyStyles";
 
 export const metadata: Metadata = {
     title: {
@@ -28,6 +29,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
+                <TypographyStyles />
                 <link rel="stylesheet" href="https://use.typekit.net/myb1dqi.css" />
                 <link
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"

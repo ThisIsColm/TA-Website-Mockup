@@ -5,6 +5,7 @@ import Container from "@/components/Container";
 import SectionHeading from "@/components/SectionHeading";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getSelections } from "@/lib/db";
+import { typeClass } from "@/lib/typographyStyles";
 import { Post } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +61,7 @@ export default async function CaseStudiesPage() {
                 <SectionHeading
                     title="INSIGHTS."
                     className="mt-10"
-                    titleClassName="text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-tight text-white leading-none"
+                    titleClassName={`${typeClass("shared.listingPageTitle")} text-white leading-none`}
                 />
                 <div className="mt-10 lg:mt-12">
                     {posts.map((post, index) => {
@@ -94,7 +95,7 @@ export default async function CaseStudiesPage() {
                                                 <span className="text-text-tertiary/50">•</span>
                                                 <span>{readTimeMinutes} min read</span>
                                             </div>
-                                            <h2 className="text-[clamp(1.4rem,2.8vw,2.15rem)] font-bold leading-[1.05] tracking-[-0.02em] text-white group-hover:text-accent transition-colors duration-250 [transition-timing-function:var(--ease-signature)]">
+                                            <h2 className={`text-white group-hover:text-accent transition-colors duration-250 [transition-timing-function:var(--ease-signature)] ${typeClass("work.cardTitle")}`}>
                                                 {post.title}
                                             </h2>
                                             <p className="text-base md:text-lg text-text-secondary leading-relaxed w-full line-clamp-2">

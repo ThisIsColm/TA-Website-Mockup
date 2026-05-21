@@ -1,3 +1,5 @@
+import { typeClass } from "@/lib/typographyStyles";
+
 export interface ContactPersonProps {
     name: string;
     title: string;
@@ -12,46 +14,23 @@ export default function ContactPerson({
     phone,
 }: ContactPersonProps) {
     return (
-        <div>
-            <p
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(1.1rem, 1.25vw, 22px)",
-                    fontWeight: 700,
-                    color: "#000",
-                    lineHeight: 1.15,
-                }}
-            >
+        <div className="[&_p]:m-0 [&_a]:m-0">
+            <p className={`text-black ${typeClass("contact.personName")}`}>
                 {name}
             </p>
-            <p
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(0.85rem, 0.95vw, 15px)",
-                    color: "rgba(0,0,0,0.55)",
-                    marginTop: "4px",
-                }}
-            >
+            <p className={`text-[#353535] ${typeClass("contact.personTitle")}`}>
                 {title}
             </p>
             <a
                 href={`mailto:${email}`}
-                className="block mt-[8px] text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                style={{
-                    fontFamily: "Tenon, sans-serif",
-                    fontSize: "clamp(1rem, 1.1vw, 18px)",
-                }}
+                className={`block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors ${typeClass("contact.personLink")}`}
             >
                 {email}
             </a>
             {phone ? (
                 <a
                     href={`tel:${phone.replace(/\s|\(|\)|-/g, "")}`}
-                    className="block mt-[4px] text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                    style={{
-                        fontFamily: "Tenon, sans-serif",
-                        fontSize: "clamp(1rem, 1.1vw, 18px)",
-                    }}
+                    className={`block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors ${typeClass("contact.personLink")}`}
                 >
                     {phone}
                 </a>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Container from "@/components/Container";
 import { getAuthorPortraitSrc, getTeamAuthor } from "@/lib/team";
+import { typeClass } from "@/lib/typographyStyles";
 
 interface InsightArticleHeaderProps {
     title: string;
@@ -35,13 +36,7 @@ export default function InsightArticleHeader({
                         </div>
                         {author ? (
                             <p
-                                className="mt-[12px] w-1/2 text-black/45"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "clamp(0.875rem, 1.354vw, 26px)",
-                                    letterSpacing: "-0.02em",
-                                    lineHeight: 1.3,
-                                }}
+                                className={`mt-[12px] w-1/2 text-[#353535] ${typeClass("insights.articleHeaderByline")}`}
                             >
                                 By {author.name}
                             </p>
@@ -50,26 +45,13 @@ export default function InsightArticleHeader({
 
                     <div className="col-span-6 md:col-span-4 md:col-start-3">
                         <h1
-                            className="text-black"
-                            style={{
-                                fontFamily: "Tenon, sans-serif",
-                                fontSize: "clamp(2rem, 5vw, 96px)",
-                                letterSpacing: "-0.02em",
-                                lineHeight: "106px",
-                                fontWeight: 800,
-                            }}
+                            className={`text-black capitalize ${typeClass("insights.articleHeaderTitle")}`}
                         >
                             {title}
                         </h1>
                         {subtitle ? (
                             <p
-                                className="mt-[24px] md:mt-[28px] text-black max-w-[52ch]"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "clamp(1rem, 5vw, 46px)",
-                                    lineHeight: "56px",
-                                    fontWeight: 400,
-                                }}
+                                className={`mt-[24px] md:mt-[28px] text-black max-w-[52ch] ${typeClass("insights.articleHeaderSubtitle")}`}
                             >
                                 {subtitle}
                             </p>

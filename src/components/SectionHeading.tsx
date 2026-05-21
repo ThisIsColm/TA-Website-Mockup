@@ -2,6 +2,8 @@
 
 import ScrollReveal from "./ScrollReveal";
 
+import { typeClass } from "@/lib/typographyStyles";
+
 interface SectionHeadingProps {
     title: string;
     count?: number;
@@ -13,7 +15,7 @@ export default function SectionHeading({
     title,
     count,
     className = "",
-    titleClassName = "text-3xl md:text-4xl font-bold tracking-[-0.03em] text-text-primary",
+    titleClassName = `${typeClass("shared.listingPageTitle")} text-text-primary leading-none`,
 }: SectionHeadingProps) {
     return (
         <ScrollReveal className={className}>

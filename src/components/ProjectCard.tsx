@@ -7,6 +7,7 @@ import { Project } from "@/types";
 import Badge from "./Badge";
 import { useState } from "react";
 import VimeoPreview from "./VimeoPreview";
+import { typeClass } from "@/lib/typographyStyles";
 
 interface ProjectCardProps {
     project: Project;
@@ -102,12 +103,7 @@ export default function ProjectCard({
                                     <div className={`transition-transform duration-300 ${isHovered && titleVisibility !== "hover" ? "-translate-y-1" : "translate-y-0"}`}>
                                         {titleVisibility === "hover" ? (
                                             <h3
-                                                style={{
-                                                    fontSize: "clamp(1.125rem, 2vw, 60px)",
-                                                    lineHeight: 1.1,
-                                                    letterSpacing: "-0.01em",
-                                                }}
-                                                className="text-white font-black"
+                                                className={`text-white ${typeClass("work.projectHoverTitle")}`}
                                             >
                                                 {project.title}
                                             </h3>
@@ -125,10 +121,7 @@ export default function ProjectCard({
                                                         },
                                                     },
                                                 }}
-                                                className={`text-white font-black tracking-[-0.02em] uppercase leading-[0.98] ${compactOverlayTitle
-                                                        ? "text-[clamp(0.95rem,1.7vw,1.35rem)]"
-                                                        : "text-[clamp(1.15rem,2.2vw,1.85rem)]"
-                                                    }`}
+                                                className={`text-white uppercase ${compactOverlayTitle ? typeClass("work.projectOverlayTitleCompact") : typeClass("work.projectOverlayTitle")}`}
                                             >
                                                 {titleWords.map((word, wordIndex) => (
                                                     <motion.span

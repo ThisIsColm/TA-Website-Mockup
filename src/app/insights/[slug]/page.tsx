@@ -8,6 +8,7 @@ import InsightArticleHeader from "@/components/InsightArticleHeader";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
 import { getPostMetadata } from "@/lib/db";
 import { getInsightsPageNeighbors } from "@/lib/insightsGrid";
+import { typeClass } from "@/lib/typographyStyles";
 
 export const dynamic = "force-dynamic";
 
@@ -142,7 +143,7 @@ export default async function InsightPage({ params }: InsightPageProps) {
                                     <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
                                         Previous
                                     </p>
-                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                    <h2 className={`text-[#353535] ${typeClass("insights.nextArticleTitle")}`}>
                                         {prev.title}
                                     </h2>
                                 </Link>
@@ -155,9 +156,9 @@ export default async function InsightPage({ params }: InsightPageProps) {
                                     className="group inline-block max-w-full text-left md:text-right"
                                 >
                                     <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                        Next
+                                        Next Project
                                     </p>
-                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                    <h2 className={`text-[#353535] ${typeClass("insights.nextArticleTitle")}`}>
                                         {next.title}
                                     </h2>
                                 </Link>

@@ -8,6 +8,7 @@ import type { CreditEntry } from "@/lib/credits";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
 import { getWorkPageNeighbors } from "@/lib/homeWorkGrid";
+import { typeClass } from "@/lib/typographyStyles";
 
 // Make this page dynamic so it can fetch from Ghost on request
 export const dynamic = "force-dynamic";
@@ -236,7 +237,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                                     <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
                                         Previous
                                     </p>
-                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                    <h2 className={`text-[#353535] group-hover:text-accent transition-colors ${typeClass("work.nextProjectTitle")}`}>
                                         {prev.title}
                                     </h2>
                                 </Link>
@@ -251,7 +252,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                                     <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
                                         Next
                                     </p>
-                                    <h2 className="text-[clamp(1.15rem,2.2vw,1.75rem)] font-black tracking-[-0.02em] text-accent group-hover:text-accent-hover transition-colors leading-tight">
+                                    <h2 className={`text-[#353535] group-hover:text-accent transition-colors ${typeClass("work.nextProjectTitle")}`}>
                                         {next.title}
                                     </h2>
                                 </Link>

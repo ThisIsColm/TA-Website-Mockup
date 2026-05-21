@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { typeClass } from "@/lib/typographyStyles";
 import ProjectCard from "@/components/ProjectCard";
 import VideoHero from "@/components/VideoHero";
 import WorkTogetherCta from "@/components/WorkTogetherCta";
@@ -115,14 +116,7 @@ function TypewriterSection() {
                         return (
                             <p
                                 key={pIdx}
-                                className={`font-bold text-black ${marginBottom}`}
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "clamp(1.8rem, 4vw, 90px)",
-                                    letterSpacing: "-0.02em",
-                                    lineHeight: 0.95,
-                                    fontWeight: 800,
-                                }}
+                                className={`text-[#353535] ${marginBottom} ${typeClass("home.typewriterLine")}`}
                             >
                                 {words.map((word, i) => {
                                     const globalIdx = offset + i;
@@ -146,8 +140,7 @@ function TypewriterSection() {
                     })}
                     <Link
                         href="/about"
-                        className="inline-block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors"
-                        style={{ fontSize: "clamp(1.125rem, 2vw, 38px)" }}
+                        className={`inline-block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors ${typeClass("home.moreAboutLink")}`}
                     >
                         More about us.
                     </Link>

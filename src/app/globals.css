@@ -248,32 +248,25 @@ html.lenis body {
 .case-study-prose > .case-meta > h1,
 .case-study-prose > .case-meta > p {
   grid-column: 1 / span 2;
-  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
   line-height: 1.2;
   margin: 0;
 }
 
 .case-study-prose > .case-meta > h1 {
-  font-weight: 700;
-  letter-spacing: -0.01em;
   color: #000;
 }
 
 .case-study-prose > .case-meta > p {
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.65);
+  color: #000;
   margin-top: 4px;
 }
 
 .case-study-prose > h2,
 .case-study-prose > h3,
 .case-study-prose > h4 {
-  font-weight: 700;
-  letter-spacing: -0.01em;
   color: #000;
   margin-top: 0;
   margin-bottom: 0;
-  line-height: 1.2;
 }
 
 /* Apply top margin only to headings that follow another element (not the first
@@ -298,16 +291,14 @@ html.lenis body {
 }
 
 .case-study-prose > h2 {
-  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
+  /* size/weight from typography.ts → prose.caseStudyH2 */
 }
 
 .case-study-prose > h3 {
-  font-size: clamp(1.25rem, 1.3vw, 2rem);
+  /* size/weight from typography.ts → prose.caseStudyH2 */
 }
 
 .case-study-prose > p {
-  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
-  line-height: 1.5;
   color: #000;
   margin: 0 0 0 0;
   grid-column: 3 / span 4;
@@ -543,28 +534,14 @@ html.lenis body {
 .insight-article-prose > h2,
 .insight-article-prose > h3,
 .insight-article-prose > h4 {
-  font-weight: 700;
-  letter-spacing: -0.01em;
   color: #000;
-  line-height: 1.2;
   margin: 0;
 }
 
-.insight-article-prose > h2 {
-  font-size: clamp(1.35rem, 1.8vw, 2rem);
-}
-
-.insight-article-prose > h3 {
-  font-size: clamp(1.15rem, 1.4vw, 1.5rem);
-}
-
-/* Body: Figma 36px / 46px lh @ 1920, Tenon 400, -2% tracking */
+/* Body sizes: see src/lib/typography.ts → prose.insightArticle* (injected CSS) */
 .insight-article-prose > p,
 .insight-article-prose > ul,
-.insight-article-prose > ol,
-.insight-article-prose > blockquote {
-  font-size: clamp(1rem, 1.875vw, 36px);
-  line-height: clamp(1.25rem, 2.4vw, 46px);
+.insight-article-prose > ol {
   letter-spacing: -0.02em;
   font-weight: 400;
 }
@@ -915,4 +892,17 @@ html.lenis body {
 
 .ghost-content .kg-bookmark-description {
   font-size: 0.85rem;
+}
+
+/* Contact page — cap-height trim matches Figma "Vertical trim: Cap height" */
+.contact-page-heading {
+  margin: 0;
+  text-box-trim: trim-start;
+  text-box-edge: cap alphabetic;
+}
+
+@supports not (text-box-trim: trim-start) {
+  .contact-page-heading {
+    transform: translateY(-0.1em);
+  }
 }

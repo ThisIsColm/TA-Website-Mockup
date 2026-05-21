@@ -6,6 +6,7 @@ import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getPostMetadata, getSelections } from "@/lib/db";
 import { getTeamAuthor } from "@/lib/team";
+import { figmaSpace, typeClass } from "@/lib/typographyStyles";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +30,6 @@ interface InsightPost {
     date: string;
     authorName?: string;
 }
-
-const DM_MONO = '"DM Mono", ui-monospace, monospace';
 
 function ghostToInsight(post: GhostPost): InsightPost {
     const meta = getPostMetadata(post.id);
@@ -80,24 +79,27 @@ export default async function InsightsPage() {
         >
             <Container>
                 <header className="flex flex-col items-center text-center">
-                    <InsightsIntroIcon className="h-[clamp(4rem,10.625vw,204px)] w-[clamp(4rem,10.625vw,204px)] text-accent" />
-                    <p
-                        className="text-black"
+                    <InsightsIntroIcon
+                        className="text-accent"
                         style={{
-                            fontFamily: DM_MONO,
-                            fontSize: "clamp(0.875rem, 1.5625vw, 30px)",
-                            fontWeight: 300,
-                            lineHeight: "clamp(28px, 2.03125vw, 39px)",
-                            letterSpacing: 0,
+                            height: figmaSpace(204),
+                            width: figmaSpace(204),
                         }}
-                    >
+                    />
+                    <p className={`text-black ${typeClass("insights.introTagline")}`}>
                         The thinking
                         <br />
                         behind the work
                     </p>
                 </header>
 
-                <div className="mt-[clamp(48px,8.594vw,165px)] flex flex-col gap-[clamp(48px,5.365vw,103px)]">
+                <div
+                    className="flex flex-col"
+                    style={{
+                        marginTop: figmaSpace(165),
+                        gap: figmaSpace(103),
+                    }}
+                >
                     {posts.map((post) => {
                         const dateLabel = formatDate(post.date);
                         const readTime = estimateReadTime(post.excerpt);
@@ -117,43 +119,25 @@ export default async function InsightsPage() {
                                             title={post.title}
                                         />
                                         <p
-                                            className="text-black"
-                                            style={{
-                                                fontFamily: DM_MONO,
-                                                fontSize: "clamp(0.6875rem, 0.9375vw, 18px)",
-                                                fontWeight: 400,
-                                                lineHeight: "clamp(18px, 1.197917vw, 23px)",
-                                                letterSpacing: "-0.02em",
-                                            }}
+                                            className={`text-black ${typeClass("insights.listDate")}`}
                                         >
                                             {dateLabel} &middot; {readTime} min read
                                         </p>
                                     </div>
 
-                                    <div className="col-span-4 col-start-3 min-w-0 pl-[clamp(8px,2.396vw,46px)]">
+                                    <div
+                                        className="col-span-4 col-start-3 min-w-0"
+                                        style={{ paddingLeft: figmaSpace(46) }}
+                                    >
                                         <h2
-                                            className="max-w-[clamp(280px,43.021vw,826px)] text-black transition-colors duration-200 group-hover:text-accent"
-                                            style={{
-                                                fontFamily: "Tenon, sans-serif",
-                                                fontSize: "clamp(1.5rem, 3.958333vw, 76px)",
-                                                letterSpacing: "-0.02em",
-                                                lineHeight: 1,
-                                                fontWeight: 800,
-                                                color: "#000000",
-                                            }}
+                                            className={`max-w-[43.021vw] text-black transition-colors duration-200 group-hover:text-accent ${typeClass("insights.listTitle")}`}
                                         >
                                             {title}
                                         </h2>
                                         {post.authorName ? (
                                             <p
-                                                className="mt-[clamp(20px,2.604vw,50px)] max-w-[clamp(280px,43.021vw,826px)] text-black"
-                                                style={{
-                                                    fontFamily: DM_MONO,
-                                                    fontSize: "clamp(0.875rem, 1.5625vw, 30px)",
-                                                    fontWeight: 400,
-                                                    lineHeight: "clamp(28px, 2.03125vw, 39px)",
-                                                    letterSpacing: "-0.02em",
-                                                }}
+                                                className={`max-w-[43.021vw] text-black ${typeClass("insights.listAuthor")}`}
+                                                style={{ marginTop: figmaSpace(50) }}
                                             >
                                                 By {post.authorName}
                                             </p>

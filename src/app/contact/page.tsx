@@ -1,7 +1,9 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Container from "@/components/Container";
 import ContactPerson from "@/components/ContactPerson";
+import { figmaSpace, typeClass } from "@/lib/typographyStyles";
 
 export const metadata: Metadata = {
     title: "Contact",
@@ -21,7 +23,7 @@ export default function ContactPage() {
             className="w-full pt-[100px] md:pt-[120px] pb-[24px]"
         >
             <Container>
-                <div className="grid grid-cols-6 md:grid-cols-12 gap-[5px] items-center">
+                <div className="grid grid-cols-6 md:grid-cols-12 gap-x-[5px] gap-y-[40px] md:gap-y-0 items-start">
                     <div className="col-span-6 md:col-span-7">
                         <div className="relative w-full aspect-[5524/3107] overflow-hidden bg-[#D7CFC2]">
                             <Image
@@ -35,21 +37,21 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    <div className="col-span-6 md:col-span-4 md:col-start-9 pt-[40px] md:pt-0">
+                    <div className="col-span-6 md:col-span-4 md:col-start-9 min-w-0">
                         <h1
-                            className="text-black"
-                            style={{
-                                fontFamily: "Tenon, sans-serif",
-                                fontSize: "clamp(2.5rem, 2.5vw, 4rem)",
-                                letterSpacing: "-0.02em",
-                                lineHeight: 1.1,
-                                fontWeight: 900,
-                            }}
+                            className={`contact-page-heading text-black md:whitespace-nowrap ${typeClass("contact.pageHeading")}`}
                         >
                             Let&rsquo;s work together.
                         </h1>
 
-                        <div className="mt-[32px] md:mt-[40px] space-y-[28px]">
+                        <div
+                            className="mt-[32px] max-w-[345px] space-y-[30px] md:mt-[var(--contact-heading-gap)]"
+                            style={
+                                {
+                                    "--contact-heading-gap": figmaSpace(63),
+                                } as CSSProperties
+                            }
+                        >
                             <ContactPerson
                                 name="Nathan Reilly"
                                 title="CEO"
@@ -62,12 +64,7 @@ export default function ContactPage() {
                                 email="gabi@tinyark.com"
                             />
                             <address
-                                className="not-italic text-black"
-                                style={{
-                                    fontFamily: "Tenon, sans-serif",
-                                    fontSize: "clamp(1rem, 1.1vw, 18px)",
-                                    lineHeight: 1.55,
-                                }}
+                                className={`not-italic text-[#353535] ${typeClass("contact.address")}`}
                             >
                                 43 Talbot St
                                 <br />
