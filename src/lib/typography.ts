@@ -17,7 +17,8 @@
  *
  * OTHER FIELDS
  * ────────────
- * weight, lineHeight (px @ 1920), lineHeightRatio (unitless), letterSpacing (em)
+ * weight (400 = Regular, 700 = Bold, 800 = X-Bold via Typekit), lineHeight (px @ 1920)
+ * ligatures (true = common-ligatures + liga/clig features)
  * font: "tenon" | "dmMono"
  *
  * PROSE (Ghost HTML): edit tokens under `prose` — applied via globals.css vars
@@ -43,6 +44,8 @@ export interface TypeSpec {
     lineHeightRatio?: number;
     /** Letter-spacing in em (e.g. -0.02 = -2%) */
     letterSpacing?: number;
+    /** OpenType common ligatures (ff, fi, etc.) — use with letter-spacing via font-feature-settings */
+    ligatures?: boolean;
     font?: FontFamily;
 }
 
@@ -114,7 +117,6 @@ const home = {
     },
 } as const satisfies Record<string, TypeSpec>;
 
-// ── About ───────────────────────────────────────────────────────────────────
 // ── About ───────────────────────────────────────────────────────────────────
 
 const about = {

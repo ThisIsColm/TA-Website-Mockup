@@ -53,6 +53,7 @@
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
+    font-synthesis: none;
     line-height: 1.6;
     overflow-x: hidden;
   }
@@ -894,7 +895,6 @@ html.lenis body {
   font-size: 0.85rem;
 }
 
-/* Contact page — cap-height trim matches Figma "Vertical trim: Cap height" */
 .contact-page-heading {
   margin: 0;
   text-box-trim: trim-start;

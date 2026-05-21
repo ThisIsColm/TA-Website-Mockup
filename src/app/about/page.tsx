@@ -111,7 +111,7 @@ export default function AboutPage() {
                     <div className="grid grid-cols-6 gap-[5px]">
                         <div className="col-span-6 md:col-start-3 md:col-span-4">
                             <h1
-                                className={`text-[#353535] ${typeClass("about.heroHeading")}`}
+                                className={`font-sans font-extrabold text-[#353535] ${typeClass("about.heroHeading")}`}
                             >
                                 We are Tiny Ark &mdash; an independent creative
                                 production company.

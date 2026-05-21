@@ -8,7 +8,8 @@ import {
 } from "./typography";
 
 const FONT_STACKS: Record<FontFamily, string> = {
-    tenon: "Tenon, sans-serif",
+    /** Must match Adobe Fonts / Typekit family name exactly (lowercase). */
+    tenon: '"tenon", sans-serif',
     dmMono: '"DM Mono", ui-monospace, monospace',
 };
 
@@ -40,6 +41,14 @@ function cssPathToVar(path: string, suffix: string): string {
     return `--type-${path.replace(/\./g, "-")}-${suffix}`;
 }
 
+function ligatureCssProperties(): string {
+    return [
+        "font-variant-ligatures: common-ligatures",
+        'font-feature-settings: "liga" 1, "clig" 1, "kern" 1',
+        "text-rendering: optimizeLegibility",
+    ].join("; ");
+}
+
 function specToProperties(
     spec: TypeSpec,
     sizeValue: string,
@@ -62,6 +71,9 @@ function specToProperties(
     }
     if (spec.letterSpacing !== undefined) {
         lines.push(`letter-spacing: ${spec.letterSpacing}em`);
+    }
+    if (spec.ligatures) {
+        lines.push(ligatureCssProperties());
     }
     return lines.join("; ");
 }
@@ -92,6 +104,11 @@ export function typeStyle(path: string): CSSProperties {
     }
     if (spec.letterSpacing !== undefined) {
         style.letterSpacing = `${spec.letterSpacing}em`;
+    }
+    if (spec.ligatures) {
+        style.fontVariantLigatures = "common-ligatures";
+        style.fontFeatureSettings = '"liga" 1, "clig" 1, "kern" 1';
+        style.textRendering = "optimizeLegibility";
     }
     return style;
 }

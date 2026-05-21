@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-const SQUIGGLE_FRAMES = [
-    "/images/Insights_Hover_001.png",
-    "/images/Insights_Hover_002.png",
-    "/images/Insights_Hover_003.png",
-] as const;
-
-const FRAME_MS = 500; // 2fps stop-motion
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
+import { INSIGHTS_EYE_LOTTIE } from "@/lib/insightsLottie";
 
 interface InsightsPostThumbnailProps {
     coverImage: string;
@@ -20,23 +14,36 @@ export default function InsightsPostThumbnail({
     coverImage,
     title,
 }: InsightsPostThumbnailProps) {
+    const lottieRef = useRef<LottieRefCurrentProps>(null);
+    const [animationData, setAnimationData] = useState<object | null>(null);
     const [hovering, setHovering] = useState(false);
-    const [active, setActive] = useState(0);
 
     useEffect(() => {
-        if (!hovering) return;
+        let cancelled = false;
 
-        const id = window.setInterval(() => {
-            setActive((i) => (i + 1) % SQUIGGLE_FRAMES.length);
-        }, FRAME_MS);
+        fetch(INSIGHTS_EYE_LOTTIE)
+            .then((response) => response.json())
+            .then((json) => {
+                if (!cancelled) setAnimationData(json);
+            })
+            .catch((err) => {
+                console.error("[InsightsPostThumbnail] Failed to load eye Lottie:", err);
+            });
 
-        return () => window.clearInterval(id);
-    }, [hovering]);
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-    const handleEnter = () => setHovering(true);
+    const handleEnter = () => {
+        setHovering(true);
+        lottieRef.current?.goToAndPlay(0, true);
+    };
+
     const handleLeave = () => {
         setHovering(false);
-        setActive(0);
+        lottieRef.current?.stop();
+        lottieRef.current?.goToAndStop(0, true);
     };
 
     return (
@@ -56,26 +63,25 @@ export default function InsightsPostThumbnail({
                 />
             ) : null}
 
-            <div
-                className={`pointer-events-none absolute inset-[1%] z-10 transition-opacity duration-300 ease-out ${
-                    hovering ? "opacity-100" : "opacity-0"
-                }`}
-                aria-hidden
-            >
-                {SQUIGGLE_FRAMES.map((src, idx) => (
-                    <Image
-                        key={src}
-                        src={src}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 33vw, 30vw"
-                        style={{
-                            opacity: idx === active ? 1 : 0,
-                        }}
-                    />
-                ))}
-            </div>
+            {animationData ? (
+                <div
+                    className={`pointer-events-none absolute inset-0 z-10 transition-opacity duration-300 ease-out ${
+                        hovering ? "opacity-100" : "opacity-0"
+                    }`}
+                    aria-hidden
+                >
+                    <div className="absolute inset-0 bg-white/85" />
+                    <div className="absolute inset-0 z-10 flex items-center justify-center">
+                        <Lottie
+                            lottieRef={lottieRef}
+                            animationData={animationData}
+                            loop
+                            autoplay={false}
+                            className="h-1/2 w-1/2"
+                        />
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }

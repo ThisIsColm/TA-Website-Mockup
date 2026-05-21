@@ -8,7 +8,9 @@ export default function WorkTogetherCta() {
             data-header-surface="white"
             className={`pt-[50px] pb-[100px] ${OUTER}`}
         >
-            <h2 className={`text-[#353535] ${typeClass("shared.workTogetherHeading")}`}>
+            <h2
+                className={`font-sans font-extrabold text-[#353535] ${typeClass("shared.workTogetherHeading")}`}
+            >
                 Let&rsquo;s work together.
             </h2>
             <ul className="mt-[20px] md:mt-[24px] space-y-[2px]">

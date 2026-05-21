@@ -1,26 +1,28 @@
-import Image from "next/image";
+"use client";
 
-const COG_ICON = "/images/insights-cog-head.png";
+import type { CSSProperties } from "react";
+import LottieFromUrl from "@/components/LottieFromUrl";
+import { INSIGHTS_COG_LOTTIE } from "@/lib/insightsLottie";
 
 interface InsightsIntroIconProps {
     className?: string;
-    style?: React.CSSProperties;
+    style?: CSSProperties;
 }
 
-/** Figma: 204×204px cog/head mark (`002_Cog Rotation_Head_-0027.png`). */
+/** Figma: 204×204px cog/head mark — loops via Lottie. */
 export default function InsightsIntroIcon({
     className,
     style,
 }: InsightsIntroIconProps) {
     return (
-        <Image
-            src={COG_ICON}
-            alt=""
-            width={204}
-            height={204}
-            priority
-            className={className}
-            style={style}
-        />
+        <div aria-hidden className={className} style={style}>
+            <LottieFromUrl
+                src={INSIGHTS_COG_LOTTIE}
+                loop
+                autoplay
+                className="h-full w-full"
+                style={{ width: "100%", height: "100%" }}
+            />
+        </div>
     );
 }

@@ -116,18 +116,19 @@ function TypewriterSection() {
                         return (
                             <p
                                 key={pIdx}
-                                className={`text-[#353535] ${marginBottom} ${typeClass("home.typewriterLine")}`}
+                                className={`font-sans font-extrabold text-[#353535] ${marginBottom} ${typeClass("home.typewriterLine")}`}
                             >
                                 {words.map((word, i) => {
                                     const globalIdx = offset + i;
                                     const isRevealed = globalIdx < revealedCount;
                                     const isNext = globalIdx === revealedCount;
+                                    const opacity = isRevealed ? 1 : isNext ? 0.4 : 0;
                                     return (
                                         <span
                                             key={i}
-                                            className="inline-block mr-[0.3em]"
+                                            className="inline mr-[0.3em]"
                                             style={{
-                                                opacity: isRevealed ? 1 : isNext ? 0.4 : 0,
+                                                opacity,
                                                 transition: "opacity 0.1s ease",
                                             }}
                                         >

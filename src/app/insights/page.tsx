@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Container from "@/components/Container";
+import InsightsListTitle from "@/components/InsightsListTitle";
 import InsightsIntroIcon from "@/components/InsightsIntroIcon";
 import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
@@ -129,11 +130,7 @@ export default async function InsightsPage() {
                                         className="col-span-4 col-start-3 min-w-0"
                                         style={{ paddingLeft: figmaSpace(46) }}
                                     >
-                                        <h2
-                                            className={`max-w-[43.021vw] text-black transition-colors duration-200 group-hover:text-accent ${typeClass("insights.listTitle")}`}
-                                        >
-                                            {title}
-                                        </h2>
+                                        <InsightsListTitle title={title} />
                                         {post.authorName ? (
                                             <p
                                                 className={`max-w-[43.021vw] text-black ${typeClass("insights.listAuthor")}`}

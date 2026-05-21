@@ -29,7 +29,8 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
-                <TypographyStyles />
+                <link rel="preconnect" href="https://use.typekit.net" crossOrigin="" />
+                <link rel="preconnect" href="https://p.typekit.net" crossOrigin="" />
                 <link rel="stylesheet" href="https://use.typekit.net/myb1dqi.css" />
                 <link
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
@@ -41,6 +42,7 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-bg text-text-primary font-sans">
+                <TypographyStyles />
                 <SmoothScroll>
                     <ConditionalLayout>
                         {children}
