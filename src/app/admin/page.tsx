@@ -13,73 +13,98 @@ import { getTeamAuthor, TEAM_AUTHORS } from "@/lib/team";
 
 export type CuratedPost = GhostPost & {
     director?: string;
+    agency?: string;
     client?: string;
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
 };
 
-function isInsightSection(key: SectionKey): boolean {
-    return (
-        key.includes("case-study") ||
-        key.includes("case-studies") ||
-        key === "home.caseStudies"
-    );
-}
+// ── Dashboard sections (single view: Work + Insights) ────────────
 
-// ── Types & Constants ─────────────────────────────────────────────
-
-export const SECTIONS = [
-    "home.selectedWork",
-    "home.caseStudies",
-    "work",
-    "case-studies",
+export const DASHBOARD_SECTIONS = [
+    {
+        key: "home.selectedWork",
+        title: "Work",
+        description: "Homepage project grid — up to 16 projects shown on the site.",
+        limit: 16,
+        previewHref: "/",
+        previewLabel: "View homepage",
+        kind: "work" as const,
+    },
+    {
+        key: "case-studies",
+        title: "Insights",
+        description: "Insights listing page — drag to set order. No limit.",
+        limit: null,
+        previewHref: "/insights",
+        previewLabel: "View insights",
+        kind: "insight" as const,
+    },
 ] as const;
 
-export type SectionKey = typeof SECTIONS[number];
+export type DashboardSectionKey = (typeof DASHBOARD_SECTIONS)[number]["key"];
 
-const LIMITS: Record<SectionKey, number> = {
-    "home.selectedWork": 10,
-    "home.caseStudies": 3,
-    "work": 18,
-    "case-studies": 20,
-};
+const LIMITS: Record<DashboardSectionKey, number | null> = Object.fromEntries(
+    DASHBOARD_SECTIONS.map((s) => [s.key, s.limit])
+) as Record<DashboardSectionKey, number | null>;
 
-type Tab = "home" | "work" | "case-studies";
+function isAtSectionLimit(sectionKey: DashboardSectionKey, count: number): boolean {
+    const limit = LIMITS[sectionKey];
+    return limit !== null && count >= limit;
+}
 
-const TABS: Record<Tab, { key: SectionKey; title: string }[]> = {
-    "home": [
-        { key: "home.selectedWork", title: "Home: Selected Work" },
-        { key: "home.caseStudies", title: "Home: Insights" }
-    ],
-    "work": [
-        { key: "work", title: "Work Page (18 items)" }
-    ],
-    "case-studies": [
-        { key: "case-studies", title: "Insights Page" }
-    ]
-};
+function sectionLimitLabel(sectionKey: DashboardSectionKey): string {
+    const limit = LIMITS[sectionKey];
+    return limit === null ? "∞" : String(limit);
+}
+
+const SECTION_BY_KEY = Object.fromEntries(
+    DASHBOARD_SECTIONS.map((s) => [s.key, s])
+) as Record<DashboardSectionKey, (typeof DASHBOARD_SECTIONS)[number]>;
 
 // ── Styles ───────────────────────────────────────────────────────
 
 const styles = {
-    page: "min-h-screen bg-bg text-text-primary font-sans p-6 md:p-10",
-    header: "flex items-center justify-between mb-8",
+    page: "h-full flex flex-col overflow-hidden bg-bg text-text-primary font-sans p-6 md:p-10",
+    header: "flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4 shrink-0",
     title: "text-2xl font-bold tracking-tight text-white",
-    subtitle: "text-sm text-text-secondary mt-1",
-    loginCard: "max-w-sm mx-auto mt-[20vh] bg-bg-card p-8 border border-border",
-    input: "w-full px-4 py-3 bg-bg-elevated border border-border text-white text-sm placeholder:text-text-tertiary focus:outline-none focus:border-accent transition-colors",
-    btn: "px-5 py-2.5 bg-accent text-white text-sm font-bold hover:bg-accent-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed",
-    btnDanger: "px-3 py-1.5 text-red-500/80 text-xs hover:text-red-400 active:scale-[0.98] transition-all",
-    card: "bg-bg-card border border-border",
-    badge: "px-2 py-0.5 bg-bg-elevated text-text-secondary text-xs border border-border capitalize",
-    sectionTitle: "text-lg font-bold mb-4",
-    grid: "grid grid-cols-1 lg:grid-cols-4 gap-6",
-    postItem: "flex items-center gap-3 p-3 transition-colors cursor-pointer group border-b border-border/50 bg-bg-card",
+    subtitle: "text-sm text-text-secondary mt-1 max-w-xl",
+    loginCard: "max-w-sm mx-auto mt-[20vh] bg-bg-card p-8 border border-border rounded-lg",
+    input:
+        "w-full px-4 py-3 bg-bg-elevated border border-border text-white text-sm placeholder:text-text-tertiary focus:outline-none focus:border-accent transition-colors rounded",
+    btn: "px-5 py-2.5 bg-accent text-white text-sm font-bold hover:bg-accent-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded",
+    btnGhost:
+        "px-4 py-2 text-xs font-bold text-white/70 border border-white/15 hover:text-white hover:border-white/30 transition-colors rounded",
+    btnDanger:
+        "px-3 py-1.5 text-red-500/80 text-xs hover:text-red-400 active:scale-[0.98] transition-all",
+    card: "bg-bg-card border border-border rounded-lg overflow-hidden",
+    badge: "px-2 py-0.5 bg-bg-elevated text-text-secondary text-[10px] border border-border uppercase tracking-wide font-bold",
+    badgeWork: "px-2 py-0.5 bg-accent/15 text-accent text-[10px] border border-accent/30 uppercase tracking-wide font-bold",
+    badgeInsight:
+        "px-2 py-0.5 bg-blue-500/15 text-blue-300 text-[10px] border border-blue-500/30 uppercase tracking-wide font-bold",
+    helpBar:
+        "mb-4 shrink-0 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/60",
+    grid: "flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-4 gap-6",
+    postItem:
+        "flex items-center gap-3 p-3 transition-colors cursor-grab group border-b border-border/50 bg-bg-card",
     postThumb: "w-16 h-12 bg-bg-elevated object-cover shrink-0 rounded",
-    toast: "fixed bottom-6 right-6 px-5 py-3 text-sm font-bold shadow-lg z-50 transition-all",
-    tabBtn: "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+    toast: "fixed bottom-6 right-6 px-5 py-3 text-sm font-bold shadow-lg z-50 transition-all rounded-lg",
+    sectionHeader: "px-4 py-3 border-b border-border/60 bg-bg-elevated/40",
+    sectionTitle: "text-base font-bold text-white",
+    sectionDesc: "text-xs text-white/45 mt-0.5 leading-relaxed",
+    dropZone: "flex-1 min-h-0 overflow-y-auto",
+    emptyDrop:
+        "m-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/10 px-6 py-12 text-center",
 };
+
+function getTagName(tag: GhostTag | string): string {
+    return typeof tag === "string" ? tag : tag.name;
+}
+
+function sectionKind(key: DashboardSectionKey): "work" | "insight" {
+    return SECTION_BY_KEY[key].kind;
+}
 
 // ── Component ────────────────────────────────────────────────────
 
@@ -94,22 +119,18 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(false);
     const [ghostError, setGhostError] = useState("");
 
-    const [activeTab, setActiveTab] = useState<Tab>("home");
-
     const [editingPostId, setEditingPostId] = useState<string | null>(null);
     const [editDirector, setEditDirector] = useState("");
+    const [editAgency, setEditAgency] = useState("");
     const [editClient, setEditClient] = useState("");
     const [editCreditsCol3, setEditCreditsCol3] = useState("");
     const [editCreditsCol5, setEditCreditsCol5] = useState("");
     const [editInsightAuthor, setEditInsightAuthor] = useState("");
-    const [editingSectionKey, setEditingSectionKey] = useState<SectionKey | null>(null);
+    const [editingSectionKey, setEditingSectionKey] = useState<DashboardSectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
 
-    // Unified state for all sections
-    const [selections, setSelections] = useState<Record<SectionKey, CuratedPost[]>>({
+    const [selections, setSelections] = useState<Record<DashboardSectionKey, CuratedPost[]>>({
         "home.selectedWork": [],
-        "home.caseStudies": [],
-        "work": [],
         "case-studies": [],
     });
 
@@ -174,12 +195,21 @@ export default function AdminPage() {
             if (!res.ok) return;
             const data = await res.json();
 
-            const newSelections = { ...selections };
-            for (const key of SECTIONS) {
+            const newSelections: Record<DashboardSectionKey, CuratedPost[]> = {
+                "home.selectedWork": [],
+                "case-studies": [],
+            };
+
+            for (const { key } of DASHBOARD_SECTIONS) {
                 if (data[key]?.length) {
-                    newSelections[key] = data[key].map((p: any) => ({
+                    newSelections[key] = data[key].map((p: CuratedPost) => ({
                         ...p,
-                        tags: (p.tags as string[])?.map((t: string) => ({ id: t, name: t, slug: t })) || [],
+                        tags:
+                            (p.tags as string[])?.map((t: string) => ({
+                                id: t,
+                                name: t,
+                                slug: t,
+                            })) || [],
                     }));
                 }
             }
@@ -191,22 +221,31 @@ export default function AdminPage() {
         }
     }, []);
 
-    const openEditPost = (post: CuratedPost, sectionKey: SectionKey) => {
+    const getPostSections = useCallback(
+        (postId: string): DashboardSectionKey[] =>
+            DASHBOARD_SECTIONS.filter(({ key }) =>
+                selections[key].some((p) => p.id === postId)
+            ).map(({ key }) => key),
+        [selections]
+    );
+
+    const openEditPost = (post: CuratedPost, sectionKey: DashboardSectionKey) => {
         setEditingPostId(post.id);
         setEditingSectionKey(sectionKey);
-        if (isInsightSection(sectionKey)) {
+        if (sectionKind(sectionKey) === "insight") {
             setEditInsightAuthor(post.insightAuthorId || "");
         } else {
             setEditDirector(post.director || "");
+            setEditAgency(post.agency || "");
             setEditClient(post.client || "");
             setEditCreditsCol3(serializeCreditsText(post.creditsCol3));
             setEditCreditsCol5(serializeCreditsText(post.creditsCol5));
         }
     };
 
-    const savePostMeta = async (post: CuratedPost, sectionKey: SectionKey) => {
+    const savePostMeta = async (post: CuratedPost, sectionKey: DashboardSectionKey) => {
         setIsSavingMeta(true);
-        const insight = isInsightSection(sectionKey);
+        const insight = sectionKind(sectionKey) === "insight";
         try {
             const res = await fetch("/api/metadata", {
                 method: "POST",
@@ -217,6 +256,7 @@ export default function AdminPage() {
                         ? { insightAuthorId: editInsightAuthor || null }
                         : {
                               director: editDirector,
+                              agency: editAgency,
                               client: editClient,
                               creditsCol3: parseCreditsText(editCreditsCol3),
                               creditsCol5: parseCreditsText(editCreditsCol5),
@@ -233,6 +273,7 @@ export default function AdminPage() {
                                 : {
                                       ...p,
                                       director: editDirector,
+                                      agency: editAgency,
                                       client: editClient,
                                       creditsCol3: parseCreditsText(editCreditsCol3),
                                       creditsCol5: parseCreditsText(editCreditsCol5),
@@ -240,22 +281,48 @@ export default function AdminPage() {
                             : p;
 
                     const next = { ...prev };
-                    for (const key of SECTIONS) {
+                    for (const { key } of DASHBOARD_SECTIONS) {
                         next[key] = prev[key].map(updatePost);
                     }
                     return next;
                 });
                 setEditingPostId(null);
                 setEditingSectionKey(null);
-                showToast("Saved metadata", "success");
+                showToast("Details saved");
             } else {
-                showToast("Failed to save metadata", "error");
+                showToast("Could not save details", "error");
             }
-        } catch (err) {
-            showToast("Connection error saving metadata", "error");
+        } catch {
+            showToast("Connection error", "error");
         } finally {
             setIsSavingMeta(false);
         }
+    };
+
+    const addToSection = (post: GhostPost, sectionKey: DashboardSectionKey) => {
+        if (selections[sectionKey].some((p) => p.id === post.id)) {
+            showToast(`Already in ${SECTION_BY_KEY[sectionKey].title}`, "error");
+            return;
+        }
+        if (isAtSectionLimit(sectionKey, selections[sectionKey].length)) {
+            showToast(
+                `${SECTION_BY_KEY[sectionKey].title} is full (${sectionLimitLabel(sectionKey)} max)`,
+                "error"
+            );
+            return;
+        }
+        setSelections((prev) => ({
+            ...prev,
+            [sectionKey]: [...prev[sectionKey], post],
+        }));
+        showToast(`Added to ${SECTION_BY_KEY[sectionKey].title}`);
+    };
+
+    const removeFromSection = (postId: string, section: DashboardSectionKey) => {
+        setSelections((prev) => ({
+            ...prev,
+            [section]: prev[section].filter((p) => p.id !== postId),
+        }));
     };
 
     useEffect(() => {
@@ -271,31 +338,14 @@ export default function AdminPage() {
         return () => clearTimeout(timer);
     }, [search, authed, fetchPosts]);
 
-    const isSelected = (postId: string): SectionKey | null => {
-        for (const section of SECTIONS) {
-            if (selections[section].some((p) => p.id === postId)) {
-                return section;
-            }
-        }
-        return null;
-    };
-
-    const removeFromSection = (postId: string, section: SectionKey) => {
-        setSelections((prev) => ({
-            ...prev,
-            [section]: prev[section].filter((p) => p.id !== postId)
-        }));
-    };
-
     const onDragEnd = (result: DropResult) => {
         const { source, destination } = result;
         if (!destination) return;
 
-        // 1. Internal Reordering
         if (source.droppableId === destination.droppableId) {
             if (source.index === destination.index) return;
 
-            const sectionKey = destination.droppableId as SectionKey;
+            const sectionKey = destination.droppableId as DashboardSectionKey;
             setSelections((prev) => {
                 const arr = [...prev[sectionKey]];
                 const [removed] = arr.splice(source.index, 1);
@@ -305,21 +355,22 @@ export default function AdminPage() {
             return;
         }
 
-        // 2. Add from Ghost Posts Library
         if (source.droppableId === "library") {
             const post = posts[source.index];
             if (!post) return;
 
-            const destId = destination.droppableId as SectionKey;
+            const destId = destination.droppableId as DashboardSectionKey;
 
-            // Prevent duplicates within the same section
-            if (selections[destId].some(p => p.id === post.id)) {
-                showToast("Post already added to this section", "error");
+            if (selections[destId].some((p) => p.id === post.id)) {
+                showToast(`Already in ${SECTION_BY_KEY[destId].title}`, "error");
                 return;
             }
 
-            if (selections[destId].length >= LIMITS[destId]) {
-                showToast(`Limit reached: Max ${LIMITS[destId]} items.`, "error");
+            if (isAtSectionLimit(destId, selections[destId].length)) {
+                showToast(
+                    `${SECTION_BY_KEY[destId].title} is full (${sectionLimitLabel(destId)} max)`,
+                    "error"
+                );
                 return;
             }
 
@@ -331,29 +382,33 @@ export default function AdminPage() {
             return;
         }
 
-        // 3. Move between sections
-        if (SECTIONS.includes(source.droppableId as SectionKey) && SECTIONS.includes(destination.droppableId as SectionKey)) {
-            const sourceId = source.droppableId as SectionKey;
-            const destId = destination.droppableId as SectionKey;
+        const sourceId = source.droppableId as DashboardSectionKey;
+        const destId = destination.droppableId as DashboardSectionKey;
 
-            if (selections[destId].length >= LIMITS[destId]) {
-                showToast(`Limit reached: Max ${LIMITS[destId]} items.`, "error");
+        if (
+            DASHBOARD_SECTIONS.some((s) => s.key === sourceId) &&
+            DASHBOARD_SECTIONS.some((s) => s.key === destId)
+        ) {
+            if (
+                isAtSectionLimit(destId, selections[destId].length) &&
+                sourceId !== destId
+            ) {
+                showToast(
+                    `${SECTION_BY_KEY[destId].title} is full (${sectionLimitLabel(destId)} max)`,
+                    "error"
+                );
                 return;
             }
 
-            let movedItem: GhostPost | null = null;
-
             setSelections((prev) => {
                 const sourceArr = [...prev[sourceId]];
-                [movedItem] = sourceArr.splice(source.index, 1);
-
+                const [movedItem] = sourceArr.splice(source.index, 1);
                 if (!movedItem) return prev;
 
                 const destArr = [...prev[destId]];
-                // Prevent duplicate
-                if (destArr.some(p => p.id === movedItem!.id)) {
-                    showToast("Post already added to this section", "error");
-                    return prev; // abort
+                if (sourceId !== destId && destArr.some((p) => p.id === movedItem.id)) {
+                    showToast(`Already in ${SECTION_BY_KEY[destId].title}`, "error");
+                    return prev;
                 }
 
                 destArr.splice(destination.index, 0, movedItem);
@@ -361,7 +416,7 @@ export default function AdminPage() {
                 return {
                     ...prev,
                     [sourceId]: sourceArr,
-                    [destId]: destArr
+                    [destId]: destArr,
                 };
             });
         }
@@ -371,10 +426,9 @@ export default function AdminPage() {
         if (!authed) return;
         setSaving(true);
         try {
-            // Build payload for all sections
             const payload: Record<string, string[]> = {};
-            for (const key of SECTIONS) {
-                payload[key] = selections[key].map(p => p.id);
+            for (const { key } of DASHBOARD_SECTIONS) {
+                payload[key] = selections[key].map((p) => p.id);
             }
 
             const res = await fetch("/api/curation/all", {
@@ -389,9 +443,9 @@ export default function AdminPage() {
                 return;
             }
 
-            if (!res.ok) showToast("Failed to autosave", "error");
+            if (!res.ok) showToast("Could not save changes", "error");
         } catch {
-            showToast("Connection error during autosave", "error");
+            showToast("Connection error while saving", "error");
         } finally {
             setSaving(false);
         }
@@ -407,19 +461,17 @@ export default function AdminPage() {
         return () => clearTimeout(timer);
     }, [selections, handleSave, hasLoadedSelections]);
 
-    const getTagName = (tag: GhostTag | string): string => {
-        return typeof tag === "string" ? tag : tag.name;
-    };
-
     if (!authed) {
         return (
             <div className={styles.page}>
                 <div className={styles.loginCard}>
-                    <h1 className="text-xl font-semibold mb-1">Content Picker</h1>
-                    <p className="text-sm text-white/50 mb-6">Enter admin password to continue.</p>
+                    <h1 className="text-xl font-semibold mb-1">Content Dashboard</h1>
+                    <p className="text-sm text-white/50 mb-6">
+                        Sign in to manage Work and Insights on the site.
+                    </p>
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Admin password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -427,95 +479,74 @@ export default function AdminPage() {
                         autoFocus
                     />
                     {loginError && <p className="text-red-400 text-sm mb-3">{loginError}</p>}
-                    <button onClick={handleLogin} disabled={loginLoading || !password} className={`${styles.btn} w-full`}>
-                        {loginLoading ? "Logging in..." : "Log In"}
+                    <button
+                        onClick={handleLogin}
+                        disabled={loginLoading || !password}
+                        className={`${styles.btn} w-full`}
+                    >
+                        {loginLoading ? "Signing in…" : "Sign in"}
                     </button>
                 </div>
             </div>
         );
     }
 
-    const activeSections = TABS[activeTab];
-
-    const postMissingMeta = (post: CuratedPost, sectionKey: SectionKey) =>
-        isInsightSection(sectionKey)
-            ? !post.insightAuthorId
-            : !post.director || !post.client;
-
-    const missingInfoCount = activeSections.reduce(
-        (acc, sec) =>
-            acc + selections[sec.key].filter((p) => postMissingMeta(p, sec.key)).length,
-        0
-    );
-
-    const tabHasMissingMeta = (tabKey: Tab) => {
-        const tabSections = TABS[tabKey];
-        return tabSections.some((sec) =>
-            selections[sec.key].some((p) => postMissingMeta(p, sec.key))
-        );
-    };
-
     return (
         <div className={styles.page}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Content Picker</h1>
-                    <p className={styles.subtitle}>Select and order Ghost posts across the website</p>
+                    <h1 className={styles.title}>Content Dashboard</h1>
+                    <p className={styles.subtitle}>
+                        Drag posts from the Ghost library into Work or Insights. Reorder by
+                        dragging within each column. Changes save automatically.
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${saving ? "bg-accent animate-pulse" : "bg-green-500"}`} />
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-widest">
-                        {saving ? "Saving..." : "All changes saved"}
-                    </span>
-                </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-6 mb-8 border-b border-white/10">
-                {(["home", "work", "case-studies"] as Tab[]).map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`${styles.tabBtn} flex items-center gap-2 ${activeTab === tab ? "border-accent text-accent" : "border-transparent text-white/50 hover:text-white/80"}`}
-                    >
-                        {tab === "home" ? "Home Page" : tab === "work" ? "Work" : "Insights"}
-                        {tabHasMissingMeta(tab) && (
-                            <span title="Missing metadata" className="flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">!</span>
-                        )}
-                    </button>
-                ))}
-            </div>
-
-            {missingInfoCount > 0 && (
-                <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded flex items-start gap-4 text-red-200 text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
-                    <div>
-                        <strong className="font-semibold text-red-400 block mb-0.5">Missing Metadata</strong>
-                        You have {missingInfoCount} work {missingInfoCount === 1 ? 'post' : 'posts'} in this tab missing Director or Client info. They are highlighted below in red.
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-bg-card border border-border">
+                        <div
+                            className={`w-2 h-2 rounded-full ${saving ? "bg-accent animate-pulse" : "bg-green-500"}`}
+                        />
+                        <span className="text-xs font-bold text-white/50 uppercase tracking-widest">
+                            {saving ? "Saving…" : "Saved"}
+                        </span>
                     </div>
                 </div>
-            )}
+            </div>
+
+            <div className={styles.helpBar}>
+                <strong className="text-white/80">Quick guide:</strong> Search the library → drag
+                a post into a column (or use + Work / + Insights). Click a post to edit project
+                details or insight author. Drag between columns to move content.
+            </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className={styles.grid}>
-                    {/* ── Library (Takes 1 column on large screens) ─────────── */}
-                    <div className="lg:col-span-1">
-                        <h2 className={styles.sectionTitle}>Ghost Library</h2>
+                <div className={`${styles.grid} min-h-0`}>
+                    {/* ── Ghost library ───────────────────────────────────── */}
+                    <div className="lg:col-span-1 flex flex-col min-h-0 h-full">
+                        <div className="mb-3">
+                            <h2 className="text-lg font-bold text-white">Ghost library</h2>
+                            <p className="text-xs text-white/40 mt-1">
+                                All published posts from Ghost CMS
+                            </p>
+                        </div>
                         <input
                             type="text"
-                            placeholder="Search posts..."
+                            placeholder="Search by title…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className={`${styles.input} mb-4`}
+                            className={`${styles.input} mb-3`}
                         />
 
                         {ghostError && (
-                            <div className="bg-red-500/10 border border-red-500/30 p-4 mb-4 text-sm text-red-300 rounded">
+                            <div className="bg-red-500/10 border border-red-500/30 p-4 mb-3 text-sm text-red-300 rounded-lg">
                                 {ghostError}
                             </div>
                         )}
 
-                        <div className={`${styles.card} h-[600px] overflow-y-scroll relative overflow-x-hidden`} data-lenis-prevent>
+                        <div
+                            className={`${styles.card} flex-1 min-h-0 overflow-y-auto`}
+                            data-lenis-prevent
+                        >
                             <Droppable droppableId="library" isDropDisabled={true}>
                                 {(provided) => (
                                     <div
@@ -524,38 +555,103 @@ export default function AdminPage() {
                                         className="min-h-full"
                                     >
                                         {loading ? (
-                                            <div className="p-8 text-center text-white/30">Loading...</div>
+                                            <div className="p-8 text-center text-white/30 text-sm">
+                                                Loading posts…
+                                            </div>
                                         ) : posts.length === 0 ? (
-                                            <div className="p-8 text-center text-white/30">No posts found</div>
+                                            <div className="p-8 text-center text-white/30 text-sm">
+                                                No posts match your search
+                                            </div>
                                         ) : (
                                             posts.map((post, index) => {
-                                                // Check if post is in currently visible active sections
-                                                const inActiveSection = activeSections.some(sec => selections[sec.key].some(p => p.id === post.id));
+                                                const inSections = getPostSections(post.id);
 
                                                 return (
-                                                    <Draggable key={`lib-${post.id}`} draggableId={`lib-${post.id}`} index={index}>
+                                                    <Draggable
+                                                        key={`lib-${post.id}`}
+                                                        draggableId={`lib-${post.id}`}
+                                                        index={index}
+                                                    >
                                                         {(provided, snapshot) => (
                                                             <div
                                                                 ref={provided.innerRef}
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
-                                                                className={`${styles.postItem} ${inActiveSection ? "opacity-30 grayscale" : ""} ${snapshot.isDragging ? "bg-accent/20 border-accent/50 z-50 shadow-2xl" : "hover:bg-bg-elevated"}`}
+                                                                className={`${styles.postItem} ${snapshot.isDragging ? "bg-accent/20 border-accent/50 z-50 shadow-2xl" : "hover:bg-bg-elevated"}`}
                                                             >
                                                                 {post.feature_image ? (
-                                                                    <img src={post.feature_image} alt="" className={styles.postThumb} />
+                                                                    <img
+                                                                        src={post.feature_image}
+                                                                        alt=""
+                                                                        className={styles.postThumb}
+                                                                    />
                                                                 ) : (
                                                                     <div className={styles.postThumb} />
                                                                 )}
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-medium truncate">{post.title}</p>
-                                                                    <div className="flex items-center gap-2 mt-1">
-                                                                        {post.tags?.slice(0, 1).map((tag, i) => (
-                                                                            <span key={i} className={styles.badge}>{getTagName(tag)}</span>
-                                                                        ))}
-                                                                        <span className="text-[10px] text-white/20">
-                                                                            {new Date(post.published_at).toLocaleDateString()}
-                                                                        </span>
+                                                                    <p className="text-sm font-medium truncate">
+                                                                        {post.title}
+                                                                    </p>
+                                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                                                        {inSections.includes(
+                                                                            "home.selectedWork"
+                                                                        ) && (
+                                                                            <span className={styles.badgeWork}>
+                                                                                Work
+                                                                            </span>
+                                                                        )}
+                                                                        {inSections.includes(
+                                                                            "case-studies"
+                                                                        ) && (
+                                                                            <span
+                                                                                className={
+                                                                                    styles.badgeInsight
+                                                                                }
+                                                                            >
+                                                                                Insights
+                                                                            </span>
+                                                                        )}
+                                                                        {post.tags
+                                                                            ?.slice(0, 1)
+                                                                            .map((tag, i) => (
+                                                                                <span
+                                                                                    key={i}
+                                                                                    className={
+                                                                                        styles.badge
+                                                                                    }
+                                                                                >
+                                                                                    {getTagName(tag)}
+                                                                                </span>
+                                                                            ))}
                                                                     </div>
+                                                                </div>
+                                                                <div className="flex flex-col gap-1 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            addToSection(
+                                                                                post,
+                                                                                "home.selectedWork"
+                                                                            );
+                                                                        }}
+                                                                        className="px-2 py-1 text-[10px] font-bold text-accent bg-accent/10 hover:bg-accent/20 rounded"
+                                                                    >
+                                                                        + Work
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            addToSection(
+                                                                                post,
+                                                                                "case-studies"
+                                                                            );
+                                                                        }}
+                                                                        className="px-2 py-1 text-[10px] font-bold text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 rounded"
+                                                                    >
+                                                                        + Insights
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -570,247 +666,413 @@ export default function AdminPage() {
                         </div>
                     </div>
 
-                    {/* ── Active Drop Areas ──────────────────────────────────── */}
-                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
-                        {activeSections.map(({ key, title }) => (
-                            <div key={key} className="flex flex-col">
-                                <h2 className={styles.sectionTitle}>
-                                    {title} <span className="text-white/30 text-sm ml-1">({selections[key].length}/{LIMITS[key]})</span>
-                                </h2>
-                                <Droppable droppableId={key}>
-                                    {(provided, snapshot) => (
-                                        <div
-                                            {...provided.droppableProps}
-                                            ref={provided.innerRef}
-                                            className={`${styles.card} min-h-[120px] h-auto ${snapshot.isDraggingOver ? "bg-accent/5 border-dashed border-accent/40" : ""}`}
-                                            data-lenis-prevent
-                                        >
-                                            {selections[key].map((post, i) => {
-                                                const insight = isInsightSection(key);
-                                                const hasMissingMeta = postMissingMeta(post, key);
+                    {/* ── Work + Insights columns ─────────────────────────── */}
+                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0 h-full">
+                        {DASHBOARD_SECTIONS.map(
+                            ({ key, title, description, previewHref, previewLabel, kind }) => (
+                                <div key={key} className="flex flex-col min-h-0 h-full">
+                                    <div className={`${styles.card} flex flex-col flex-1 min-h-0`}>
+                                        <div className={`${styles.sectionHeader} shrink-0`}>
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <h2 className={styles.sectionTitle}>
+                                                        {title}{" "}
+                                                        <span className="text-white/30 font-normal text-sm">
+                                                            ({selections[key].length}
+                                                            {LIMITS[key] !== null
+                                                                ? `/${LIMITS[key]}`
+                                                                : ""}
+                                                            )
+                                                        </span>
+                                                    </h2>
+                                                    <p className={styles.sectionDesc}>
+                                                        {description}
+                                                    </p>
+                                                </div>
+                                                <Link
+                                                    href={previewHref}
+                                                    target="_blank"
+                                                    className={`${styles.btnGhost} shrink-0`}
+                                                >
+                                                    {previewLabel}
+                                                </Link>
+                                            </div>
+                                        </div>
 
-                                                return (
-                                                    <Draggable key={`${key}-${post.id}`} draggableId={`${key}-${post.id}`} index={i}>
-                                                        {(provided, snapshot) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                className={`flex flex-col border-b border-border/50 ${hasMissingMeta ? "border-l-4 border-l-red-500" : ""}`}
+                                        <Droppable droppableId={key}>
+                                            {(provided, snapshot) => (
+                                                <div
+                                                    {...provided.droppableProps}
+                                                    ref={provided.innerRef}
+                                                    className={`${styles.dropZone} ${snapshot.isDraggingOver ? "bg-accent/5" : ""}`}
+                                                    data-lenis-prevent
+                                                >
+                                                    {selections[key].length === 0 && (
+                                                        <div className={styles.emptyDrop}>
+                                                            <p className="text-sm text-white/50 font-medium">
+                                                                Drop posts here
+                                                            </p>
+                                                            <p className="text-xs text-white/30 mt-2 max-w-[220px]">
+                                                                Drag from the library, or use the +
+                                                                buttons on each post
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {selections[key].map((post, i) => {
+                                                        const insight = kind === "insight";
+                                                        const metaPreview = [
+                                                            post.director &&
+                                                                `Dir: ${post.director}`,
+                                                            post.agency &&
+                                                                `Agency: ${post.agency}`,
+                                                            post.client &&
+                                                                `Client: ${post.client}`,
+                                                        ]
+                                                            .filter(Boolean)
+                                                            .join(" · ");
+
+                                                        return (
+                                                            <Draggable
+                                                                key={`${key}-${post.id}`}
+                                                                draggableId={`${key}-${post.id}`}
+                                                                index={i}
                                                             >
-                                                                <div
-                                                                    onClick={() => openEditPost(post, key)}
-                                                                    className={`flex items-center gap-3 p-3 transition-colors group bg-bg-card cursor-pointer ${snapshot.isDragging ? "bg-accent/20 z-50 shadow-2xl border border-accent" : hasMissingMeta ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-bg-elevated"}`}
-                                                                >
-                                                                    <span className="text-xs text-white/30 w-4 shrink-0 cursor-grab">{i + 1}</span>
-                                                                    {post.feature_image ? (
-                                                                        <img src={post.feature_image} alt="" className={styles.postThumb} />
-                                                                    ) : (
-                                                                        <div className={styles.postThumb} />
-                                                                    )}
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="text-sm font-medium truncate">{post.title}</p>
-                                                                        {insight && post.insightAuthorId ? (
-                                                                            <p className="text-xs text-text-tertiary truncate">
-                                                                                By{" "}
-                                                                                {getTeamAuthor(post.insightAuthorId)?.name ??
-                                                                                    post.insightAuthorId}
-                                                                            </p>
-                                                                        ) : null}
-                                                                        {!insight && (post.director || post.client) ? (
-                                                                            <p className="text-xs text-text-tertiary truncate">
-                                                                                <>
-                                                                                    {post.director && `Dir: ${post.director}`}
-                                                                                    {post.client && post.director && " | "}
-                                                                                    {post.client && `Client: ${post.client}`}
-                                                                                </>
-                                                                            </p>
-                                                                        ) : null}
-                                                                        {hasMissingMeta && (
-                                                                            <p className="text-xs text-red-400 mt-1 font-medium bg-red-500/10 inline-block px-1.5 py-0.5 rounded">Missing Metadata</p>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="flex flex-col gap-2">
-                                                                        <button
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                openEditPost(post, key);
-                                                                            }}
-                                                                            className="px-3 py-1 text-green-500/80 text-xs hover:text-green-400 active:scale-[0.98] transition-all bg-bg-elevated rounded"
+                                                                {(provided, snapshot) => (
+                                                                    <div
+                                                                        ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        className="flex flex-col border-b border-border/50"
+                                                                    >
+                                                                        <div
+                                                                            {...provided.dragHandleProps}
+                                                                            onClick={() =>
+                                                                                openEditPost(
+                                                                                    post,
+                                                                                    key
+                                                                                )
+                                                                            }
+                                                                            className={`flex items-center gap-3 p-3 transition-colors group bg-bg-card cursor-grab ${snapshot.isDragging ? "bg-accent/20 z-50 shadow-2xl border border-accent" : "hover:bg-bg-elevated"}`}
                                                                         >
-                                                                            Edit
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); removeFromSection(post.id, key); }}
-                                                                            className={`${styles.btnDanger} bg-bg-elevated rounded`}
-                                                                        >✕</button>
-                                                                    </div>
-                                                                </div>
-
-                                                                {editingPostId === post.id &&
-                                                                    editingSectionKey === key && (
-                                                                    <div className="p-4 bg-bg-elevated flex flex-col gap-4 shadow-inner">
-                                                                        {insight ? (
-                                                                            <div>
-                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                    AUTHOR
-                                                                                </label>
-                                                                                <select
-                                                                                    className={`${styles.input} !py-2`}
-                                                                                    value={editInsightAuthor}
-                                                                                    onChange={(e) =>
-                                                                                        setEditInsightAuthor(e.target.value)
+                                                                            <span className="text-xs text-white/30 w-5 shrink-0 text-center font-mono">
+                                                                                {i + 1}
+                                                                            </span>
+                                                                            {post.feature_image ? (
+                                                                                <img
+                                                                                    src={
+                                                                                        post.feature_image
                                                                                     }
-                                                                                >
-                                                                                    <option value="">
-                                                                                        Select team member…
-                                                                                    </option>
-                                                                                    {TEAM_AUTHORS.map((author) => (
-                                                                                        <option
-                                                                                            key={author.id}
-                                                                                            value={author.id}
-                                                                                        >
-                                                                                            {author.name}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </select>
+                                                                                    alt=""
+                                                                                    className={
+                                                                                        styles.postThumb
+                                                                                    }
+                                                                                />
+                                                                            ) : (
+                                                                                <div
+                                                                                    className={
+                                                                                        styles.postThumb
+                                                                                    }
+                                                                                />
+                                                                            )}
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <p className="text-sm font-medium truncate">
+                                                                                    {post.title}
+                                                                                </p>
+                                                                                {insight &&
+                                                                                post.insightAuthorId ? (
+                                                                                    <p className="text-xs text-text-tertiary truncate mt-0.5">
+                                                                                        By{" "}
+                                                                                        {getTeamAuthor(
+                                                                                            post.insightAuthorId
+                                                                                        )?.name ??
+                                                                                            post.insightAuthorId}
+                                                                                    </p>
+                                                                                ) : null}
+                                                                                {!insight &&
+                                                                                metaPreview ? (
+                                                                                    <p className="text-xs text-text-tertiary truncate mt-0.5">
+                                                                                        {metaPreview}
+                                                                                    </p>
+                                                                                ) : null}
+                                                                                {!insight &&
+                                                                                !metaPreview ? (
+                                                                                    <p className="text-xs text-white/25 mt-0.5">
+                                                                                        Click to add
+                                                                                        details
+                                                                                    </p>
+                                                                                ) : null}
                                                                             </div>
-                                                                        ) : (
-                                                                            <>
-                                                                                <div className="flex gap-4">
-                                                                                    <div className="flex-1">
-                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                            DIRECTOR
-                                                                                        </label>
-                                                                                        <input
-                                                                                            type="text"
-                                                                                            className={`${styles.input} !py-2`}
-                                                                                            value={editDirector}
-                                                                                            onKeyDown={(e) =>
-                                                                                                e.key === "Enter" &&
-                                                                                                savePostMeta(post, key)
-                                                                                            }
-                                                                                            onChange={(e) =>
-                                                                                                setEditDirector(e.target.value)
-                                                                                            }
-                                                                                            placeholder="e.g. John Doe"
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className="flex-1">
-                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                            CLIENT
-                                                                                        </label>
-                                                                                        <input
-                                                                                            type="text"
-                                                                                            className={`${styles.input} !py-2`}
-                                                                                            value={editClient}
-                                                                                            onKeyDown={(e) =>
-                                                                                                e.key === "Enter" &&
-                                                                                                savePostMeta(post, key)
-                                                                                            }
-                                                                                            onChange={(e) =>
-                                                                                                setEditClient(e.target.value)
-                                                                                            }
-                                                                                            placeholder="e.g. Nike"
-                                                                                        />
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    <div>
-                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                            CREDITS — COLUMN 3
-                                                                                        </label>
-                                                                                        <textarea
-                                                                                            className={`${styles.input} !py-2 min-h-[180px] resize-y`}
-                                                                                            value={editCreditsCol3}
-                                                                                            onChange={(e) =>
-                                                                                                setEditCreditsCol3(e.target.value)
-                                                                                            }
-                                                                                            placeholder={
-                                                                                                "Director\nMark O'Brien\n\nExecutive Producer\nNathan Reilly"
-                                                                                            }
-                                                                                        />
-                                                                                        <p className="text-[10px] text-text-tertiary mt-1">
-                                                                                            Title on one line, name on the
-                                                                                            next. Blank line between entries.
-                                                                                        </p>
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                            CREDITS — COLUMN 5
-                                                                                        </label>
-                                                                                        <textarea
-                                                                                            className={`${styles.input} !py-2 min-h-[180px] resize-y`}
-                                                                                            value={editCreditsCol5}
-                                                                                            onChange={(e) =>
-                                                                                                setEditCreditsCol5(e.target.value)
-                                                                                            }
-                                                                                            placeholder={
-                                                                                                "Hair &amp; Makeup Artist\nAitana Silvana\n\nStyling\nKate Brady, Purple Nwojo"
-                                                                                            }
-                                                                                        />
-                                                                                        <p className="text-[10px] text-text-tertiary mt-1">
-                                                                                            Title on one line, name on the
-                                                                                            next. Blank line between entries.
-                                                                                        </p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </>
-                                                                        )}
-                                                                        <div className="flex justify-end gap-2">
-                                                                            <button
-                                                                                onClick={() => {
-                                                                                    setEditingPostId(null);
-                                                                                    setEditingSectionKey(null);
-                                                                                }}
-                                                                                className="px-4 py-2 text-xs font-bold text-text-secondary hover:text-white transition-colors"
-                                                                            >
-                                                                                Cancel
-                                                                            </button>
-                                                                            <button
-                                                                                onClick={() => savePostMeta(post, key)}
-                                                                                disabled={
-                                                                                    isSavingMeta ||
-                                                                                    (insight && !editInsightAuthor)
-                                                                                }
-                                                                                className="px-4 py-2 bg-green-600 text-white text-xs font-bold hover:bg-green-500 rounded transition-colors disabled:opacity-50"
-                                                                            >
-                                                                                {isSavingMeta ? "Saving..." : "Save"}
-                                                                            </button>
+                                                                            <div className="flex items-center gap-1 shrink-0">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        openEditPost(
+                                                                                            post,
+                                                                                            key
+                                                                                        );
+                                                                                    }}
+                                                                                    className="px-2.5 py-1 text-green-400/90 text-xs hover:text-green-300 bg-bg-elevated rounded"
+                                                                                >
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        removeFromSection(
+                                                                                            post.id,
+                                                                                            key
+                                                                                        );
+                                                                                    }}
+                                                                                    className={`${styles.btnDanger} px-2 py-1 bg-bg-elevated rounded`}
+                                                                                    title="Remove"
+                                                                                >
+                                                                                    ✕
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
+
+                                                                        {editingPostId === post.id &&
+                                                                            editingSectionKey ===
+                                                                                key && (
+                                                                                <div className="p-4 bg-bg-elevated flex flex-col gap-4 border-t border-border/40">
+                                                                                    <p className="text-xs font-bold text-white/50 uppercase tracking-wider">
+                                                                                        {insight
+                                                                                            ? "Insight details"
+                                                                                            : "Project details"}
+                                                                                    </p>
+
+                                                                                    {insight ? (
+                                                                                        <div>
+                                                                                            <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                AUTHOR
+                                                                                            </label>
+                                                                                            <select
+                                                                                                className={`${styles.input} !py-2`}
+                                                                                                value={
+                                                                                                    editInsightAuthor
+                                                                                                }
+                                                                                                onChange={(
+                                                                                                    e
+                                                                                                ) =>
+                                                                                                    setEditInsightAuthor(
+                                                                                                        e
+                                                                                                            .target
+                                                                                                            .value
+                                                                                                    )
+                                                                                                }
+                                                                                            >
+                                                                                                <option value="">
+                                                                                                    Optional —
+                                                                                                    select team
+                                                                                                    member
+                                                                                                </option>
+                                                                                                {TEAM_AUTHORS.map(
+                                                                                                    (
+                                                                                                        author
+                                                                                                    ) => (
+                                                                                                        <option
+                                                                                                            key={
+                                                                                                                author.id
+                                                                                                            }
+                                                                                                            value={
+                                                                                                                author.id
+                                                                                                            }
+                                                                                                        >
+                                                                                                            {
+                                                                                                                author.name
+                                                                                                            }
+                                                                                                        </option>
+                                                                                                    )
+                                                                                                )}
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <>
+                                                                                            <div className="flex flex-col gap-3">
+                                                                                                {(
+                                                                                                    [
+                                                                                                        [
+                                                                                                            "DIRECTOR",
+                                                                                                            editDirector,
+                                                                                                            setEditDirector,
+                                                                                                        ],
+                                                                                                        [
+                                                                                                            "AGENCY",
+                                                                                                            editAgency,
+                                                                                                            setEditAgency,
+                                                                                                        ],
+                                                                                                        [
+                                                                                                            "CLIENT",
+                                                                                                            editClient,
+                                                                                                            setEditClient,
+                                                                                                        ],
+                                                                                                    ] as const
+                                                                                                ).map(
+                                                                                                    ([
+                                                                                                        label,
+                                                                                                        value,
+                                                                                                        setter,
+                                                                                                    ]) => (
+                                                                                                        <div
+                                                                                                            key={
+                                                                                                                label
+                                                                                                            }
+                                                                                                        >
+                                                                                                            <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                                {
+                                                                                                                    label
+                                                                                                                }
+                                                                                                            </label>
+                                                                                                            <input
+                                                                                                                type="text"
+                                                                                                                className={`${styles.input} !py-2`}
+                                                                                                                value={
+                                                                                                                    value
+                                                                                                                }
+                                                                                                                onKeyDown={(
+                                                                                                                    e
+                                                                                                                ) =>
+                                                                                                                    e.key ===
+                                                                                                                        "Enter" &&
+                                                                                                                    savePostMeta(
+                                                                                                                        post,
+                                                                                                                        key
+                                                                                                                    )
+                                                                                                                }
+                                                                                                                onChange={(
+                                                                                                                    e
+                                                                                                                ) =>
+                                                                                                                    setter(
+                                                                                                                        e
+                                                                                                                            .target
+                                                                                                                            .value
+                                                                                                                    )
+                                                                                                                }
+                                                                                                                placeholder="Optional"
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    )
+                                                                                                )}
+                                                                                            </div>
+                                                                                            <div className="grid grid-cols-2 gap-3">
+                                                                                                <div>
+                                                                                                    <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                        CREDITS
+                                                                                                        — LEFT
+                                                                                                    </label>
+                                                                                                    <textarea
+                                                                                                        className={`${styles.input} !py-2 min-h-[140px] resize-y`}
+                                                                                                        value={
+                                                                                                            editCreditsCol3
+                                                                                                        }
+                                                                                                        onChange={(
+                                                                                                            e
+                                                                                                        ) =>
+                                                                                                            setEditCreditsCol3(
+                                                                                                                e
+                                                                                                                    .target
+                                                                                                                    .value
+                                                                                                            )
+                                                                                                        }
+                                                                                                        placeholder={
+                                                                                                            "Director\nMark O'Brien\n\nExecutive Producer\nNathan Reilly"
+                                                                                                        }
+                                                                                                    />
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                        CREDITS
+                                                                                                        — RIGHT
+                                                                                                    </label>
+                                                                                                    <textarea
+                                                                                                        className={`${styles.input} !py-2 min-h-[140px] resize-y`}
+                                                                                                        value={
+                                                                                                            editCreditsCol5
+                                                                                                        }
+                                                                                                        onChange={(
+                                                                                                            e
+                                                                                                        ) =>
+                                                                                                            setEditCreditsCol5(
+                                                                                                                e
+                                                                                                                    .target
+                                                                                                                    .value
+                                                                                                            )
+                                                                                                        }
+                                                                                                        placeholder={
+                                                                                                            "Hair & Makeup Artist\nAitana Silvana\n\nStyling\nKate Brady"
+                                                                                                        }
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <p className="text-[10px] text-text-tertiary">
+                                                                                                Role on one line, name on
+                                                                                                the next. Blank line between
+                                                                                                entries.
+                                                                                            </p>
+                                                                                        </>
+                                                                                    )}
+
+                                                                                    <div className="flex justify-end gap-2 pt-1">
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => {
+                                                                                                setEditingPostId(
+                                                                                                    null
+                                                                                                );
+                                                                                                setEditingSectionKey(
+                                                                                                    null
+                                                                                                );
+                                                                                            }}
+                                                                                            className="px-4 py-2 text-xs font-bold text-text-secondary hover:text-white transition-colors"
+                                                                                        >
+                                                                                            Cancel
+                                                                                        </button>
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() =>
+                                                                                                savePostMeta(
+                                                                                                    post,
+                                                                                                    key
+                                                                                                )
+                                                                                            }
+                                                                                            disabled={
+                                                                                                isSavingMeta
+                                                                                            }
+                                                                                            className="px-4 py-2 bg-green-600 text-white text-xs font-bold hover:bg-green-500 rounded transition-colors disabled:opacity-50"
+                                                                                        >
+                                                                                            {isSavingMeta
+                                                                                                ? "Saving…"
+                                                                                                : "Save details"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
                                                                     </div>
                                                                 )}
-                                                            </div>
-                                                        )}
-                                                    </Draggable>
-                                                );
-                                            })}
-
-                                            {/* Empty Slots */}
-                                            {selections[key].length < LIMITS[key] && (
-                                                Array(LIMITS[key] - selections[key].length).fill(null).map((_, i) => (
-                                                    <div key={`empty-${key}-${i}`} className="flex items-center gap-3 p-3 border-b border-white/5 opacity-10 border-dashed min-h-[75px]">
-                                                        <div className="w-16 h-12 bg-white/5 rounded shrink-0 border border-dashed border-white/20" />
-                                                        <div className="flex-1 h-3 bg-white/10 rounded w-1/2" />
-                                                    </div>
-                                                ))
+                                                            </Draggable>
+                                                        );
+                                                    })}
+                                                    {provided.placeholder}
+                                                </div>
                                             )}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </div>
-                        ))}
+                                        </Droppable>
+                                    </div>
+                                </div>
+                            )
+                        )}
                     </div>
                 </div>
             </DragDropContext>
 
             {toast && (
-                <div className={`${styles.toast} ${toast.type === "success" ? "bg-green-600/90 text-white" : "bg-red-600/90 text-white"}`}>
+                <div
+                    className={`${styles.toast} ${toast.type === "success" ? "bg-green-600/90 text-white" : "bg-red-600/90 text-white"}`}
+                >
                     {toast.msg}
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 }

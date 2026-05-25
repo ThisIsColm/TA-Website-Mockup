@@ -49,6 +49,13 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def resolve_in_repo(path: Path) -> Path:
+    """Resolve CLI paths relative to repo root (not only the shell cwd)."""
+    if path.is_absolute():
+        return path.resolve()
+    return (repo_root() / path).resolve()
+
+
 def human_size(num_bytes: int) -> str:
     if num_bytes < 1024:
         return f"{num_bytes} B"
@@ -118,11 +125,13 @@ def backup_sources(paths: list[Path], backup_root: Path, dry_run: bool) -> None:
         print(f"Would back up {len(paths)} file(s) to {backup_root}")
         return
     backup_root.mkdir(parents=True, exist_ok=True)
+    images_root = (repo_root() / "public" / "images").resolve()
     for p in paths:
-        rel = p.relative_to(repo_root() / "public" / "images")
+        src = p.resolve()
+        rel = src.relative_to(images_root)
         target = backup_root / rel
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(p, target)
+        shutil.copy2(src, target)
 
 
 def main() -> None:
@@ -181,6 +190,11 @@ def main() -> None:
     )
     parser.add_argument("--dry-run", action="store_true", help="Print plan only")
     args = parser.parse_args()
+
+    args.team_dir = resolve_in_repo(args.team_dir)
+    args.contact = resolve_in_repo(args.contact)
+    args.out_team_dir = resolve_in_repo(args.out_team_dir)
+    args.out_contact = resolve_in_repo(args.out_contact)
 
     team_sources = sorted(args.team_dir.glob("*.jpg")) + sorted(args.team_dir.glob("*.JPG"))
     # Deduplicate case-insensitive filesystems

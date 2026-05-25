@@ -42,9 +42,9 @@ export default function Footer() {
                 className={`${slimBarBg} text-black`}
             >
                 <div className="w-full px-[5.625vw]">
-                    <div className="grid grid-cols-3 items-center py-[14px] md:py-[18px]">
+                    <div className="flex flex-col items-center gap-3 py-4 md:grid md:grid-cols-3 md:items-center md:gap-0 md:py-[18px]">
                         <div
-                            className={`flex items-center ${FOOTER_ICON_GAP_CLASS} justify-self-start`}
+                            className={`flex items-center ${FOOTER_ICON_GAP_CLASS} md:justify-self-start`}
                         >
                             <SocialLink
                                 href="https://www.instagram.com/tinyark/"
@@ -59,12 +59,12 @@ export default function Footer() {
                         </div>
 
                         <p
-                            className={`justify-self-center ${FOOTER_TEXT_CLASS} text-black/70`}
+                            className={`text-center ${FOOTER_TEXT_CLASS} text-black/70 md:justify-self-center`}
                         >
-                            © {new Date().getFullYear()} TINY ARK.
+                            © TINY ARK LIMITED.
                         </p>
 
-                        <div className="justify-self-end" aria-hidden="true" />
+                        <div className="hidden md:block md:justify-self-end" aria-hidden="true" />
                     </div>
                 </div>
             </footer>
@@ -102,7 +102,7 @@ export default function Footer() {
                         </Link>
                     </nav>
                     <p className={`${FOOTER_TEXT_CLASS} text-text-tertiary`}>
-                        © {new Date().getFullYear()} TINY ARK.
+                        © TINY ARK LIMITED.
                     </p>
                 </div>
             </Container>

@@ -34,6 +34,7 @@ function getDb(): Database.Database {
         CREATE TABLE IF NOT EXISTS post_metadata (
             post_id TEXT PRIMARY KEY,
             director TEXT,
+            agency TEXT,
             client TEXT,
             credits_col3 TEXT,
             credits_col5 TEXT,
@@ -54,6 +55,9 @@ function migratePostMetadataColumns(database: Database.Database): void {
 
     if (!names.has("credits_col3")) {
         database.exec("ALTER TABLE post_metadata ADD COLUMN credits_col3 TEXT");
+    }
+    if (!names.has("agency")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN agency TEXT");
     }
     if (!names.has("credits_col5")) {
         database.exec("ALTER TABLE post_metadata ADD COLUMN credits_col5 TEXT");
@@ -127,6 +131,7 @@ export function getAllSelections(): SectionSelection[] {
 export interface PostMetadata {
     postId: string;
     director?: string;
+    agency?: string;
     client?: string;
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
@@ -137,6 +142,7 @@ export interface PostMetadata {
 type MetadataRow = {
     post_id: string;
     director: string | null;
+    agency: string | null;
     client: string | null;
     credits_col3: string | null;
     credits_col5: string | null;
@@ -148,6 +154,7 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
     return {
         postId: row.post_id,
         director: row.director || undefined,
+        agency: row.agency || undefined,
         client: row.client || undefined,
         creditsCol3: parseCreditsJson(row.credits_col3),
         creditsCol5: parseCreditsJson(row.credits_col5),
@@ -159,7 +166,7 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
 export function getPostMetadata(postId: string): PostMetadata | null {
     const row = getDb()
         .prepare(
-            `SELECT post_id, director, client, credits_col3, credits_col5,
+            `SELECT post_id, director, agency, client, credits_col3, credits_col5,
                     insight_author_id, updated_at
              FROM post_metadata WHERE post_id = ?`
         )
@@ -176,6 +183,7 @@ export function savePostMetadata(
     postId: string,
     metadata: {
         director?: string;
+        agency?: string;
         client?: string;
         creditsCol3?: CreditEntry[];
         creditsCol5?: CreditEntry[];
@@ -186,6 +194,8 @@ export function savePostMetadata(
 
     const defaultDirector =
         metadata.director !== undefined ? metadata.director || null : existing?.director ?? null;
+    const defaultAgency =
+        metadata.agency !== undefined ? metadata.agency || null : existing?.agency ?? null;
     const defaultClient =
         metadata.client !== undefined ? metadata.client || null : existing?.client ?? null;
     const creditsCol3 =
@@ -207,10 +217,11 @@ export function savePostMetadata(
 
     getDb()
         .prepare(
-            `INSERT INTO post_metadata (post_id, director, client, credits_col3, credits_col5, insight_author_id, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+            `INSERT INTO post_metadata (post_id, director, agency, client, credits_col3, credits_col5, insight_author_id, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
              ON CONFLICT(post_id)
              DO UPDATE SET director = excluded.director,
+                           agency = excluded.agency,
                            client = excluded.client,
                            credits_col3 = excluded.credits_col3,
                            credits_col5 = excluded.credits_col5,
@@ -220,6 +231,7 @@ export function savePostMetadata(
         .run(
             postId,
             defaultDirector,
+            defaultAgency,
             defaultClient,
             creditsCol3,
             creditsCol5,

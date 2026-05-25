@@ -50,11 +50,11 @@ export default async function WorkPage() {
     let projects: Project[] = [];
 
     try {
-        const selection = getSelections("work");
+        const selection = getSelections("home.selectedWork");
         const curatedPosts = await fetchPostsByIds(selection.ghostPostIds);
 
         if (curatedPosts && curatedPosts.length > 0) {
-            projects = curatedPosts.map(ghostToProject).slice(0, 18);
+            projects = curatedPosts.map(ghostToProject).slice(0, 16);
         } else {
             const ghostPostsResponse = await fetchGhostPosts(1, 18);
             if (ghostPostsResponse.posts && ghostPostsResponse.posts.length > 0) {
@@ -69,7 +69,7 @@ export default async function WorkPage() {
     }
 
     return (
-        <section className="pt-[72px] py-16 lg:py-24">
+        <section className="pt-[88px] pb-16 md:pt-[72px] md:pb-16 lg:pb-24">
             <Container>
                 <SectionHeading
                     title="Work."
@@ -77,7 +77,7 @@ export default async function WorkPage() {
                     titleClassName={`${typeClass("shared.listingPageTitle")} text-white leading-none`}
                 />
 
-                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 md:mt-10 md:gap-y-8">
                     {projects.map((project, index) => (
                         <ProjectCard
                             key={project.slug}

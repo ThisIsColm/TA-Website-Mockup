@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
                 return {
                     ...p,
                     director: meta?.director,
+                    agency: meta?.agency,
                     client: meta?.client,
                     creditsCol3: meta?.creditsCol3,
                     creditsCol5: meta?.creditsCol5,
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest) {
             return {
                 ...p,
                 director: meta?.director,
+                agency: meta?.agency,
                 client: meta?.client,
                 creditsCol3: meta?.creditsCol3,
                 creditsCol5: meta?.creditsCol5,

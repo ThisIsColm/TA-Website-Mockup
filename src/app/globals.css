@@ -220,11 +220,9 @@ html.lenis body {
 .case-study-prose {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  /* Dense auto-flow lets the right column backfill the row alongside the
-   * left-column meta block (title on row 1, director on row 2 — body items
-   * line up alongside).
+  /* Row flow — dense packing split Brief and body across grid rows when the
+   * left meta block is tall, creating a gap under section headings.
    */
-  grid-auto-flow: dense;
   column-gap: 5px;
   row-gap: 0;
   color: #000;
@@ -237,29 +235,106 @@ html.lenis body {
   grid-column: 3 / span 4;
 }
 
-/* The meta wrapper is dissolved into the parent grid so its children (h1, p)
- * become direct grid items — title on row 1, director on row 2. Combined with
- * grid-auto-flow: dense, the body content (Brief heading + first paragraph)
- * fills the right column on the same rows.
+/* The meta wrapper is dissolved into the parent grid. The left column is a
+ * single grid item (case-meta-left) so title, director, agency, and client
+ * stack in normal block flow — they are not split across grid rows beside
+ * the body column.
  */
 .case-study-prose > .case-meta {
   display: contents;
 }
 
-.case-study-prose > .case-meta > h1,
-.case-study-prose > .case-meta > p {
+.case-study-prose > .case-meta > .case-meta-left {
   grid-column: 1 / span 2;
-  line-height: 1.2;
+  align-self: start;
   margin: 0;
 }
 
-.case-study-prose > .case-meta > h1 {
+.case-study-prose > .case-meta > .case-meta-left > h1 {
   color: #000;
+  margin: 0;
 }
 
-.case-study-prose > .case-meta > p {
+.case-study-prose > .case-meta > .case-meta-left > p {
+  color: #000000;
+  margin: 4px 0 0;
+}
+
+/* Body copy lives in one grid cell so headings and paragraphs stack normally
+ * (no row-height gap from the left-column meta block). */
+.case-study-prose > .case-study-body {
+  grid-column: 3 / span 4;
+  grid-row: 1;
+  align-self: start;
+  min-width: 0;
+}
+
+.case-study-prose > .case-study-body > h2,
+.case-study-prose > .case-study-body > h3,
+.case-study-prose > .case-study-body > h4 {
   color: #000;
-  margin-top: 4px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.case-study-prose > .case-study-body > * + h2,
+.case-study-prose > .case-study-body > * + h3,
+.case-study-prose > .case-study-body > * + h4 {
+  margin-top: 80px;
+}
+
+.case-study-prose > .case-study-body > p {
+  color: #000;
+  margin: 0;
+}
+
+.case-study-prose > .case-study-body > h2 + p,
+.case-study-prose > .case-study-body > h3 + p {
+  margin-top: 0;
+}
+
+/* Ghost spacer paragraphs between blocks */
+.case-study-prose > .case-study-body > p:empty,
+.case-study-prose > .case-study-body > p:has(> br:only-child) {
+  display: none;
+}
+
+/* Desktop: resume copy after media — match paragraph → image spacing (100px) */
+@media (min-width: 769px) {
+  .case-study-prose > .case-study-body > :is(
+      figure,
+      .kg-card,
+      .kg-image-card,
+      .kg-gallery-card,
+      .kg-embed-card,
+      .kg-video-card,
+      img,
+      video,
+      iframe
+    )
+    + :is(h2, h3, h4, p, ul, ol, blockquote) {
+    margin-top: 100px;
+  }
+
+  /* Bold-only line (Ghost section label) → body copy stays tight */
+  .case-study-prose > .case-study-body > p:has(> strong:only-child) + p {
+    margin-top: 0;
+  }
+}
+
+.case-study-prose > .case-study-body > ul,
+.case-study-prose > .case-study-body > ol {
+  color: #000;
+  margin-bottom: 16px;
+  padding-left: 1.25rem;
+}
+
+.case-study-prose > .case-study-body > blockquote {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #000;
 }
 
 .case-study-prose > h2,
@@ -285,18 +360,11 @@ html.lenis body {
  * the meta wrapper. We want the FIRST h2 (Brief) to have no top margin so it
  * aligns with the title row.
  */
+/* Legacy: direct body children (static markdown projects without wrapper) */
 .case-study-prose > .case-meta + h2,
 .case-study-prose > .case-meta + h3,
 .case-study-prose > .case-meta + h4 {
   margin-top: 0;
-}
-
-.case-study-prose > h2 {
-  /* size/weight from typography.ts → prose.caseStudyH2 */
-}
-
-.case-study-prose > h3 {
-  /* size/weight from typography.ts → prose.caseStudyH2 */
 }
 
 .case-study-prose > p {
@@ -334,8 +402,6 @@ html.lenis body {
 
 .case-study-prose > ul,
 .case-study-prose > ol {
-  font-size: clamp(1.5rem, 1.5vw, 2.5rem);
-  line-height: 1.45;
   color: #000;
   margin-bottom: 16px;
   padding-left: 1.25rem;
@@ -369,10 +435,90 @@ html.lenis body {
 .case-study-prose > .kg-video-card,
 .case-study-prose > img,
 .case-study-prose > video,
-.case-study-prose > iframe {
+.case-study-prose > iframe,
+.case-study-prose > .case-study-body > figure,
+.case-study-prose > .case-study-body > .kg-card,
+.case-study-prose > .case-study-body > .kg-image-card,
+.case-study-prose > .case-study-body > .kg-gallery-card,
+.case-study-prose > .case-study-body > .kg-embed-card,
+.case-study-prose > .case-study-body > .kg-video-card,
+.case-study-prose > .case-study-body > img,
+.case-study-prose > .case-study-body > video,
+.case-study-prose > .case-study-body > iframe {
   grid-column: 1 / -1;
   width: 100%;
   margin-top: 100px;
+  margin-bottom: 0;
+}
+
+/* Full-grid media nested in the body column — extend into cols 1–2 */
+.case-study-prose > .case-study-body > figure,
+.case-study-prose > .case-study-body > .kg-card,
+.case-study-prose > .case-study-body > .kg-image-card,
+.case-study-prose > .case-study-body > .kg-gallery-card,
+.case-study-prose > .case-study-body > .kg-embed-card,
+.case-study-prose > .case-study-body > .kg-video-card,
+.case-study-prose > .case-study-body > img,
+.case-study-prose > .case-study-body > video,
+.case-study-prose > .case-study-body > iframe {
+  grid-column: unset;
+  width: calc(150% + 5px);
+  max-width: none;
+  margin-left: calc(-50% - 5px);
+}
+
+/* Consecutive media — match 2×2 gallery gutter (5px) */
+.case-study-prose > :is(
+    figure,
+    .kg-card,
+    .kg-image-card,
+    .kg-gallery-card,
+    .kg-embed-card,
+    .kg-video-card,
+    img,
+    video,
+    iframe
+  )
+  + :is(
+    figure,
+    .kg-card,
+    .kg-image-card,
+    .kg-gallery-card,
+    .kg-embed-card,
+    .kg-video-card,
+    img,
+    video,
+    iframe
+  ) {
+  margin-top: 5px;
+}
+
+/* Space after a media block when body text resumes (not another image) */
+.case-study-prose > :is(
+    figure,
+    .kg-card,
+    .kg-image-card,
+    .kg-gallery-card,
+    .kg-embed-card,
+    .kg-video-card,
+    img,
+    video,
+    iframe
+  ):not(
+    :has(
+      + :is(
+        figure,
+        .kg-card,
+        .kg-image-card,
+        .kg-gallery-card,
+        .kg-embed-card,
+        .kg-video-card,
+        img,
+        video,
+        iframe
+      )
+    )
+  ) {
   margin-bottom: 80px;
 }
 
@@ -430,10 +576,51 @@ html.lenis body {
   text-align: left;
 }
 
-/* Ghost embed/video card iframes (Vimeo / YouTube) */
-.case-study-prose .kg-embed-card iframe,
-.case-study-prose .kg-video-card iframe {
+/* In-content video embeds — body column width, not full-bleed like photos */
+.case-study-prose > .kg-embed-card,
+.case-study-prose > .kg-video-card,
+.case-study-prose > figure.kg-embed-card,
+.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
+.case-study-prose > iframe,
+.case-study-prose > .case-study-body > .kg-embed-card,
+.case-study-prose > .case-study-body > .kg-video-card,
+.case-study-prose > .case-study-body > figure.kg-embed-card,
+.case-study-prose > .case-study-body > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
+.case-study-prose > .case-study-body > iframe {
+  grid-column: 3 / span 4;
+  width: 100%;
+  max-width: none;
+}
+
+.case-study-prose > .case-study-body > .kg-embed-card,
+.case-study-prose > .case-study-body > .kg-video-card,
+.case-study-prose > .case-study-body > figure.kg-embed-card,
+.case-study-prose > .case-study-body > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
+.case-study-prose > .case-study-body > iframe {
+  grid-column: unset;
   width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0;
+}
+
+/* Ghost Vimeo/YouTube — override inline width/height from the editor */
+.case-study-prose > .kg-embed-card,
+.case-study-prose > .kg-video-card,
+.case-study-prose > figure.kg-embed-card,
+.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.case-study-prose > .kg-embed-card iframe,
+.case-study-prose > .kg-video-card iframe,
+.case-study-prose > figure.kg-embed-card iframe,
+.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)) iframe,
+.case-study-prose > iframe {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
   aspect-ratio: 16 / 9;
 }
 
@@ -466,8 +653,8 @@ html.lenis body {
     display: block;
   }
 
-  .case-study-prose > .case-meta > h1,
-  .case-study-prose > .case-meta > p,
+  .case-study-prose > .case-meta > .case-meta-left,
+  .case-study-prose > .case-study-body,
   .case-study-prose > *,
   .case-study-prose > p,
   .case-study-prose > ul,
@@ -481,7 +668,7 @@ html.lenis body {
     max-width: 100%;
   }
 
-  .case-study-prose > .case-meta > p {
+  .case-study-prose > .case-meta > .case-meta-left {
     margin-bottom: 24px;
   }
 
@@ -497,10 +684,157 @@ html.lenis body {
     width: 100%;
   }
 
-  .case-study-prose > * + h2,
-  .case-study-prose > * + h3,
-  .case-study-prose > * + h4 {
-    margin-top: 40px;
+  /* ── Mobile vertical rhythm (case-study body) ───────────────
+   * Flex row-gap defines the standard block spacing (photo → heading).
+   * Negative margins collapse pairs that should sit flush (heading → copy). */
+  .case-study-prose > .case-study-body {
+    display: flex;
+    flex-direction: column;
+    row-gap: 32px;
+  }
+
+  .case-study-prose > .case-study-body > :is(
+      h2,
+      h3,
+      h4,
+      p,
+      ul,
+      ol,
+      blockquote,
+      figure,
+      .kg-card,
+      .kg-image-card,
+      .kg-gallery-card,
+      .kg-embed-card,
+      .kg-video-card,
+      img,
+      video,
+      iframe
+    ) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  /* Bold-only section label (Ghost) → body copy, no gap */
+  .case-study-prose > .case-study-body > p:has(> strong:only-child) {
+    line-height: 1 !important;
+    margin-bottom: -32px;
+  }
+
+  .case-study-prose > .case-study-body > p:has(> strong:only-child) + p {
+    margin-top: 0;
+  }
+
+  /* Override desktop heading spacing inside the mobile media query */
+  .case-study-prose > .case-study-body > * + :is(h2, h3, h4) {
+    margin-top: 0;
+  }
+
+  /* No gap: heading → body copy (cancel row-gap + heading line-height box) */
+  .case-study-prose > .case-study-body > :is(h2, h3, h4):has(+ :is(p, ul, ol)) {
+    line-height: 1 !important;
+    margin-bottom: -32px;
+  }
+
+  .case-study-prose > .case-study-body > :is(h2, h3, h4) + :is(p, ul, ol) {
+    margin-top: 0;
+  }
+
+  /* Ghost sometimes inserts a blank line between heading and copy */
+  .case-study-prose > .case-study-body > :is(h2, h3, h4) + p + :is(p, ul, ol) {
+    margin-top: -64px;
+  }
+
+  /* Ghost spacer lines between a heading and its paragraph */
+  .case-study-prose > .case-study-body > :is(h2, h3, h4) + p:empty,
+  .case-study-prose > .case-study-body > :is(h2, h3, h4) + p:has(> br:only-child) {
+    display: none;
+  }
+
+  /* No gap: heading → its image (when Ghost puts the title before the photo) */
+  .case-study-prose > .case-study-body > :is(h2, h3, h4)
+    + :is(
+      figure,
+      .kg-card,
+      .kg-image-card,
+      .kg-gallery-card,
+      .kg-embed-card,
+      .kg-video-card,
+      img,
+      video,
+      iframe
+    ) {
+    margin-top: -32px;
+  }
+
+  /* Stacked media (32px row-gap − 27px = 5px) */
+  .case-study-prose > .case-study-body > :is(
+      figure,
+      .kg-card,
+      .kg-image-card,
+      .kg-gallery-card,
+      .kg-embed-card,
+      .kg-video-card,
+      img,
+      video,
+      iframe
+    )
+    + :is(
+      figure,
+      .kg-card,
+      .kg-image-card,
+      .kg-gallery-card,
+      .kg-embed-card,
+      .kg-video-card,
+      img,
+      video,
+      iframe
+    ) {
+    margin-top: -27px;
+  }
+
+  .case-study-prose > .case-study-body > figure,
+  .case-study-prose > .case-study-body > .kg-card,
+  .case-study-prose > .case-study-body > .kg-image-card,
+  .case-study-prose > .case-study-body > .kg-gallery-card,
+  .case-study-prose > .case-study-body > .kg-embed-card,
+  .case-study-prose > .case-study-body > .kg-video-card,
+  .case-study-prose > .case-study-body > img,
+  .case-study-prose > .case-study-body > video,
+  .case-study-prose > .case-study-body > iframe {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* Legacy: direct prose children (static markdown without body wrapper) */
+  .case-study-prose > :is(h2, h3, h4, p, ul, ol, blockquote, figure, .kg-card, .kg-image-card, .kg-gallery-card, .kg-embed-card, .kg-video-card, img, video, iframe) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .case-study-prose > .case-meta + :is(h2, h3, h4),
+  .case-study-prose > .case-meta + p {
+    margin-top: 0;
+  }
+
+  .case-study-prose > :not(.case-meta):not(.case-study-body) + :is(h2, h3, h4, p, figure, .kg-card, .kg-image-card, .kg-gallery-card, .kg-embed-card, .kg-video-card, img, video, iframe) {
+    margin-top: 32px;
+  }
+
+  .case-study-prose > figure,
+  .case-study-prose > .kg-card,
+  .case-study-prose > .kg-image-card,
+  .case-study-prose > .kg-gallery-card,
+  .case-study-prose > .kg-embed-card,
+  .case-study-prose > .kg-video-card,
+  .case-study-prose > img,
+  .case-study-prose > video,
+  .case-study-prose > iframe {
+    margin-bottom: 0;
+  }
+
+  .case-study-prose .kg-gallery-row {
+    flex-direction: column;
   }
 }
 
@@ -691,6 +1025,10 @@ html.lenis body {
   .insight-article-prose > .kg-gallery-card,
   .insight-article-prose > figure.kg-gallery-card {
     grid-column: 1 / -1;
+  }
+
+  .insight-article-prose .kg-gallery-row {
+    flex-direction: column;
   }
 }
 

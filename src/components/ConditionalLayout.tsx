@@ -14,7 +14,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     const isContact = pathname === "/contact";
 
     if (isAdmin) {
-        return <main className="min-h-screen">{children}</main>;
+        return <main className="h-screen overflow-hidden">{children}</main>;
     }
 
     if (isContact) {
@@ -22,7 +22,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <>
                 <Header />
                 <div className="flex min-h-screen flex-col bg-[#EAE4DD] text-black">
-                    <main className="flex min-h-0 flex-1 flex-col justify-center">
+                    <main className="flex min-h-0 flex-1 flex-col justify-start pt-6 md:justify-center md:pt-0">
                         {children}
                     </main>
                     <Footer />

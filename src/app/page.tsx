@@ -97,11 +97,11 @@ function TypewriterSection() {
         <section
             ref={sectionRef}
             data-header-surface="white"
-            className={`pt-[100px] pb-[100px] ${OUTER}`}
+            className={`pt-[80px] pb-[60px] md:pt-[100px] md:pb-[100px] ${OUTER}`}
         >
-            {/* 6-col grid, 5px gutter; copy starts at col 3 and spans 4 cols */}
+            {/* 6-col grid; full width on mobile, right-shifted from md up */}
             <div className="grid grid-cols-6 gap-[5px]">
-                <div className="col-start-3 col-span-4">
+                <div className="col-span-6 md:col-start-3 md:col-span-4">
                     {paragraphWords.map((words, pIdx) => {
                         const offset = paragraphWords
                             .slice(0, pIdx)
@@ -143,7 +143,7 @@ function TypewriterSection() {
                         href="/about"
                         className={`inline-block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors ${typeClass("home.moreAboutLink")}`}
                     >
-                        More about us.
+                        Sound good? Let&rsquo;s dive deeper.
                     </Link>
                 </div>
             </div>
@@ -151,8 +151,10 @@ function TypewriterSection() {
     );
 }
 
+const HOME_WORK_GRID_LIMIT = 16;
+
 export default function HomePage() {
-    const fallbackProjects = getFeaturedProjects(8);
+    const fallbackProjects = getFeaturedProjects(HOME_WORK_GRID_LIMIT);
     const [projects, setProjects] = useState<Project[]>(fallbackProjects);
 
     useEffect(() => {
@@ -164,7 +166,7 @@ export default function HomePage() {
                 if (data["home.selectedWork"]?.length > 0) {
                     setProjects(
                         data["home.selectedWork"]
-                            .slice(0, 8)
+                            .slice(0, HOME_WORK_GRID_LIMIT)
                             .map((p: CuratedPost) => ghostToProject(p))
                     );
                 }
@@ -175,7 +177,7 @@ export default function HomePage() {
         fetchCurated();
     }, []);
 
-    const grid = projects.slice(0, 8);
+    const grid = projects.slice(0, HOME_WORK_GRID_LIMIT);
 
     return (
         <div className="bg-white text-black">
@@ -192,7 +194,7 @@ export default function HomePage() {
             <section
                 id="work"
                 data-header-surface="dark"
-                className="scroll-mt-6 pb-[50px]"
+                className="scroll-mt-[72px] md:scroll-mt-6 pb-[50px]"
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-[2.5px]">
                     {grid.map((project, i) => (

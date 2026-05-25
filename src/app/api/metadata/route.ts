@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
 
         savePostMetadata(postId, {
             director: data.director,
+            agency: data.agency,
             client: data.client,
             creditsCol3: data.creditsCol3 as CreditEntry[] | undefined,
             creditsCol5: data.creditsCol5 as CreditEntry[] | undefined,

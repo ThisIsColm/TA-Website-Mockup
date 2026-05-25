@@ -24,11 +24,31 @@ function escapeHtml(value: string): string {
         .replace(/'/g, "&#039;");
 }
 
-function buildMetaHtml(title: string, director?: string): string {
-    const directorHtml = director
-        ? `<p>Director: ${escapeHtml(director)}</p>`
+interface WorkMetaFields {
+    director?: string;
+    agency?: string;
+    client?: string;
+}
+
+function buildMetaHtml(title: string, meta: WorkMetaFields): string {
+    const rows = (
+        [
+            { label: "Director", value: meta.director },
+            { label: "Agency", value: meta.agency },
+            { label: "Client", value: meta.client },
+        ] as const
+    ).filter((row) => row.value?.trim());
+
+    const metaFields = rows.length
+        ? rows
+              .map(
+                  (row) =>
+                      `<p>${escapeHtml(row.label)}: ${escapeHtml(row.value!.trim())}</p>`
+              )
+              .join("")
         : "";
-    return `<div class="case-meta"><h1>${escapeHtml(title)}</h1>${directorHtml}</div>`;
+
+    return `<div class="case-meta"><div class="case-meta-left"><h1>${escapeHtml(title)}</h1>${metaFields}</div></div>`;
 }
 
 interface ProjectPageProps {
@@ -89,6 +109,8 @@ interface CaseStudy {
     coverImage: string | null;
     html: string | null;
     director?: string;
+    agency?: string;
+    client?: string;
     creditsCol3: CreditEntry[];
     creditsCol5: CreditEntry[];
 }
@@ -122,6 +144,7 @@ function ghostToCaseStudy(
     post: GhostPost,
     meta?: {
         director?: string;
+        agency?: string;
         client?: string;
         creditsCol3?: CreditEntry[];
         creditsCol5?: CreditEntry[];
@@ -134,6 +157,8 @@ function ghostToCaseStudy(
         coverImage: post.feature_image,
         html: post.html || null,
         director: meta?.director,
+        agency: meta?.agency,
+        client: meta?.client,
         creditsCol3: meta?.creditsCol3 ?? [],
         creditsCol5: meta?.creditsCol5 ?? [],
     };
@@ -208,11 +233,17 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
             <div data-header-surface="white">
             {/* ── Title + Body content (padded; hero Vimeo is the only full-bleed) ─ */}
-            <section className="pt-[100px] pb-[15px]">
+            <section className="pt-[80px] pb-[15px] md:pt-[100px]">
                 <GhostContent
                     html={
-                        buildMetaHtml(data.title, data.director) +
-                        (data.html || "")
+                        buildMetaHtml(data.title, {
+                            director: data.director,
+                            agency: data.agency,
+                            client: data.client,
+                        }) +
+                        (data.html
+                            ? `<div class="case-study-body">${data.html}</div>`
+                            : "")
                     }
                     className="case-study-prose"
                 />
@@ -229,17 +260,21 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
                     <div className="grid grid-cols-6 gap-x-[5px] gap-y-[40px] md:gap-y-0 md:items-end">
                         {prev ? (
-                            <div className="col-span-6 md:col-span-1 md:col-start-1">
+                            <div className="hidden md:block col-span-6 md:col-span-1 md:col-start-1">
                                 <Link
                                     href={`/work/${prev.slug}`}
                                     className="group inline-block max-w-full text-left"
                                 >
-                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                        Previous
+                                    <p
+                                        className={`m-0 text-[#353535] ${typeClass("work.nextProjectLabel")}`}
+                                    >
+                                        Previous Project
                                     </p>
-                                    <h2 className={`text-[#353535] group-hover:text-accent transition-colors ${typeClass("work.nextProjectTitle")}`}>
+                                    <p
+                                        className={`m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
+                                    >
                                         {prev.title}
-                                    </h2>
+                                    </p>
                                 </Link>
                             </div>
                         ) : null}
@@ -247,14 +282,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                             <div className="col-span-6 md:col-span-4 flex md:justify-end md:col-start-3">
                                 <Link
                                     href={`/work/${next.slug}`}
-                                    className="group inline-block max-w-full text-left md:text-right"
+                                    className="group inline-block max-w-full text-left"
                                 >
-                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                        Next
+                                    <p
+                                        className={`m-0 text-[#353535] ${typeClass("work.nextProjectLabel")}`}
+                                    >
+                                        Next Project
                                     </p>
-                                    <h2 className={`text-[#353535] group-hover:text-accent transition-colors ${typeClass("work.nextProjectTitle")}`}>
+                                    <p
+                                        className={`m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
+                                    >
                                         {next.title}
-                                    </h2>
+                                    </p>
                                 </Link>
                             </div>
                         ) : null}

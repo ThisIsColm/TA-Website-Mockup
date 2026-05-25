@@ -72,7 +72,7 @@ export default function Statement({ text, className = "" }: StatementProps) {
                         className="group inline-flex flex-col"
                     >
                         <span className="text-[18px] tracking-wider text-black group-hover:text-accent transition-colors duration-300">
-                            More About Us
+                            Sound good? Let&rsquo;s dive deeper.
                         </span>
                         <div className="h-px w-full bg-black/20 group-hover:bg-accent transition-colors duration-300 mt-1 mb-30" />
                     </Link>

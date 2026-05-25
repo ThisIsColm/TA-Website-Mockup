@@ -164,7 +164,7 @@ export default function AboutPage() {
                                     exercitation ullamco.
                                 </p>
                             </div>
-                            <div className="grid grid-cols-3 gap-x-[5px] gap-y-[8px]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[5px] gap-y-[8px]">
                                 {SERVICES.map((s) => (
                                     <div key={s} className="min-w-0">
                                         <ServicePill label={s} />
@@ -230,7 +230,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function ServicePill({ label }: { label: string }) {
     return (
         <div
-            className={`flex w-full min-w-0 flex-nowrap items-center justify-start gap-[0.35em] overflow-hidden rounded-full border-2 border-accent px-[0.65em] py-[0.32em] text-accent ${typeClass("about.servicePill")}`}
+            className={`flex w-full min-w-0 flex-wrap sm:flex-nowrap items-center justify-start gap-[0.35em] overflow-hidden rounded-full border-2 border-accent px-[0.65em] py-[0.32em] text-accent ${typeClass("about.servicePill")}`}
         >
             <span
                 aria-hidden="true"
@@ -241,7 +241,7 @@ function ServicePill({ label }: { label: string }) {
                 }}
             />
             {/* Single line — ellipsis only if label is wider than pill */}
-            <span className="min-w-0 flex-1 truncate">{label}</span>
+            <span className="min-w-0 flex-1 sm:truncate">{label}</span>
         </div>
     );
 }

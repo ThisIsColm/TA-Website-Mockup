@@ -18,7 +18,7 @@ export default function InsightArticleHeader({
     const portraitSrc = author ? getAuthorPortraitSrc(author) : null;
 
     return (
-        <section className="pt-[100px] md:pt-[120px] pb-[48px] md:pb-[64px]">
+        <section className="pt-[80px] md:pt-[120px] pb-[40px] md:pb-[64px]">
             <Container>
                 <div className="grid grid-cols-6 gap-x-[5px] gap-y-[28px] md:gap-y-0 items-start">
                     <aside className="col-span-6 md:col-span-2">

@@ -150,7 +150,7 @@ export default function InsightsListTitle({ title }: InsightsListTitleProps) {
     return (
         <div
             ref={containerRef}
-            className="relative inline-block max-w-[43.021vw]"
+            className="relative inline-block max-w-full md:max-w-[43.021vw]"
             onMouseEnter={handleEnter}
             onMouseLeave={handleLeave}
             onFocus={handleEnter}

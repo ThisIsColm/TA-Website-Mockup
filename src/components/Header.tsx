@@ -267,13 +267,15 @@ export default function Header() {
         setMenuOpen(false);
     }, [pathname]);
 
-    // Close on Escape, and on outside click
+    // Close on Escape; on desktop, close when clicking outside the menu control
     useEffect(() => {
         if (!menuOpen) return;
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") setMenuOpen(false);
         };
         const onPointer = (e: PointerEvent) => {
+            const isMobile = window.matchMedia("(max-width: 767px)").matches;
+            if (isMobile) return;
             if (!menuWrapRef.current) return;
             if (!menuWrapRef.current.contains(e.target as Node)) {
                 setMenuOpen(false);
@@ -287,9 +289,23 @@ export default function Header() {
         };
     }, [menuOpen]);
 
+    // Lock scroll while the mobile full-screen menu is open
+    useEffect(() => {
+        if (!menuOpen) return;
+        const mq = window.matchMedia("(max-width: 767px)");
+        if (!mq.matches) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [menuOpen]);
+
     // White background: orange logo, black burger + menu text.
     // Dark/image/video: white logo + white burger. Beige preserves current theme.
+    // Mobile menu open uses a white full-screen panel — match chrome to that.
     const menuTextColor = isOverWhiteBg ? "text-black" : "text-white";
+    const chromeOverWhite = isOverWhiteBg || menuOpen;
 
     const chromeMotionClass =
         chromeMode === "fade-in"
@@ -314,7 +330,7 @@ export default function Header() {
                 ref={chromeWrapRef}
                 className={`w-full px-[5.625vw] pt-[20px] md:pt-[25px] will-change-[transform,opacity] ${chromeMotionClass} ${
                     chromeInteractive ? "pointer-events-auto" : "pointer-events-none"
-                }`}
+                } ${menuOpen ? "max-md:relative max-md:z-[60]" : ""}`}
                 style={{
                     transform: `translate3d(0, ${chromeTranslateY}px, 0)`,
                 }}
@@ -323,18 +339,21 @@ export default function Header() {
                     className="relative flex items-start justify-between"
                     aria-label="Main navigation"
                 >
-                    <LogoLink isOverWhiteBg={isOverWhiteBg} />
+                    <LogoLink
+                        isOverWhiteBg={chromeOverWhite}
+                        onClick={() => setMenuOpen(false)}
+                    />
 
-                    <div ref={menuWrapRef} className="relative z-10">
+                    <div ref={menuWrapRef} className="relative">
                         {/* Hamburger ↔ X toggle */}
                         <button
                             onClick={() => setMenuOpen((v) => !v)}
-                            className="relative w-8 h-8 flex items-center justify-center cursor-pointer ml-auto"
+                            className="relative z-[61] w-8 h-8 flex items-center justify-center cursor-pointer ml-auto"
                             aria-label={menuOpen ? "Close menu" : "Open menu"}
                             aria-expanded={menuOpen}
                         >
                             <ChromeBar
-                                isOverWhiteBg={isOverWhiteBg}
+                                isOverWhiteBg={chromeOverWhite}
                                 className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen
                                         ? "rotate-45"
@@ -342,13 +361,13 @@ export default function Header() {
                                 }`}
                             />
                             <ChromeBar
-                                isOverWhiteBg={isOverWhiteBg}
+                                isOverWhiteBg={chromeOverWhite}
                                 className={`transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen ? "opacity-0" : "opacity-100"
                                 }`}
                             />
                             <ChromeBar
-                                isOverWhiteBg={isOverWhiteBg}
+                                isOverWhiteBg={chromeOverWhite}
                                 className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${
                                     menuOpen
                                         ? "-rotate-45"
@@ -357,10 +376,10 @@ export default function Header() {
                             />
                         </button>
 
-                        {/* Drop-down menu — right-aligned to the X, no overlay */}
                         <AnimatePresence>
                             {menuOpen && (
                                 <motion.ul
+                                    key="desktop-menu"
                                     initial={{ opacity: 0, y: -6 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -6 }}
@@ -368,7 +387,7 @@ export default function Header() {
                                         duration: 0.22,
                                         ease: [0.25, 0.4, 0.25, 1],
                                     }}
-                                    className="absolute right-0 mt-[18px] flex flex-col items-end gap-[2px]"
+                                    className="absolute right-0 mt-[18px] hidden md:flex flex-col items-end gap-1 py-2"
                                 >
                                     {navLinks.map((link, i) => {
                                         const active =
@@ -392,7 +411,7 @@ export default function Header() {
                                                     onClick={() => setMenuOpen(false)}
                                                     /* Transform on nested span keeps the Link hit box fixed so the
                                                        cursor stays “over” the item after the slide (no hover jitter). */
-                                                    className={`group block leading-[1.15] tracking-[-0.01em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${typeClass("shared.headerNavLink")} ${
+                                                    className={`group block py-1 leading-[1.15] tracking-[-0.01em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${typeClass("shared.headerNavLink")} ${
                                                         active ? "text-accent" : menuTextColor
                                                     }`}
                                                 >
@@ -409,6 +428,62 @@ export default function Header() {
                     </div>
                 </nav>
             </div>
+
+            <AnimatePresence>
+                {menuOpen && (
+                    <motion.div
+                        key="mobile-menu"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                            duration: 0.25,
+                            ease: [0.25, 0.4, 0.25, 1],
+                        }}
+                        className="md:hidden fixed inset-0 z-[55] bg-white pointer-events-auto"
+                        aria-hidden={false}
+                    >
+                        <nav
+                            className="flex h-full flex-col items-end justify-center px-[5.625vw] pb-[10vh]"
+                            aria-label="Mobile navigation"
+                        >
+                            <ul className="flex flex-col items-end gap-8">
+                                {navLinks.map((link, i) => {
+                                    const active =
+                                        link.href === "/#work"
+                                            ? pathname === "/" && hash === "#work"
+                                            : pathname === link.href ||
+                                              pathname?.startsWith(link.href + "/");
+                                    return (
+                                        <motion.li
+                                            key={link.href}
+                                            initial={{ opacity: 0, y: 12 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{
+                                                duration: 0.28,
+                                                delay: 0.04 + i * 0.05,
+                                                ease: [0.25, 0.4, 0.25, 1],
+                                            }}
+                                        >
+                                            <Link
+                                                href={link.href}
+                                                onClick={() => setMenuOpen(false)}
+                                                className={`block py-1 leading-[1.05] tracking-[-0.02em] transition-colors duration-300 ease-out motion-reduce:transition-none hover:text-accent ${typeClass("shared.headerMobileMenuLink")} ${
+                                                    active
+                                                        ? "text-accent"
+                                                        : "text-black"
+                                                }`}
+                                            >
+                                                {link.label}.
+                                            </Link>
+                                        </motion.li>
+                                    );
+                                })}
+                            </ul>
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }

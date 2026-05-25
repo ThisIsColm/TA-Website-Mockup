@@ -47,6 +47,8 @@ export interface TypeSpec {
     /** OpenType common ligatures (ff, fi, etc.) — use with letter-spacing via font-feature-settings */
     ligatures?: boolean;
     font?: FontFamily;
+    /** Use exact px on desktop instead of vw scaling (e.g. credits metadata) */
+    fixedSize?: boolean;
 }
 
 // ── Shared (Header, Footer, CTA used on multiple pages) ───────────────────
@@ -54,12 +56,22 @@ export interface TypeSpec {
 const shared = {
     headerNavLink: {
         size: 30,
+        mobile: 22,
         weight: 800,
+        letterSpacing: -0.02,
+        font: "tenon",
+    },
+    headerMobileMenuLink: {
+        size: 58,
+        mobile: 52,
+        weight: 800,
+        lineHeightRatio: 1.05,
         letterSpacing: -0.02,
         font: "tenon",
     },
     footerCopyright: {
         size: 16,
+        mobile: 11,
         weight: 400,
         lineHeight: 13,
         letterSpacing: -0.02,
@@ -67,6 +79,7 @@ const shared = {
     },
     workTogetherHeading: {
         size: 58,
+        mobile: 32,
         weight: 800,
         lineHeight: 48,
         letterSpacing: -0.02,
@@ -74,6 +87,7 @@ const shared = {
     },
     workTogetherEmail: {
         size: 36,
+        mobile: 18,
         weight: 400,
         lineHeightRatio: 1,
         letterSpacing: -0.02,
@@ -89,6 +103,7 @@ const shared = {
     },
     listingPageTitle: {
         size: 72,
+        mobile: 40,
         weight: 700,
         lineHeightRatio: 1,
         letterSpacing: -0.02,
@@ -171,7 +186,7 @@ const about = {
     rotatingTaglineAccent: {
         size: 36,
         mobile: 22,
-        weight: 400,
+        weight: 800,
         lineHeight: 46,
         letterSpacing: -0.02,
         font: "tenon",
@@ -353,6 +368,7 @@ const work = {
         lineHeight: 30,
         letterSpacing: -0.02,
         font: "tenon",
+        fixedSize: true,
     },
     creditsBrand: {
         size: 26,
@@ -361,6 +377,7 @@ const work = {
         lineHeight: 30,
         letterSpacing: -0.02,
         font: "tenon",
+        fixedSize: true,
     },
     creditsRole: {
         size: 26,
@@ -369,6 +386,7 @@ const work = {
         lineHeight: 30,
         letterSpacing: -0.02,
         font: "tenon",
+        fixedSize: true,
     },
     creditsName: {
         size: 26,
@@ -377,11 +395,20 @@ const work = {
         lineHeight: 30,
         letterSpacing: -0.02,
         font: "tenon",
+        fixedSize: true,
     },
-    nextProjectTitle: {
+    nextProjectLabel: {
         size: 36,
         mobile: 18,
         weight: 800,
+        lineHeight: 46,
+        letterSpacing: -0.02,
+        font: "tenon",
+    },
+    nextProjectLink: {
+        size: 36,
+        mobile: 18,
+        weight: 400,
         lineHeight: 46,
         letterSpacing: -0.02,
         font: "tenon",
@@ -426,7 +453,7 @@ const prose = {
     caseStudyH2: {
         size: 36,
         mobile: 22,
-        weight: 400,
+        weight: 800,
         lineHeight: 46,
         letterSpacing: -0.02,
         font: "tenon",

@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Container from "@/components/Container";
 import ContactPerson from "@/components/ContactPerson";
+import ContactPhotoCarousel from "@/components/ContactPhotoCarousel";
+import { getContactCarouselImages } from "@/lib/contactCarouselImages";
 import { figmaSpace, typeClass } from "@/lib/typographyStyles";
 
 export const metadata: Metadata = {
@@ -17,6 +18,8 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
+    const carouselImages = getContactCarouselImages();
+
     return (
         <section
             data-header-surface="neutral"
@@ -26,14 +29,7 @@ export default function ContactPage() {
                 <div className="grid grid-cols-6 md:grid-cols-12 gap-x-[5px] gap-y-[40px] md:gap-y-0 items-start">
                     <div className="col-span-6 md:col-span-7">
                         <div className="relative w-full aspect-[5524/3107] overflow-hidden bg-[#D7CFC2]">
-                            <Image
-                                src="/images/contact/fontaines.jpg"
-                                alt="Tiny Ark production still"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 58vw"
-                                priority
-                            />
+                            <ContactPhotoCarousel images={carouselImages} />
                         </div>
                     </div>
 
@@ -56,7 +52,7 @@ export default function ContactPage() {
                                 name="Nathan Reilly"
                                 title="CEO"
                                 email="nathan@tinyark.com"
-                                phone="+353 (87) 993 2195"
+                                phone="+353 87 993 2195"
                             />
                             <ContactPerson
                                 name="Gabi Chrobak"
@@ -66,6 +62,8 @@ export default function ContactPage() {
                             <address
                                 className={`not-italic text-[#353535] ${typeClass("contact.address")}`}
                             >
+                                Tiny Ark
+                                <br />
                                 43 Talbot St
                                 <br />
                                 Mountjoy
@@ -73,6 +71,8 @@ export default function ContactPage() {
                                 Dublin 1
                                 <br />
                                 D01 KOE8
+                                <br />
+                                Ireland
                             </address>
                         </div>
                     </div>

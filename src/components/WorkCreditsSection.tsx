@@ -7,7 +7,9 @@ interface WorkCreditsSectionProps {
     className?: string;
 }
 
-const CREDITS_COLOR = "text-[#959595]";
+const CREDITS_ROLE_COLOR = "text-[#959595]";
+const CREDITS_PERSON_COLOR = "text-[#353535]";
+const CREDITS_LABEL_COLOR = "text-[#959595]";
 
 function CreditColumn({ entries }: { entries: CreditEntry[] }) {
     if (entries.length === 0) return null;
@@ -16,11 +18,11 @@ function CreditColumn({ entries }: { entries: CreditEntry[] }) {
         <div className="flex flex-col gap-[20px] md:gap-[24px]">
             {entries.map((entry, i) => (
                 <div key={`${entry.title}-${i}`}>
-                    <p className={`${CREDITS_COLOR} ${typeClass("work.creditsRole")}`}>
+                    <p className={`${CREDITS_ROLE_COLOR} ${typeClass("work.creditsRole")}`}>
                         {entry.title}
                     </p>
                     <p
-                        className={`mt-[2px] ${CREDITS_COLOR} ${typeClass("work.creditsName")}`}
+                        className={`mt-[2px] ${CREDITS_PERSON_COLOR} ${typeClass("work.creditsName")}`}
                     >
                         {entry.name}
                     </p>
@@ -43,21 +45,21 @@ export default function WorkCreditsSection({
         <section className={className}>
             <div className="grid grid-cols-6 gap-[5px]">
                 <div className="col-span-6 md:col-span-1 md:col-start-1">
-                    <p className={`${CREDITS_COLOR} ${typeClass("work.creditsHeading")}`}>
+                    <p className={`${CREDITS_LABEL_COLOR} ${typeClass("work.creditsHeading")}`}>
                         Credits
                     </p>
                     <p
-                        className={`mt-[6px] ${CREDITS_COLOR} ${typeClass("work.creditsBrand")}`}
+                        className={`mt-[6px] ${CREDITS_PERSON_COLOR} ${typeClass("work.creditsBrand")}`}
                     >
                         Tiny Ark
                     </p>
                 </div>
 
-                <div className="col-span-6 md:col-span-1 md:col-start-3">
+                <div className="col-span-6 md:col-span-2 md:col-start-3">
                     <CreditColumn entries={creditsCol3} />
                 </div>
 
-                <div className="col-span-6 md:col-span-1 md:col-start-5">
+                <div className="col-span-6 md:col-span-2 md:col-start-5">
                     <CreditColumn entries={creditsCol5} />
                 </div>
             </div>

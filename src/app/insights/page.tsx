@@ -7,7 +7,7 @@ import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getPostMetadata, getSelections } from "@/lib/db";
 import { getTeamAuthor } from "@/lib/team";
-import { figmaSpace, typeClass } from "@/lib/typographyStyles";
+import { typeClass } from "@/lib/typographyStyles";
 
 export const dynamic = "force-dynamic";
 
@@ -81,11 +81,7 @@ export default async function InsightsPage() {
             <Container>
                 <header className="flex flex-col items-center text-center">
                     <InsightsIntroIcon
-                        className="text-accent"
-                        style={{
-                            height: figmaSpace(204),
-                            width: figmaSpace(204),
-                        }}
+                        className="text-accent h-[clamp(72px,18vw,204px)] w-[clamp(72px,18vw,204px)]"
                     />
                     <p className={`text-black ${typeClass("insights.introTagline")}`}>
                         The thinking
@@ -94,13 +90,7 @@ export default async function InsightsPage() {
                     </p>
                 </header>
 
-                <div
-                    className="flex flex-col"
-                    style={{
-                        marginTop: figmaSpace(165),
-                        gap: figmaSpace(103),
-                    }}
-                >
+                <div className="mt-12 flex flex-col gap-12 md:mt-[8.594vw] md:gap-[5.365vw]">
                     {posts.map((post) => {
                         const dateLabel = formatDate(post.date);
                         const readTime = estimateReadTime(post.excerpt);
@@ -112,9 +102,9 @@ export default async function InsightsPage() {
                             <article key={post.slug}>
                                 <Link
                                     href={`/insights/${post.slug}`}
-                                    className="group grid grid-cols-6 gap-x-[5px] items-start"
+                                    className="group flex flex-col gap-4 md:grid md:grid-cols-6 md:gap-x-[5px] md:items-start"
                                 >
-                                    <div className="col-span-2 flex flex-col gap-[5px]">
+                                    <div className="md:col-span-2 flex flex-col gap-[5px]">
                                         <InsightsPostThumbnail
                                             coverImage={post.coverImage}
                                             title={post.title}
@@ -127,14 +117,12 @@ export default async function InsightsPage() {
                                     </div>
 
                                     <div
-                                        className="col-span-4 col-start-3 min-w-0"
-                                        style={{ paddingLeft: figmaSpace(46) }}
+                                        className="min-w-0 md:col-span-4 md:col-start-3 md:pl-[2.396vw]"
                                     >
                                         <InsightsListTitle title={title} />
                                         {post.authorName ? (
                                             <p
-                                                className={`max-w-[43.021vw] text-black ${typeClass("insights.listAuthor")}`}
-                                                style={{ marginTop: figmaSpace(50) }}
+                                                className={`mt-4 max-w-full text-black md:mt-[2.604vw] md:max-w-[43.021vw] ${typeClass("insights.listAuthor")}`}
                                             >
                                                 By {post.authorName}
                                             </p>

@@ -65,6 +65,8 @@ function specToProperties(
             lines.push(
                 `line-height: ${Math.round(spec.lineHeight * (spec.mobile / spec.size))}px`
             );
+        } else if (spec.fixedSize) {
+            lines.push(`line-height: ${spec.lineHeight}px`);
         } else {
             lines.push(`line-height: ${figmaVw(spec.lineHeight)}`);
         }
@@ -94,13 +96,15 @@ export function typeStyle(path: string): CSSProperties {
     const font = spec.font ?? "tenon";
     const style: CSSProperties = {
         fontFamily: FONT_STACKS[font],
-        fontSize: figmaVw(spec.size),
+        fontSize: spec.fixedSize ? `${spec.size}px` : figmaVw(spec.size),
     };
     if (spec.weight !== undefined) style.fontWeight = spec.weight;
     if (spec.lineHeightRatio !== undefined) {
         style.lineHeight = spec.lineHeightRatio;
     } else if (spec.lineHeight !== undefined) {
-        style.lineHeight = figmaVw(spec.lineHeight);
+        style.lineHeight = spec.fixedSize
+            ? `${spec.lineHeight}px`
+            : figmaVw(spec.lineHeight);
     }
     if (spec.letterSpacing !== undefined) {
         style.letterSpacing = `${spec.letterSpacing}em`;
@@ -121,7 +125,9 @@ export function buildTypographyStylesheet(): string {
 
     for (const { path, spec } of flattenSpecs()) {
         const className = cssPathToClass(path);
-        const desktopSize = figmaVw(spec.size);
+        const desktopSize = spec.fixedSize
+            ? `${spec.size}px`
+            : figmaVw(spec.size);
         const mobileSize = spec.mobile
             ? `${spec.mobile}px`
             : desktopSize;
@@ -132,11 +138,14 @@ export function buildTypographyStylesheet(): string {
         rootVars.push(`  ${sizeMobileVar}: ${mobileSize};`);
 
         if (spec.lineHeight !== undefined) {
+            const desktopLineHeight = spec.fixedSize
+                ? `${spec.lineHeight}px`
+                : figmaVw(spec.lineHeight);
             rootVars.push(
-                `  ${cssPathToVar(path, "line-height-desktop")}: ${figmaVw(spec.lineHeight)};`
+                `  ${cssPathToVar(path, "line-height-desktop")}: ${desktopLineHeight};`
             );
             rootVars.push(
-                `  ${cssPathToVar(path, "line-height-mobile")}: ${spec.mobile ? `${Math.round(spec.lineHeight * (spec.mobile / spec.size))}px` : figmaVw(spec.lineHeight)};`
+                `  ${cssPathToVar(path, "line-height-mobile")}: ${spec.mobile ? `${Math.round(spec.lineHeight * (spec.mobile / spec.size))}px` : desktopLineHeight};`
             );
         }
 
@@ -191,24 +200,49 @@ ${mobileRules.join("\n")}
     letter-spacing: -0.02em;
   }
 
-  .case-study-prose > p {
+  /* Work case study — body + in-content section labels (Brief, Production, Result, …) */
+  .case-study-prose > p,
+  .case-study-prose > ul,
+  .case-study-prose > ol {
+    font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-desktop);
     line-height: var(--type-prose-caseStudyBody-line-height-desktop);
     font-weight: 400;
     letter-spacing: -0.02em;
   }
-  .case-study-prose > .case-meta > h1,
-  .case-study-prose > .case-meta > p {
+  .case-study-prose > .case-study-body > p,
+  .case-study-prose > .case-study-body > ul,
+  .case-study-prose > .case-study-body > ol {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyBody-size-desktop);
+    line-height: var(--type-prose-caseStudyBody-line-height-desktop);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > h2,
+  .case-study-prose > h3,
+  .case-study-prose > h4,
+  .case-study-prose > .case-study-body > h2,
+  .case-study-prose > .case-study-body > h3,
+  .case-study-prose > .case-study-body > h4 {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyH2-size-desktop);
+    line-height: var(--type-prose-caseStudyH2-line-height-desktop);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > h1 {
+    font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyMeta-size-desktop);
     line-height: var(--type-prose-caseStudyMeta-line-height-desktop);
     font-weight: 800;
     letter-spacing: -0.02em;
   }
-  .case-study-prose > h2,
-  .case-study-prose > h3 {
-    font-size: var(--type-prose-caseStudyH2-size-desktop);
-    line-height: var(--type-prose-caseStudyH2-line-height-desktop);
-    font-weight: 800;
+  .case-study-prose > .case-meta > .case-meta-left > p {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyMeta-size-desktop);
+    line-height: var(--type-prose-caseStudyMeta-line-height-desktop);
+    font-weight: 400;
     letter-spacing: -0.02em;
   }
   .case-study-prose figcaption {
@@ -243,25 +277,48 @@ ${mobileRules.join("\n")}
     letter-spacing: -0.02em;
   }
 
-  .case-study-prose > p {
+  .case-study-prose > p,
+  .case-study-prose > ul,
+  .case-study-prose > ol {
+    font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-mobile);
     line-height: var(--type-prose-caseStudyBody-line-height-mobile);
     font-weight: 400;
     letter-spacing: -0.02em;
   }
-  .case-study-prose > .case-meta > h1,
-  .case-study-prose > .case-meta > p {
-    font-size: var(--type-prose-caseStudyMeta-size-mobile);
-    line-height: var(--type-prose-caseStudyMeta-line-height-mobile);
-    font-weight: 800;
+  .case-study-prose > .case-study-body > p,
+  .case-study-prose > .case-study-body > ul,
+  .case-study-prose > .case-study-body > ol {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyBody-size-mobile);
+    line-height: var(--type-prose-caseStudyBody-line-height-mobile);
+    font-weight: 400;
     letter-spacing: -0.02em;
   }
   .case-study-prose > h2,
-  .case-study-prose > h3 {
+  .case-study-prose > h3,
+  .case-study-prose > h4,
+  .case-study-prose > .case-study-body > h2,
+  .case-study-prose > .case-study-body > h3,
+  .case-study-prose > .case-study-body > h4 {
+    font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyH2-size-mobile);
     line-height: var(--type-prose-caseStudyH2-line-height-mobile);
     font-weight: 800;
     letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > h1,
+  .case-study-prose > .case-meta > .case-meta-left > p {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyMeta-size-mobile);
+    line-height: var(--type-prose-caseStudyMeta-line-height-mobile);
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > h1 {
+    font-weight: 800;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > p {
+    font-weight: 400;
   }
 }
 `;

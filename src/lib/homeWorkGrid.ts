@@ -5,10 +5,10 @@ import { getFeaturedProjects, getAllProjects } from "@/lib/data";
 export type WorkNavItem = { slug: string; title: string };
 
 const SECTION = "home.selectedWork";
-const HOME_GRID_LIMIT = 8;
+const HOME_GRID_LIMIT = 16;
 
 /**
- * Same ordered list as the homepage 2×4 grid: curated Ghost IDs first (max 8),
+ * Same ordered list as the homepage grid: curated Ghost IDs first (max 16),
  * then static fallback via getFeaturedProjects when curation is empty.
  */
 export async function getHomeWorkGridOrder(): Promise<WorkNavItem[]> {

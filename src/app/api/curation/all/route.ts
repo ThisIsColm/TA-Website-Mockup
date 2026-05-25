@@ -47,6 +47,7 @@ function formatPost(post: GhostPost) {
         published_at: post.published_at,
         tags: post.tags.map((t) => t.name),
         director: customMeta?.director,
+        agency: customMeta?.agency,
         client: customMeta?.client,
         creditsCol3: customMeta?.creditsCol3,
         creditsCol5: customMeta?.creditsCol5,

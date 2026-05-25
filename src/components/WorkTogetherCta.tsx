@@ -6,7 +6,7 @@ export default function WorkTogetherCta() {
     return (
         <section
             data-header-surface="white"
-            className={`pt-[50px] pb-[100px] ${OUTER}`}
+            className={`pt-10 pb-16 md:pt-[50px] md:pb-[100px] ${OUTER}`}
         >
             <h2
                 className={`font-sans font-extrabold text-[#353535] ${typeClass("shared.workTogetherHeading")}`}

@@ -76,12 +76,16 @@ export default function ProjectCard({
                         {overlayTitleOnThumbnail && (
                             <>
                                 {titleVisibility === "hover" ? (
-                                    // Solid dark overlay at 65% opacity covering the entire thumbnail on hover.
-                                    <div
-                                        className={`absolute inset-0 z-10 bg-black transition-opacity duration-300 ${
-                                            isHovered ? "opacity-65" : "opacity-0"
-                                        }`}
-                                    />
+                                    <>
+                                        {/* Desktop: full overlay on hover */}
+                                        <div
+                                            className={`absolute inset-0 z-10 hidden bg-black transition-opacity duration-300 md:block ${
+                                                isHovered ? "opacity-65" : "opacity-0"
+                                            }`}
+                                        />
+                                        {/* Mobile: always show gradient + title (no hover) */}
+                                        <div className="absolute inset-x-0 bottom-0 z-10 h-20 bg-gradient-to-t from-black/75 via-black/35 to-transparent md:hidden" />
+                                    </>
                                 ) : (
                                     <div
                                         className={`absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t transition-all duration-300 ${
@@ -94,8 +98,8 @@ export default function ProjectCard({
                                 <div
                                     className={`absolute z-20 transition-opacity duration-300 ${
                                         titleVisibility === "hover"
-                                            ? `left-5 sm:left-8 md:left-[50px] bottom-5 sm:bottom-8 md:bottom-[50px] right-5 sm:right-8 md:right-[50px] ${
-                                                  isHovered ? "opacity-100" : "opacity-0"
+                                            ? `left-4 bottom-4 right-4 md:left-[50px] md:bottom-[50px] md:right-[50px] opacity-100 md:opacity-0 ${
+                                                  isHovered ? "md:opacity-100" : ""
                                               }`
                                             : "left-4 md:left-5 bottom-4 md:bottom-5 max-w-[82%]"
                                     }`}
