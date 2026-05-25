@@ -102,6 +102,35 @@ function getTagName(tag: GhostTag | string): string {
     return typeof tag === "string" ? tag : tag.name;
 }
 
+/** Curation API returns tag names as strings; Ghost posts use full tag objects. */
+function normalizeCurationTags(
+    tags: readonly (GhostTag | string)[] | undefined
+): GhostTag[] {
+    if (!tags?.length) return [];
+    return tags.map((t) =>
+        typeof t === "string" ? { id: t, name: t, slug: t } : t
+    );
+}
+
+/** Shape returned by GET /api/curation/all for each post row */
+interface CurationApiPost {
+    id: string;
+    title: string;
+    slug: string;
+    url: string;
+    feature_image: string | null;
+    excerpt: string;
+    published_at: string;
+    tags: string[];
+    director?: string;
+    agency?: string;
+    client?: string;
+    creditsCol3?: CreditEntry[];
+    creditsCol5?: CreditEntry[];
+    insightAuthorId?: string;
+    vimeoId?: string;
+}
+
 function sectionKind(key: DashboardSectionKey): "work" | "insight" {
     return SECTION_BY_KEY[key].kind;
 }
@@ -202,15 +231,10 @@ export default function AdminPage() {
 
             for (const { key } of DASHBOARD_SECTIONS) {
                 if (data[key]?.length) {
-                    newSelections[key] = data[key].map((p: CuratedPost) => ({
+                    newSelections[key] = data[key].map((p: CurationApiPost) => ({
                         ...p,
-                        tags:
-                            (p.tags as string[])?.map((t: string) => ({
-                                id: t,
-                                name: t,
-                                slug: t,
-                            })) || [],
-                    }));
+                        tags: normalizeCurationTags(p.tags),
+                    })) as CuratedPost[];
                 }
             }
 
