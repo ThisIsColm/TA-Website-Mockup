@@ -13,6 +13,8 @@ export interface Project {
     content: string;
     galleryImages: string[];
     vimeoId?: string;
+    /** Seconds into the Vimeo video where the hover preview should start. */
+    previewStartTime?: number;
 }
 
 

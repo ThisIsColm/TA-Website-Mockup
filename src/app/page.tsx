@@ -24,6 +24,7 @@ interface CuratedPost {
     director?: string;
     client?: string;
     vimeoId?: string;
+    previewStartTime?: number;
 }
 
 function ghostToProject(post: CuratedPost): Project {
@@ -41,6 +42,7 @@ function ghostToProject(post: CuratedPost): Project {
         content: "",
         galleryImages: [],
         vimeoId: post.vimeoId,
+        previewStartTime: post.previewStartTime,
     };
 }
 

@@ -18,6 +18,7 @@ export type CuratedPost = GhostPost & {
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
+    previewStartTime?: number;
 };
 
 // ── Dashboard sections (single view: Work + Insights) ────────────
@@ -128,6 +129,7 @@ interface CurationApiPost {
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
+    previewStartTime?: number;
     vimeoId?: string;
 }
 
@@ -154,6 +156,7 @@ export default function AdminPage() {
     const [editClient, setEditClient] = useState("");
     const [editCreditsCol3, setEditCreditsCol3] = useState("");
     const [editCreditsCol5, setEditCreditsCol5] = useState("");
+    const [editPreviewStart, setEditPreviewStart] = useState("");
     const [editInsightAuthor, setEditInsightAuthor] = useState("");
     const [editingSectionKey, setEditingSectionKey] = useState<DashboardSectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
@@ -264,12 +267,21 @@ export default function AdminPage() {
             setEditClient(post.client || "");
             setEditCreditsCol3(serializeCreditsText(post.creditsCol3));
             setEditCreditsCol5(serializeCreditsText(post.creditsCol5));
+            setEditPreviewStart(
+                post.previewStartTime != null ? String(post.previewStartTime) : ""
+            );
         }
     };
 
     const savePostMeta = async (post: CuratedPost, sectionKey: DashboardSectionKey) => {
         setIsSavingMeta(true);
         const insight = sectionKind(sectionKey) === "insight";
+        const trimmedStart = editPreviewStart.trim();
+        const parsedStart = trimmedStart === "" ? null : Number(trimmedStart);
+        const previewStartTime =
+            parsedStart != null && Number.isFinite(parsedStart) && parsedStart >= 0
+                ? parsedStart
+                : null;
         try {
             const res = await fetch("/api/metadata", {
                 method: "POST",
@@ -284,6 +296,7 @@ export default function AdminPage() {
                               client: editClient,
                               creditsCol3: parseCreditsText(editCreditsCol3),
                               creditsCol5: parseCreditsText(editCreditsCol5),
+                              previewStartTime,
                           },
                 }),
             });
@@ -301,6 +314,7 @@ export default function AdminPage() {
                                       client: editClient,
                                       creditsCol3: parseCreditsText(editCreditsCol3),
                                       creditsCol5: parseCreditsText(editCreditsCol5),
+                                      previewStartTime: previewStartTime ?? undefined,
                                   }
                             : p;
 
@@ -1035,6 +1049,46 @@ export default function AdminPage() {
                                                                                                 the next. Blank line between
                                                                                                 entries.
                                                                                             </p>
+                                                                                            <div>
+                                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                    HOVER PREVIEW START (SECONDS)
+                                                                                                </label>
+                                                                                                <input
+                                                                                                    type="number"
+                                                                                                    min={0}
+                                                                                                    step={0.5}
+                                                                                                    className={`${styles.input} !py-2`}
+                                                                                                    value={
+                                                                                                        editPreviewStart
+                                                                                                    }
+                                                                                                    onKeyDown={(
+                                                                                                        e
+                                                                                                    ) =>
+                                                                                                        e.key ===
+                                                                                                            "Enter" &&
+                                                                                                        savePostMeta(
+                                                                                                            post,
+                                                                                                            key
+                                                                                                        )
+                                                                                                    }
+                                                                                                    onChange={(
+                                                                                                        e
+                                                                                                    ) =>
+                                                                                                        setEditPreviewStart(
+                                                                                                            e
+                                                                                                                .target
+                                                                                                                .value
+                                                                                                        )
+                                                                                                    }
+                                                                                                    placeholder="0"
+                                                                                                />
+                                                                                                <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                                    Where the hover-preview
+                                                                                                    video starts playing.
+                                                                                                    Leave blank to start from
+                                                                                                    the beginning.
+                                                                                                </p>
+                                                                                            </div>
                                                                                         </>
                                                                                     )}
 

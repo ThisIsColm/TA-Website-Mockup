@@ -61,12 +61,16 @@ export default function ProjectCard({
                 <div className="flex flex-col gap-6">
                     {/* Thumbnail container */}
                     <div className={`relative ${aspectRatio} overflow-hidden bg-bg-card`}>
-                        {/* Static thumbnail — fades out once video is playing */}
+                        {/* Static thumbnail — fades out once video is playing.
+                            Eager + low fetch priority so every thumbnail loads in the
+                            background up front (no scroll-triggered lazy loading). */}
                         <Image
                             src={project.coverImage}
                             alt={project.title}
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
+                            loading="eager"
+                            fetchPriority="low"
                             className={`object-cover transition-all duration-500 ease-out ${!showPreview && isHovered
                                     ? "scale-[var(--zoom-scale)]"
                                     : "scale-100"
@@ -167,6 +171,7 @@ export default function ProjectCard({
                             <VimeoPreview
                                 vimeoId={project.vimeoId!}
                                 isHovered={isHovered}
+                                startTime={project.previewStartTime}
                             />
                         )}
                     </div>

@@ -4,7 +4,7 @@ import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import { getAllProjects } from "@/lib/data";
 import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
-import { getSelections } from "@/lib/db";
+import { getSelections, getPostMetadata } from "@/lib/db";
 import { typeClass } from "@/lib/typographyStyles";
 import { Project } from "@/types";
 
@@ -17,6 +17,8 @@ function ghostToProject(post: GhostPost): Project {
         const m = post.html.match(/(?:vimeo\.com\/video\/|vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
         if (m) vimeoId = m[1];
     }
+
+    const meta = getPostMetadata(post.id);
 
     return {
         slug: post.slug,
@@ -32,6 +34,7 @@ function ghostToProject(post: GhostPost): Project {
         content: post.html || "",
         galleryImages: [],
         vimeoId,
+        previewStartTime: meta?.previewStartTime,
     };
 }
 

@@ -5,6 +5,8 @@ import { useRef, useEffect, useMemo, useState } from "react";
 interface VimeoPreviewProps {
     vimeoId: string;
     isHovered: boolean;
+    /** Seconds into the video where the preview should begin (default 0). */
+    startTime?: number;
 }
 
 const VIMEO_ORIGIN = "https://player.vimeo.com";
@@ -13,7 +15,11 @@ function vimeoCommand(payload: Record<string, unknown>) {
     return JSON.stringify(payload);
 }
 
-export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) {
+export default function VimeoPreview({
+    vimeoId,
+    isHovered,
+    startTime = 0,
+}: VimeoPreviewProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
     const [apiReady, setApiReady] = useState(false);
@@ -38,18 +44,28 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
         return OVERSCAN;
     }, [videoAspectRatio]);
 
-    // When hover ends, pause and reset so next hover starts fresh
+    const safeStart = Number.isFinite(startTime) && startTime > 0 ? startTime : 0;
+
+    // On hover, seek to the chosen start time then play. On hover end, pause and
+    // reset back to that start time so the next hover begins fresh.
     useEffect(() => {
         const win = iframeRef.current?.contentWindow;
         if (!win || !apiReady) return;
 
         if (!isHovered) {
             win.postMessage(vimeoCommand({ method: "pause" }), VIMEO_ORIGIN);
-            win.postMessage(vimeoCommand({ method: "setCurrentTime", value: 0 }), VIMEO_ORIGIN);
+            win.postMessage(
+                vimeoCommand({ method: "setCurrentTime", value: safeStart }),
+                VIMEO_ORIGIN
+            );
         } else {
+            win.postMessage(
+                vimeoCommand({ method: "setCurrentTime", value: safeStart }),
+                VIMEO_ORIGIN
+            );
             win.postMessage(vimeoCommand({ method: "play" }), VIMEO_ORIGIN);
         }
-    }, [isHovered, apiReady]);
+    }, [isHovered, apiReady, safeStart]);
 
     // Fetch Vimeo oEmbed metadata once so we can infer source aspect ratio.
     useEffect(() => {
@@ -84,7 +100,9 @@ export default function VimeoPreview({ vimeoId, isHovered }: VimeoPreviewProps) 
     }, [vimeoId]);
 
     // background=1 + muted + autoplay preloads; we toggle visibility on hover and drive play/pause via API.
-    const src = `https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0&portrait=0&playsinline=1&api=1&autopause=0&controls=0`;
+    // The #t= fragment makes the preloaded background frame match the chosen start point.
+    const startFragment = safeStart > 0 ? `#t=${safeStart}s` : "";
+    const src = `https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=1&loop=1&muted=1&byline=0&title=0&portrait=0&playsinline=1&api=1&autopause=0&controls=0${startFragment}`;
 
     return (
         <div
