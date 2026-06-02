@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Container from "@/components/Container";
-import InsightsListTitle from "@/components/InsightsListTitle";
 import InsightsIntroIcon from "@/components/InsightsIntroIcon";
-import InsightsPostThumbnail from "@/components/InsightsPostThumbnail";
+import InsightsListArticle from "@/components/InsightsListArticle";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getPostMetadata, getSelections } from "@/lib/db";
 import { getTeamAuthor } from "@/lib/team";
@@ -91,47 +89,17 @@ export default async function InsightsPage() {
                 </header>
 
                 <div className="mt-12 flex flex-col gap-12 md:mt-[8.594vw] md:gap-[5.365vw]">
-                    {posts.map((post) => {
-                        const dateLabel = formatDate(post.date);
-                        const readTime = estimateReadTime(post.excerpt);
-                        const title = post.title.endsWith(".")
-                            ? post.title
-                            : `${post.title}.`;
-
-                        return (
-                            <article key={post.slug}>
-                                <Link
-                                    href={`/insights/${post.slug}`}
-                                    className="group flex flex-col gap-4 md:grid md:grid-cols-6 md:gap-x-[5px] md:items-start"
-                                >
-                                    <div className="md:col-span-2 flex flex-col gap-[5px]">
-                                        <InsightsPostThumbnail
-                                            coverImage={post.coverImage}
-                                            title={post.title}
-                                        />
-                                        <p
-                                            className={`text-black ${typeClass("insights.listDate")}`}
-                                        >
-                                            {dateLabel} &middot; {readTime} min read
-                                        </p>
-                                    </div>
-
-                                    <div
-                                        className="min-w-0 md:col-span-4 md:col-start-3 md:pl-[2.396vw]"
-                                    >
-                                        <InsightsListTitle title={title} />
-                                        {post.authorName ? (
-                                            <p
-                                                className={`mt-4 max-w-full text-black md:mt-[2.604vw] md:max-w-[43.021vw] ${typeClass("insights.listAuthor")}`}
-                                            >
-                                                By {post.authorName}
-                                            </p>
-                                        ) : null}
-                                    </div>
-                                </Link>
-                            </article>
-                        );
-                    })}
+                    {posts.map((post) => (
+                        <InsightsListArticle
+                            key={post.slug}
+                            slug={post.slug}
+                            title={post.title}
+                            coverImage={post.coverImage}
+                            dateLabel={formatDate(post.date)}
+                            readTime={estimateReadTime(post.excerpt)}
+                            authorName={post.authorName}
+                        />
+                    ))}
                 </div>
             </Container>
         </section>

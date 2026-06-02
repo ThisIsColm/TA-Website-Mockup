@@ -16,6 +16,7 @@ import { typeClass } from "@/lib/typographyStyles";
 
 interface InsightsListTitleProps {
     title: string;
+    hovered?: boolean;
 }
 
 interface TitleLine {
@@ -84,11 +85,13 @@ function measureTitleLines(
     });
 }
 
-export default function InsightsListTitle({ title }: InsightsListTitleProps) {
+export default function InsightsListTitle({
+    title,
+    hovered = false,
+}: InsightsListTitleProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const titleRef = useRef<HTMLHeadingElement>(null);
     const [lines, setLines] = useState<TitleLine[]>([]);
-    const [hovering, setHovering] = useState(false);
     const [frame, setFrame] = useState(0);
 
     const updateLines = useCallback(() => {
@@ -127,7 +130,7 @@ export default function InsightsListTitle({ title }: InsightsListTitleProps) {
     }, []);
 
     useEffect(() => {
-        if (!hovering) return;
+        if (!hovered) return;
 
         const reducedMotion = window.matchMedia(
             "(prefers-reduced-motion: reduce)"
@@ -139,27 +142,21 @@ export default function InsightsListTitle({ title }: InsightsListTitleProps) {
         }, INSIGHTS_TITLE_SQUIGGLE_FRAME_MS);
 
         return () => window.clearInterval(id);
-    }, [hovering]);
+    }, [hovered]);
 
-    const handleEnter = () => setHovering(true);
-    const handleLeave = () => {
-        setHovering(false);
-        setFrame(0);
-    };
+    useEffect(() => {
+        if (!hovered) setFrame(0);
+    }, [hovered]);
 
     return (
         <div
             ref={containerRef}
             className="relative inline-block max-w-full md:max-w-[43.021vw]"
-            onMouseEnter={handleEnter}
-            onMouseLeave={handleLeave}
-            onFocus={handleEnter}
-            onBlur={handleLeave}
         >
             <h2
                 ref={titleRef}
                 className={`relative z-10 transition-colors duration-200 ${
-                    hovering ? "text-accent" : "text-black"
+                    hovered ? "text-accent" : "text-black"
                 } ${typeClass("insights.listTitle")}`}
             >
                 {title}
@@ -170,7 +167,7 @@ export default function InsightsListTitle({ title }: InsightsListTitleProps) {
                     key={`${index}-${line.width}-${line.left}`}
                     aria-hidden
                     className={`pointer-events-none absolute z-[1] overflow-hidden transition-opacity duration-200 ${
-                        hovering ? "opacity-100" : "opacity-0"
+                        hovered ? "opacity-100" : "opacity-0"
                     }`}
                     style={{
                         left: line.left,

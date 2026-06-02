@@ -8,15 +8,16 @@ import { INSIGHTS_EYE_LOTTIE } from "@/lib/insightsLottie";
 interface InsightsPostThumbnailProps {
     coverImage: string;
     title: string;
+    hovered?: boolean;
 }
 
 export default function InsightsPostThumbnail({
     coverImage,
     title,
+    hovered = false,
 }: InsightsPostThumbnailProps) {
     const lottieRef = useRef<LottieRefCurrentProps>(null);
     const [animationData, setAnimationData] = useState<object | null>(null);
-    const [hovering, setHovering] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -35,23 +36,19 @@ export default function InsightsPostThumbnail({
         };
     }, []);
 
-    const handleEnter = () => {
-        setHovering(true);
-        lottieRef.current?.goToAndPlay(0, true);
-    };
-
-    const handleLeave = () => {
-        setHovering(false);
-        lottieRef.current?.stop();
-        lottieRef.current?.goToAndStop(0, true);
-    };
+    useEffect(() => {
+        if (hovered) {
+            lottieRef.current?.goToAndPlay(0, true);
+        } else {
+            lottieRef.current?.stop();
+            lottieRef.current?.goToAndStop(0, true);
+        }
+    }, [hovered]);
 
     return (
         <div
             data-header-surface="dark"
             className="relative w-full aspect-[535/325] overflow-hidden bg-[#D7CFC2]"
-            onMouseEnter={handleEnter}
-            onMouseLeave={handleLeave}
         >
             {coverImage ? (
                 <Image
@@ -66,7 +63,7 @@ export default function InsightsPostThumbnail({
             {animationData ? (
                 <div
                     className={`pointer-events-none absolute inset-0 z-10 transition-opacity duration-300 ease-out ${
-                        hovering ? "opacity-100" : "opacity-0"
+                        hovered ? "opacity-100" : "opacity-0"
                     }`}
                     aria-hidden
                 >
