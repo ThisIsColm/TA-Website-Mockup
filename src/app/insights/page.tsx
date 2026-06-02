@@ -74,14 +74,16 @@ export default async function InsightsPage() {
     return (
         <section
             data-header-surface="white"
-            className="bg-white pt-[100px] md:pt-[110px] pb-[100px] md:pb-[140px]"
+            className="insights-page-bg pt-[100px] md:pt-[110px] pb-[100px] md:pb-[140px]"
         >
             <Container>
                 <header className="flex flex-col items-center text-center">
                     <InsightsIntroIcon
                         className="text-accent h-[clamp(72px,18vw,204px)] w-[clamp(72px,18vw,204px)]"
                     />
-                    <p className={`text-black ${typeClass("insights.introTagline")}`}>
+                    <p
+                        className={`text-accent uppercase ${typeClass("insights.introTagline")}`}
+                    >
                         The thinking
                         <br />
                         behind the work

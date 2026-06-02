@@ -250,19 +250,20 @@ const contact = {
 
 const insights = {
     introTagline: {
-        size: 30,
-        mobile: 14,
-        weight: 300,
-        lineHeight: 39,
-        font: "dmMono",
+        size: 96,
+        mobile: 52,
+        weight: 800,
+        lineHeightRatio: 0.8,
+        letterSpacing: -0.0625,
+        font: "tenon",
     },
     listTitle: {
-        size: 76,
-        mobile: 24,
-        weight: 800,
+        size: 60,
+        mobile: 32,
+        weight: 500,
         lineHeightRatio: 1,
-        letterSpacing: -0.02,
-        font: "tenon",
+        letterSpacing: 0,
+        font: "dmMono",
     },
     listAuthor: {
         size: 30,

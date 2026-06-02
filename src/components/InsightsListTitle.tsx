@@ -24,7 +24,6 @@ interface TitleLine {
     width: number;
     top: number;
     lineHeight: number;
-    squiggleHeight: number;
     band: "top" | "bottom";
 }
 
@@ -67,10 +66,6 @@ function measureTitleLines(
         const width = right - left;
         const lineHeight = bottom - top;
 
-        const fullSpriteHeight =
-            width * (INSIGHTS_SQUIGGLE_ASPECT.height / INSIGHTS_SQUIGGLE_ASPECT.width);
-        const bandHeight = fullSpriteHeight / INSIGHTS_SQUIGGLE_ASPECT.bands;
-
         const band: TitleLine["band"] =
             lineCount === 2 && index === 1 ? "bottom" : "top";
 
@@ -79,7 +74,6 @@ function measureTitleLines(
             width,
             top: top - containerRect.top,
             lineHeight,
-            squiggleHeight: bandHeight,
             band,
         };
     });
@@ -148,6 +142,15 @@ export default function InsightsListTitle({
         if (!hovered) setFrame(0);
     }, [hovered]);
 
+    // Keep squiggle scale consistent across wrapped lines; short lines get clipped.
+    const squiggleReferenceWidth = Math.max(...lines.map((line) => line.width), 0);
+    const squiggleHeight =
+        squiggleReferenceWidth > 0
+            ? (squiggleReferenceWidth *
+                  (INSIGHTS_SQUIGGLE_ASPECT.height / INSIGHTS_SQUIGGLE_ASPECT.width)) /
+              INSIGHTS_SQUIGGLE_ASPECT.bands
+            : 0;
+
     return (
         <div
             ref={containerRef}
@@ -173,17 +176,17 @@ export default function InsightsListTitle({
                         left: line.left,
                         top: Math.max(
                             line.top,
-                            line.top + 16 + line.lineHeight - line.squiggleHeight
+                            line.top + 16 + line.lineHeight - squiggleHeight
                         ),
                         width: line.width,
-                        height: line.squiggleHeight,
+                        height: squiggleHeight,
                     }}
                 >
                     <div
                         className="h-full w-full bg-no-repeat"
                         style={{
                             backgroundImage: `url(${INSIGHTS_TITLE_SQUIGGLE_FRAMES[frame]})`,
-                            backgroundSize: `${line.width}px auto`,
+                            backgroundSize: `${squiggleReferenceWidth}px auto`,
                             backgroundPosition:
                                 line.band === "bottom" ? "left bottom" : "left top",
                         }}

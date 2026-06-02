@@ -2,11 +2,31 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import {
+    DotLottieReact,
+    type DotLottie,
+} from "@lottiefiles/dotlottie-react";
+import { HERO_LOADING_LOTTIE, HERO_LOADING_POSTER } from "@/lib/heroLottie";
 
 const VIMEO_ORIGIN = "https://player.vimeo.com";
+/** One frame at 30fps — poster is frame 0, so reveal while still at the start. */
+const FRAME_ZERO_SECONDS = 1 / 30;
+const POSTER_COLOR_FADE_MS = 1800;
+
+interface VimeoMessage {
+    event?: string;
+    data?: { seconds?: number };
+}
 
 function vimeoMessage(payload: Record<string, unknown>) {
     return JSON.stringify(payload);
+}
+
+/** Wait for the browser to paint the iframe before removing the matching poster. */
+function afterNextPaint(callback: () => void) {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(callback);
+    });
 }
 
 interface VideoHeroProps {
@@ -21,23 +41,65 @@ export default function VideoHero({
     vimeoId,
     vimeoHash,
     title = "Background Video",
-    posterSrc = "/images/Hero-Loading_V1.png",
+    posterSrc = HERO_LOADING_POSTER,
 }: VideoHeroProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const [videoReady, setVideoReady] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(true);
+    const [posterInColor, setPosterInColor] = useState(false);
+    const [lottieComplete, setLottieComplete] = useState(false);
+    const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
+
+    const vimeoReadyRef = useRef(false);
+    const playStartedRef = useRef(false);
     const revealedRef = useRef(false);
 
-    const revealVideo = useCallback(() => {
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setPosterInColor(true));
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
+    useEffect(() => {
+        if (!dotLottie) return;
+
+        const onComplete = () => setLottieComplete(true);
+        dotLottie.addEventListener("complete", onComplete);
+        return () => dotLottie.removeEventListener("complete", onComplete);
+    }, [dotLottie]);
+
+    const revealPoster = useCallback(() => {
         if (revealedRef.current) return;
         revealedRef.current = true;
-        setVideoReady(true);
+        afterNextPaint(() => setShowOverlay(false));
     }, []);
+
+    const startVideo = useCallback(() => {
+        if (playStartedRef.current) return;
+        playStartedRef.current = true;
+
+        const win = iframeRef.current?.contentWindow;
+        if (!win) return;
+
+        win.postMessage(
+            vimeoMessage({ method: "setCurrentTime", value: 0 }),
+            VIMEO_ORIGIN
+        );
+        win.postMessage(vimeoMessage({ method: "play" }), VIMEO_ORIGIN);
+    }, []);
+
+    const tryStartVideo = useCallback(() => {
+        if (!lottieComplete || !vimeoReadyRef.current) return;
+        startVideo();
+    }, [lottieComplete, startVideo]);
+
+    useEffect(() => {
+        tryStartVideo();
+    }, [tryStartVideo]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.origin !== VIMEO_ORIGIN) return;
 
-            let data: { event?: string; method?: string };
+            let data: VimeoMessage;
             try {
                 data = JSON.parse(event.data);
             } catch {
@@ -48,30 +110,50 @@ export default function VideoHero({
             if (!win) return;
 
             if (data.event === "ready") {
+                vimeoReadyRef.current = true;
                 win.postMessage(
-                    vimeoMessage({ method: "addEventListener", value: "play" }),
+                    vimeoMessage({ method: "setCurrentTime", value: 0 }),
                     VIMEO_ORIGIN
                 );
+                for (const value of ["playing", "timeupdate"] as const) {
+                    win.postMessage(
+                        vimeoMessage({ method: "addEventListener", value }),
+                        VIMEO_ORIGIN
+                    );
+                }
+                tryStartVideo();
             }
 
-            // Only drop the poster once playback has started (iframe has real frames)
-            if (data.event === "play") {
-                revealVideo();
+            if (!playStartedRef.current) return;
+
+            if (data.event === "playing") {
+                revealPoster();
+            }
+
+            if (
+                data.event === "timeupdate" &&
+                typeof data.data?.seconds === "number" &&
+                data.data.seconds <= FRAME_ZERO_SECONDS
+            ) {
+                revealPoster();
             }
         };
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [revealVideo]);
+    }, [revealPoster, tryStartVideo]);
 
-    // Safety net only — should not be the primary path
     useEffect(() => {
-        const fallback = window.setTimeout(revealVideo, 4000);
+        const fallback = window.setTimeout(() => {
+            setLottieComplete(true);
+            startVideo();
+            revealPoster();
+        }, 6000);
         return () => window.clearTimeout(fallback);
-    }, [revealVideo]);
+    }, [revealPoster, startVideo]);
 
     const hashParam = vimeoHash ? `h=${vimeoHash}&` : "";
-    const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&api=1`;
+    const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=0&loop=1&muted=1&playsinline=1&autopause=0&api=1`;
 
     return (
         <section
@@ -88,27 +170,36 @@ export default function VideoHero({
                 />
             </div>
 
-            {/* Poster stays until play — then removed instantly (no fade through black) */}
-            {!videoReady && (
+            {showOverlay && (
                 <div className="absolute inset-0 z-20">
                     <Image
                         src={posterSrc}
                         alt=""
                         fill
                         priority
-                        className="object-cover"
+                        unoptimized
+                        className={`object-cover transition-[filter] ease-out motion-reduce:transition-none ${
+                            posterInColor
+                                ? "grayscale-0 brightness-100"
+                                : "grayscale brightness-50"
+                        }`}
+                        style={{ transitionDuration: `${POSTER_COLOR_FADE_MS}ms` }}
                         sizes="100vw"
                     />
 
-                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5">
-                        <div
-                            className="h-10 w-10 animate-spin rounded-full border-2 border-white/25 border-t-white"
-                            role="status"
-                            aria-label="Loading video"
+                    <div
+                        className="absolute inset-0 z-30 flex items-center justify-center"
+                        role="status"
+                        aria-label="Loading video"
+                    >
+                        <DotLottieReact
+                            src={HERO_LOADING_LOTTIE}
+                            loop={false}
+                            autoplay
+                            dotLottieRefCallback={setDotLottie}
+                            aria-hidden
+                            className="h-[clamp(96px,12vw,160px)] w-[clamp(96px,12vw,160px)]"
                         />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/80">
-                            Loading
-                        </span>
                     </div>
                 </div>
             )}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Resize and compress team photos + contact image for web.
+Resize and compress team photos (including tape overlays) + contact image for web.
 
-Your sources are very large (e.g. 4000×6000 team JPGs ~20MB each).
+Your sources are very large (e.g. 4000×6000 team JPGs/PNGs, 2700×4100 tape PNGs).
 This script produces web-ready files sized for how they appear on the site.
 
 Setup:
@@ -16,13 +16,10 @@ Examples:
     python scripts/optimize_images.py --dry-run
 
     # Write optimized copies (safe — originals untouched)
-    python scripts/optimize_images.py
+    python scripts/optimize_images.py --webp
 
     # Replace originals in public/ (backs up to public/images/_originals_backup)
-    python scripts/optimize_images.py --replace
-
-    # Also emit WebP alongside JPEG (optional; site currently uses .jpg paths)
-    python scripts/optimize_images.py --webp
+    python scripts/optimize_images.py --replace --webp
 """
 
 from __future__ import annotations
@@ -40,9 +37,13 @@ except ImportError:
 
 # Match display sizes on the About page (2:3 portraits, wide contact shot)
 TEAM_MAX_WIDTH = 800
+TAPE_MAX_WIDTH = 800
 CONTACT_MAX_WIDTH = 1600
 JPEG_QUALITY = 85
 WEBP_QUALITY = 85
+PNG_COMPRESS_LEVEL = 9
+
+RASTER_SUFFIXES = {".jpg", ".jpeg", ".png"}
 
 
 def repo_root() -> Path:
@@ -84,9 +85,46 @@ def save_jpeg(img: Image.Image, dest: Path, quality: int) -> None:
     )
 
 
+def save_png(img: Image.Image, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    img.save(
+        dest,
+        format="PNG",
+        optimize=True,
+        compress_level=PNG_COMPRESS_LEVEL,
+    )
+
+
 def save_webp(img: Image.Image, dest: Path, quality: int) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     img.save(dest, format="WEBP", quality=quality, method=6)
+
+
+def collect_team_sources(team_dir: Path) -> list[tuple[Path, int, str]]:
+    """Return (source path, max width, label) for team portraits and tape overlays."""
+    entries: list[tuple[Path, int, str]] = []
+    seen: set[str] = set()
+
+    def add(path: Path, max_width: int, label: str) -> None:
+        key = str(path.resolve()).lower()
+        if key in seen or not path.is_file():
+            return
+        if path.suffix.lower() not in RASTER_SUFFIXES:
+            return
+        seen.add(key)
+        entries.append((path, max_width, label))
+
+    for pattern in ("*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.png", "*.PNG"):
+        for path in sorted(team_dir.glob(pattern)):
+            add(path, TEAM_MAX_WIDTH, "portrait")
+
+    tape_dir = team_dir / "tape"
+    if tape_dir.is_dir():
+        for pattern in ("*.png", "*.PNG"):
+            for path in sorted(tape_dir.glob(pattern)):
+                add(path, TAPE_MAX_WIDTH, "tape")
+
+    return entries
 
 
 def process_file(
@@ -103,20 +141,34 @@ def process_file(
         return None
 
     before = src.stat().st_size
+    suffix = src.suffix.lower()
+
     if dry_run:
         with Image.open(src) as img:
             out = resize_image(img, max_width)
             w, h = out.size
-        print(f"  {src.name}: {human_size(before)} → ~{w}×{h}px (dry run)")
+        try:
+            rel_name = src.relative_to(src.parents[2 if src.parent.name == "tape" else 1])
+        except ValueError:
+            rel_name = src.name
+        print(f"  {rel_name}: {human_size(before)} → ~{w}×{h}px (dry run)")
         return before, before
 
     with Image.open(src) as img:
         out = resize_image(img, max_width)
-        save_jpeg(out, dest, jpeg_quality)
+        if suffix in {".jpg", ".jpeg"}:
+            save_jpeg(out, dest, jpeg_quality)
+        else:
+            save_png(out, dest)
         if webp:
             save_webp(out, dest.with_suffix(".webp"), WEBP_QUALITY)
 
     after = dest.stat().st_size
+    if webp:
+        webp_path = dest.with_suffix(".webp")
+        if webp_path.is_file():
+            after += webp_path.stat().st_size
+
     return before, after
 
 
@@ -132,6 +184,10 @@ def backup_sources(paths: list[Path], backup_root: Path, dry_run: bool) -> None:
         target = backup_root / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, target)
+        webp = src.with_suffix(".webp")
+        if webp.is_file():
+            webp_rel = webp.relative_to(images_root)
+            shutil.copy2(webp, backup_root / webp_rel)
 
 
 def main() -> None:
@@ -140,7 +196,7 @@ def main() -> None:
         "--team-dir",
         type=Path,
         default=repo_root() / "public" / "images" / "team",
-        help="Folder with team *.jpg files",
+        help="Folder with team portrait files (and tape/ subfolder)",
     )
     parser.add_argument(
         "--contact",
@@ -177,6 +233,12 @@ def main() -> None:
         help=f"Max width for team portraits (default {TEAM_MAX_WIDTH})",
     )
     parser.add_argument(
+        "--tape-max-width",
+        type=int,
+        default=TAPE_MAX_WIDTH,
+        help=f"Max width for tape overlays (default {TAPE_MAX_WIDTH})",
+    )
+    parser.add_argument(
         "--contact-max-width",
         type=int,
         default=CONTACT_MAX_WIDTH,
@@ -196,18 +258,11 @@ def main() -> None:
     args.out_team_dir = resolve_in_repo(args.out_team_dir)
     args.out_contact = resolve_in_repo(args.out_contact)
 
-    team_sources = sorted(args.team_dir.glob("*.jpg")) + sorted(args.team_dir.glob("*.JPG"))
-    # Deduplicate case-insensitive filesystems
-    seen: set[str] = set()
-    team_files: list[Path] = []
-    for p in team_sources:
-        key = p.name.lower()
-        if key not in seen:
-            seen.add(key)
-            team_files.append(p)
+    team_entries = collect_team_sources(args.team_dir)
+    team_files = [path for path, _, _ in team_entries]
 
-    if not team_files:
-        print(f"No .jpg files in {args.team_dir}", file=sys.stderr)
+    if not team_entries:
+        print(f"No team images in {args.team_dir}", file=sys.stderr)
 
     backup_root = repo_root() / "public" / "images" / "_originals_backup"
     to_backup: list[Path] = list(team_files)
@@ -222,13 +277,21 @@ def main() -> None:
     total_after = 0
     count = 0
 
-    print(f"\nTeam photos ({len(team_files)} files, max width {args.team_max_width}px)")
-    for src in team_files:
-        dest = src if args.replace else args.out_team_dir / src.name
+    print(
+        f"\nTeam photos ({len(team_entries)} files, portraits ≤{args.team_max_width}px, tape ≤{args.tape_max_width}px)"
+    )
+    for src, default_max_width, label in team_entries:
+        max_width = args.tape_max_width if label == "tape" else args.team_max_width
+        if args.replace:
+            dest = src
+        else:
+            rel = src.relative_to(args.team_dir)
+            dest = args.out_team_dir / rel
+
         result = process_file(
             src,
             dest,
-            args.team_max_width,
+            max_width,
             jpeg_quality=args.quality,
             webp=args.webp,
             dry_run=args.dry_run,
@@ -239,14 +302,11 @@ def main() -> None:
             total_after += a if not args.dry_run else b
             count += 1
             if not args.dry_run:
-                print(f"  {src.name}: {human_size(b)} → {human_size(a)}")
+                rel_name = src.relative_to(args.team_dir)
+                print(f"  {rel_name}: {human_size(b)} → {human_size(a)}")
 
     if args.contact.is_file():
-        contact_dest = (
-            args.contact
-            if args.replace
-            else args.out_contact
-        )
+        contact_dest = args.contact if args.replace else args.out_contact
         print(f"\nContact photo (max width {args.contact_max_width}px)")
         result = process_file(
             args.contact,
@@ -264,7 +324,7 @@ def main() -> None:
             if not args.dry_run:
                 print(f"  {args.contact.name}: {human_size(b)} → {human_size(a)}")
     else:
-        print(f"\nContact photo not found: {args.contact}", file=sys.stderr)
+        print(f"\nContact photo not found (skipped): {args.contact}")
 
     print("\n---")
     if args.dry_run:

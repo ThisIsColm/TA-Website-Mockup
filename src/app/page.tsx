@@ -5,6 +5,7 @@ import Link from "next/link";
 import { typeClass } from "@/lib/typographyStyles";
 import ProjectCard from "@/components/ProjectCard";
 import VideoHero from "@/components/VideoHero";
+import { HERO_LOADING_POSTER } from "@/lib/heroLottie";
 import WorkTogetherCta from "@/components/WorkTogetherCta";
 import { getFeaturedProjects } from "@/lib/data";
 import { Project } from "@/types";
@@ -50,6 +51,20 @@ const HERO_VIMEO_HASH = "64a496fc25";
 // and scales proportionally at every viewport width.
 const OUTER = "px-[5.625vw]";
 
+/**
+ * Typewriter scroll timing — how far through this section's scroll window (0–1)
+ * before the last word is revealed.
+ *
+ * Lower = finishes earlier (less scrolling). Higher = finishes later (more scrolling).
+ *
+ * Examples (approximate feel):
+ *   0.35 → done well before the section centres in the viewport
+ *   0.50 → done around when the section top hits the viewport top (old `* 2` behaviour)
+ *   0.70 → need to scroll further into the section before the last word appears
+ *   1.00 → entire section must pass through before the last word appears
+ */
+const TYPEWRITER_FINISH_AT = 0.35;
+
 // About copy split into blocks. The typewriter reveal runs across all blocks
 // as a single word sequence.
 const ABOUT_PARAGRAPHS = [
@@ -73,14 +88,15 @@ function TypewriterSection() {
         const sectionHeight = rect.height;
         const viewportHeight = window.innerHeight;
 
-        // sectionTop positive = section below viewport top (scrolled up out of view)
-        // sectionTop negative = section above viewport top (scrolled past)
-        // When sectionTop = viewportHeight, section top is at viewport bottom (just entering)
-        // When sectionTop = -sectionHeight, section bottom is at viewport top (just passed)
+        // Progress 0 → 1 as the section travels from below the viewport to above it.
         const totalScrollDistance = viewportHeight + sectionHeight;
+        const rawProgress = Math.max(
+            0,
+            Math.min(1, (viewportHeight - sectionTop) / totalScrollDistance)
+        );
         const scrollProgress = Math.max(
             0,
-            Math.min(1, ((viewportHeight - sectionTop) / totalScrollDistance) * 2)
+            Math.min(1, rawProgress / TYPEWRITER_FINISH_AT)
         );
 
         const count = Math.floor(scrollProgress * totalWords);
@@ -92,6 +108,29 @@ function TypewriterSection() {
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
+
+    const renderWordWithLigature = (word: string) => {
+        // Keep this one requested micro-typographic tweak local to "fluff".
+        if (!word.toLowerCase().startsWith("fluff")) return word;
+
+        const stem = word.slice(0, 5); // "fluff"
+        const suffix = word.slice(5); // punctuation, if any
+
+        return (
+            <>
+                {stem.slice(0, 4)}
+                <span
+                    style={{
+                        fontVariantLigatures: "common-ligatures",
+                        fontFeatureSettings: '"liga" 1, "clig" 1',
+                    }}
+                >
+                    {stem.slice(4)}
+                </span>
+                {suffix}
+            </>
+        );
+    };
 
     return (
         <section
@@ -132,7 +171,7 @@ function TypewriterSection() {
                                                 transition: "opacity 0.1s ease",
                                             }}
                                         >
-                                            {word}
+                                            {renderWordWithLigature(word)}
                                         </span>
                                     );
                                 })}
@@ -185,6 +224,7 @@ export default function HomePage() {
                 vimeoId={HERO_VIMEO_ID}
                 vimeoHash={HERO_VIMEO_HASH}
                 title="Tiny Ark showreel"
+                posterSrc={HERO_LOADING_POSTER}
             />
 
             {/* ── About intro (scroll typewriter) ─────────────────────────── */}

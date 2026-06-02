@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Container from "@/components/Container";
 import WorkTogetherCta from "@/components/WorkTogetherCta";
-import RotatingTagline from "./RotatingTagline";
+import WorkWithUsCards from "./WorkWithUsCards";
 import TeamCard, { type TeamCardProps } from "./TeamCard";
 import { typeClass } from "@/lib/typographyStyles";
 
@@ -17,20 +17,11 @@ export const metadata: Metadata = {
     },
 };
 
-const SERVICES = [
-    "Concept Development",
-    "Research",
-    "Production MGMT",
-    "Travel Coordination",
-    "Remote & Live Editing",
-    "Motion Design",
-];
-
 /**
  * Team grid:
  * - `photoPrefix` → `_001.webp` (default) + `_002` (hover) via `getTeamPhotoPair`.
  * - `photos` for explicit [default, hover] paths when filenames differ.
- * - `tapeKey` maps to `/images/team/tape/Tape_{key}.png`.
+ * - `tapeKey` maps to `/images/team/tape/{key}_Tape.webp`.
  */
 const TEAM: TeamCardProps[] = [
     { nameLabel: "Nathan Reilly", role: "CEO", photoPrefix: "Nathan", tapeKey: "Nathan" },
@@ -97,8 +88,6 @@ const TEAM: TeamCardProps[] = [
     },
 ];
 
-const BEIGE = "#EAE4DD";
-
 export default function AboutPage() {
     return (
         <div className="bg-white text-black">
@@ -140,41 +129,8 @@ export default function AboutPage() {
                 </Container>
             </section>
 
-            {/* ── Services / Capabilities (beige band) ───────────────── */}
-            <section
-                data-header-surface="neutral"
-                style={{ backgroundColor: BEIGE }}
-                className="pt-[60px] md:pt-[80px] pb-[60px] md:pb-[100px]"
-            >
-                <Container>
-                    <div className="grid grid-cols-6 gap-[5px] items-start">
-                        <div className="col-span-6 md:col-span-3">
-                            <RotatingTagline />
-                        </div>
-
-                        <div
-                            data-header-surface="white"
-                            className="col-span-6 md:col-span-3 bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]"
-                        >
-                            <div className="min-w-0 w-full">
-                                <p className={`text-black ${typeClass("about.serviceCardBody")}`}>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                    sed do eiusmod tempor incididunt ut labore et dolore
-                                    magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                    exercitation ullamco.
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[5px] gap-y-[8px]">
-                                {SERVICES.map((s) => (
-                                    <div key={s} className="min-w-0">
-                                        <ServicePill label={s} />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </Container>
-            </section>
+            {/* ── Services / Capabilities (beige band, interactive cards) ─ */}
+            <WorkWithUsCards />
 
             {/* ── Our people (team grid) ─────────────────────────────── */}
             <section
@@ -224,25 +180,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
         <h2 className={`text-black ${typeClass("about.sectionHeading")}`}>
             {children}
         </h2>
-    );
-}
-
-function ServicePill({ label }: { label: string }) {
-    return (
-        <div
-            className={`flex w-full min-w-0 flex-wrap sm:flex-nowrap items-center justify-start gap-[0.35em] overflow-hidden rounded-full border-2 border-accent px-[0.65em] py-[0.32em] text-accent ${typeClass("about.servicePill")}`}
-        >
-            <span
-                aria-hidden="true"
-                className="inline-block shrink-0 rounded-full bg-accent"
-                style={{
-                    width: "0.32em",
-                    height: "0.32em",
-                }}
-            />
-            {/* Single line — ellipsis only if label is wider than pill */}
-            <span className="min-w-0 flex-1 sm:truncate">{label}</span>
-        </div>
     );
 }
 

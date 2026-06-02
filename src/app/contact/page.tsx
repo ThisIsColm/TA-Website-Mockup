@@ -60,10 +60,9 @@ export default function ContactPage() {
                                 email="gabi@tinyark.com"
                             />
                             <address
-                                className={`not-italic text-[#353535] ${typeClass("contact.address")}`}
+                                className={`not-italic text-[#8C8C8C] ${typeClass("contact.address")}`}
                             >
-                                Tiny Ark
-                                <br />
+
                                 43 Talbot St
                                 <br />
                                 Mountjoy
@@ -71,8 +70,6 @@ export default function ContactPage() {
                                 Dublin 1
                                 <br />
                                 D01 KOE8
-                                <br />
-                                Ireland
                             </address>
                         </div>
                     </div>

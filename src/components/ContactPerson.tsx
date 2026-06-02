@@ -18,7 +18,7 @@ export default function ContactPerson({
             <p className={`text-black ${typeClass("contact.personName")}`}>
                 {name}
             </p>
-            <p className={`text-[#353535] ${typeClass("contact.personTitle")}`}>
+            <p className={`text-[#8C8C8C] ${typeClass("contact.personTitle")}`}>
                 {title}
             </p>
             <a

@@ -8,7 +8,7 @@ import { typeClass } from "@/lib/typographyStyles";
 export interface TeamCardProps {
     role: string;
     nameLabel?: string;
-    /** Key for `/images/team/tape/Tape_{key}.png` (e.g. "Mark", "Beatriz", "AJ"). */
+    /** Key for `/images/team/tape/{key}_Tape.webp` (e.g. "Mark", "Beatriz", "AJ"). */
     tapeKey?: string;
     /** [default, hover] — takes precedence over `photoPrefix`. */
     photos?: [string, string] | string[];
@@ -16,8 +16,8 @@ export interface TeamCardProps {
     photoPrefix?: string;
 }
 
-const TAPE_W = 280;
-const TAPE_H = 320;
+const TAPE_W = 800;
+const TAPE_H = 1200;
 
 export default function TeamCard({
     role,
@@ -40,7 +40,7 @@ export default function TeamCard({
     const displayName = (nameLabel?.trim() || role).trim();
     const photoAlt = `Portrait of ${displayName}`;
 
-    const tapeSrc = tapeKey ? `/images/team/tape/Tape_${tapeKey}.png` : null;
+    const tapeSrc = tapeKey ? `/images/team/tape/${tapeKey}_Tape.webp` : null;
 
     return (
         <div className="flex flex-col">

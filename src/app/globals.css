@@ -210,6 +210,15 @@ html.lenis body {
   background-image: linear-gradient(90deg, currentColor 0%, currentColor 78%, transparent 100%);
 }
 
+/* Insights listing page background from design handoff */
+.insights-page-bg {
+  background-color: #ffffff;
+  background-image: url("/images/Graph0-Dash-HD.png");
+  background-repeat: repeat-y;
+  background-position: top center;
+  background-size: 100% auto;
+}
+
 /* ── Case Study Layout ──────────────────────────────────── */
 /*
  * Editorial layout for individual case-study pages. Mirrors the homepage
