@@ -198,14 +198,18 @@ export default function AdminPage() {
         }
     };
 
-    const fetchPosts = useCallback(async (query = "") => {
+    const fetchPosts = useCallback(async (query = "", refresh = false) => {
         setLoading(true);
         setGhostError("");
         try {
             const params = new URLSearchParams();
             if (query) params.set("search", query);
+            if (refresh) params.set("refresh", "1");
             params.set("limit", "100");
-            const res = await fetch(`/api/ghost/posts?${params.toString()}`);
+            const res = await fetch(
+                `/api/ghost/posts?${params.toString()}`,
+                refresh ? { cache: "no-store" } : undefined
+            );
             if (res.status === 401) {
                 setAuthed(false);
                 return;
@@ -213,6 +217,9 @@ export default function AdminPage() {
             if (!res.ok) throw new Error("Fetch failed");
             const data = await res.json();
             setPosts(data.posts || []);
+            if (refresh) {
+                showToast(`Loaded ${data.posts?.length ?? 0} posts from Ghost`);
+            }
         } catch (err) {
             setGhostError("Could not load posts from Ghost.");
             console.error(err);
@@ -561,11 +568,21 @@ export default function AdminPage() {
                 <div className={`${styles.grid} min-h-0`}>
                     {/* ── Ghost library ───────────────────────────────────── */}
                     <div className="lg:col-span-1 flex flex-col min-h-0 h-full">
-                        <div className="mb-3">
-                            <h2 className="text-lg font-bold text-white">Ghost library</h2>
-                            <p className="text-xs text-white/40 mt-1">
-                                All published posts from Ghost CMS
-                            </p>
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-bold text-white">Ghost library</h2>
+                                <p className="text-xs text-white/40 mt-1">
+                                    All published posts from Ghost CMS
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => fetchPosts(search, true)}
+                                disabled={loading}
+                                className={`${styles.btnGhost} shrink-0`}
+                            >
+                                {loading ? "Refreshing…" : "Refresh from Ghost"}
+                            </button>
                         </div>
                         <input
                             type="text"

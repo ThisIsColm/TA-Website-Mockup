@@ -75,6 +75,15 @@ function setCache<T>(key: string, data: T): void {
     cache.set(key, { data, timestamp: Date.now() });
 }
 
+/** Clear in-memory Ghost cache (used by admin refresh). */
+export function clearGhostCache(): void {
+    cache.clear();
+}
+
+interface FetchGhostOptions {
+    refresh?: boolean;
+}
+
 // ── API helpers ───────────────────────────────────────────────────
 
 function ghostApiUrl(endpoint: string, params: Record<string, string> = {}): string {
@@ -92,13 +101,16 @@ function ghostApiUrl(endpoint: string, params: Record<string, string> = {}): str
 export async function fetchGhostPosts(
     page = 1,
     limit = 15,
-    filter?: string
+    filter?: string,
+    options: FetchGhostOptions = {}
 ): Promise<GhostPostsResponse> {
+    const { refresh = false } = options;
     const cacheKey = `posts:${page}:${limit}:${filter || ""}`;
 
-    // Check cache first
-    const cached = getCached<GhostPostsResponse>(cacheKey);
-    if (cached) return cached;
+    if (!refresh) {
+        const cached = getCached<GhostPostsResponse>(cacheKey);
+        if (cached) return cached;
+    }
 
     const params: Record<string, string> = {
         page: String(page),
@@ -110,9 +122,12 @@ export async function fetchGhostPosts(
     if (filter) params.filter = filter;
 
     try {
-        const res = await fetch(ghostApiUrl("posts", params), {
-            next: { revalidate: config.cache.ttlSeconds },
-        });
+        const res = await fetch(
+            ghostApiUrl("posts", params),
+            refresh
+                ? { cache: "no-store" }
+                : { next: { revalidate: config.cache.ttlSeconds } }
+        );
 
         if (!res.ok) {
             throw new Error(`Ghost API error: ${res.status} ${res.statusText}`);
@@ -142,17 +157,22 @@ export async function fetchGhostPosts(
 /**
  * Fetch ALL posts from Ghost (paginated internally) for search.
  */
-export async function fetchAllGhostPosts(): Promise<GhostPost[]> {
+export async function fetchAllGhostPosts(
+    options: FetchGhostOptions = {}
+): Promise<GhostPost[]> {
+    const { refresh = false } = options;
     const cacheKey = "all-posts";
-    const cached = getCached<GhostPost[]>(cacheKey);
-    if (cached) return cached;
+    if (!refresh) {
+        const cached = getCached<GhostPost[]>(cacheKey);
+        if (cached) return cached;
+    }
 
     const allPosts: GhostPost[] = [];
     let page = 1;
     let totalPages = 1;
 
     while (page <= totalPages) {
-        const res = await fetchGhostPosts(page, 100);
+        const res = await fetchGhostPosts(page, 100, undefined, { refresh });
         allPosts.push(...res.posts);
         totalPages = res.meta.pagination.pages;
         page++;
@@ -165,8 +185,11 @@ export async function fetchAllGhostPosts(): Promise<GhostPost[]> {
 /**
  * Search Ghost posts by title, slug, or tag name.
  */
-export async function searchGhostPosts(query: string): Promise<GhostPost[]> {
-    const all = await fetchAllGhostPosts();
+export async function searchGhostPosts(
+    query: string,
+    options: FetchGhostOptions = {}
+): Promise<GhostPost[]> {
+    const all = await fetchAllGhostPosts(options);
     const q = query.toLowerCase();
 
     return all.filter(

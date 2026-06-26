@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
-import { fetchGhostPosts, searchGhostPosts } from "@/lib/ghost";
+import { clearGhostCache, fetchGhostPosts, searchGhostPosts } from "@/lib/ghost";
 import { getPostMetadata } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
@@ -18,11 +18,18 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const refresh =
+        searchParams.get("refresh") === "1" ||
+        searchParams.get("refresh") === "true";
 
     try {
+        if (refresh) {
+            clearGhostCache();
+        }
+
         if (search) {
             // Search locally after fetching all posts
-            const posts = await searchGhostPosts(search);
+            const posts = await searchGhostPosts(search, { refresh });
             const postsWithMeta = posts.map(p => {
                 const meta = getPostMetadata(p.id);
                 return {
@@ -49,7 +56,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Standard paginated fetch
-        const data = await fetchGhostPosts(page, limit);
+        const data = await fetchGhostPosts(page, limit, undefined, { refresh });
         const postsWithMeta = data.posts.map((p: any) => {
             const meta = getPostMetadata(p.id);
             return {
