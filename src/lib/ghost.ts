@@ -203,12 +203,27 @@ export async function searchGhostPosts(
 /**
  * Fetch specific posts by IDs. Returns them in the same order as the input IDs.
  * Missing posts (deleted/unpublished) are omitted with a console warning.
+ *
+ * Fetches directly from Ghost by ID rather than loading the full post catalog,
+ * so newly published curated posts appear without waiting on the all-posts cache.
  */
-export async function fetchPostsByIds(ids: string[]): Promise<GhostPost[]> {
+export async function fetchPostsByIds(
+    ids: string[],
+    options: FetchGhostOptions = {}
+): Promise<GhostPost[]> {
     if (ids.length === 0) return [];
 
-    const all = await fetchAllGhostPosts();
-    const postMap = new Map(all.map((p) => [p.id, p]));
+    const fetchedPosts: GhostPost[] = [];
+    const BATCH_SIZE = 50;
+
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+        const batch = [...new Set(ids.slice(i, i + BATCH_SIZE))];
+        const filter = `id:[${batch.join(",")}]`;
+        const res = await fetchGhostPosts(1, Math.max(batch.length, 1), filter, options);
+        fetchedPosts.push(...res.posts);
+    }
+
+    const postMap = new Map(fetchedPosts.map((p) => [p.id, p]));
 
     const result: GhostPost[] = [];
     for (const id of ids) {
@@ -216,7 +231,9 @@ export async function fetchPostsByIds(ids: string[]): Promise<GhostPost[]> {
         if (post) {
             result.push(post);
         } else {
-            console.warn(`[ghost] Curated post ID "${id}" not found — may have been deleted/unpublished`);
+            console.warn(
+                `[ghost] Curated post ID "${id}" not found — may have been deleted/unpublished`
+            );
         }
     }
 

@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { getSelections, saveSelections, getPostMetadata } from "@/lib/db";
-import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
+import { clearGhostCache, fetchPostsByIds, GhostPost } from "@/lib/ghost";
 
 // ── Section keys ─────────────────────────────────────────────────
 
@@ -113,6 +113,8 @@ export async function POST(request: NextRequest) {
         }
 
         let savedCount = 0;
+
+        clearGhostCache();
 
         for (const sectionKey of SECTIONS) {
             if (body[sectionKey] !== undefined) {
