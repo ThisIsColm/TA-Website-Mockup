@@ -159,11 +159,19 @@ export default function AboutPage() {
                     <SectionHeading>People we work with</SectionHeading>
                     <div className="mt-[24px] md:mt-[32px] relative w-full">
                         <Image
+                            src="/images/Client%20Logos%203x4.png"
+                            alt="Brands and clients Tiny Ark has worked with"
+                            width={850}
+                            height={429}
+                            className="w-full h-auto md:hidden"
+                            sizes="100vw"
+                        />
+                        <Image
                             src="/images/Client_Logos.png"
                             alt="Brands and clients Tiny Ark has worked with"
-                            width={1200}
-                            height={300}
-                            className="w-full h-auto"
+                            width={3322}
+                            height={502}
+                            className="hidden w-full h-auto md:block"
                             sizes="(max-width: 768px) 100vw, 80vw"
                         />
                     </div>
