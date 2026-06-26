@@ -24,13 +24,14 @@ interface CuratedPost {
     director?: string;
     client?: string;
     vimeoId?: string;
+    workTitle?: string;
     previewStartTime?: number;
 }
 
 function ghostToProject(post: CuratedPost): Project {
     return {
         slug: post.slug,
-        title: post.title,
+        title: post.workTitle || post.title,
         excerpt: post.excerpt || "",
         coverImage: post.feature_image || "",
         tags: post.tags,

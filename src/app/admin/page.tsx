@@ -19,6 +19,7 @@ export type CuratedPost = GhostPost & {
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
     insightTitle?: string;
+    workTitle?: string;
     previewStartTime?: number;
 };
 
@@ -131,6 +132,7 @@ interface CurationApiPost {
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
     insightTitle?: string;
+    workTitle?: string;
     previewStartTime?: number;
     vimeoId?: string;
 }
@@ -161,6 +163,7 @@ export default function AdminPage() {
     const [editPreviewStart, setEditPreviewStart] = useState("");
     const [editInsightAuthor, setEditInsightAuthor] = useState("");
     const [editInsightTitle, setEditInsightTitle] = useState("");
+    const [editWorkTitle, setEditWorkTitle] = useState("");
     const [editingSectionKey, setEditingSectionKey] = useState<DashboardSectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
 
@@ -271,8 +274,9 @@ export default function AdminPage() {
         setEditingSectionKey(sectionKey);
         if (sectionKind(sectionKey) === "insight") {
             setEditInsightAuthor(post.insightAuthorId || "");
-            setEditInsightTitle(post.insightTitle || "");
+            setEditInsightTitle(post.insightTitle || post.title);
         } else {
+            setEditWorkTitle(post.workTitle || post.title);
             setEditDirector(post.director || "");
             setEditAgency(post.agency || "");
             setEditClient(post.client || "");
@@ -293,6 +297,16 @@ export default function AdminPage() {
             parsedStart != null && Number.isFinite(parsedStart) && parsedStart >= 0
                 ? parsedStart
                 : null;
+        const trimmedInsightTitle = editInsightTitle.trim();
+        const insightTitleForSave =
+            insight && trimmedInsightTitle === post.title.trim()
+                ? null
+                : trimmedInsightTitle || null;
+        const trimmedWorkTitle = editWorkTitle.trim();
+        const workTitleForSave =
+            !insight && trimmedWorkTitle === post.title.trim()
+                ? null
+                : trimmedWorkTitle || null;
         try {
             const res = await fetch("/api/metadata", {
                 method: "POST",
@@ -302,9 +316,10 @@ export default function AdminPage() {
                     data: insight
                         ? {
                               insightAuthorId: editInsightAuthor || null,
-                              insightTitle: editInsightTitle.trim() || null,
+                              insightTitle: insightTitleForSave,
                           }
                         : {
+                              workTitle: workTitleForSave,
                               director: editDirector,
                               agency: editAgency,
                               client: editClient,
@@ -323,10 +338,12 @@ export default function AdminPage() {
                                 ? {
                                       ...p,
                                       insightAuthorId: editInsightAuthor || undefined,
-                                      insightTitle: editInsightTitle.trim() || undefined,
+                                      insightTitle:
+                                          insightTitleForSave ?? undefined,
                                   }
                                 : {
                                       ...p,
+                                      workTitle: workTitleForSave ?? undefined,
                                       director: editDirector,
                                       agency: editAgency,
                                       client: editClient,
@@ -842,11 +859,14 @@ export default function AdminPage() {
                                                                             )}
                                                                             <div className="flex-1 min-w-0">
                                                                                 <p className="text-sm font-medium truncate">
-                                                                                    {post.insightTitle ||
+                                                                                    {(insight
+                                                                                        ? post.insightTitle
+                                                                                        : post.workTitle) ||
                                                                                         post.title}
                                                                                 </p>
-                                                                                {insight &&
-                                                                                post.insightTitle ? (
+                                                                                {(insight
+                                                                                    ? post.insightTitle
+                                                                                    : post.workTitle) ? (
                                                                                     <p className="text-xs text-white/25 truncate mt-0.5">
                                                                                         Ghost: {post.title}
                                                                                     </p>
@@ -944,8 +964,8 @@ export default function AdminPage() {
                                                                                                     }
                                                                                                 />
                                                                                                 <p className="text-[10px] text-text-tertiary mt-1">
-                                                                                                    Leave blank to use the
-                                                                                                    Ghost title.
+                                                                                                    Clear and save to revert
+                                                                                                    to the Ghost title.
                                                                                                 </p>
                                                                                             </div>
                                                                                             <div>
@@ -995,6 +1015,36 @@ export default function AdminPage() {
                                                                                         </>
                                                                                     ) : (
                                                                                         <>
+                                                                                            <div>
+                                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                    TITLE
+                                                                                                </label>
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    className={`${styles.input} !py-2`}
+                                                                                                    value={editWorkTitle}
+                                                                                                    onKeyDown={(e) =>
+                                                                                                        e.key ===
+                                                                                                            "Enter" &&
+                                                                                                        savePostMeta(
+                                                                                                            post,
+                                                                                                            key
+                                                                                                        )
+                                                                                                    }
+                                                                                                    onChange={(e) =>
+                                                                                                        setEditWorkTitle(
+                                                                                                            e.target.value
+                                                                                                        )
+                                                                                                    }
+                                                                                                    placeholder={
+                                                                                                        post.title
+                                                                                                    }
+                                                                                                />
+                                                                                                <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                                    Clear and save to revert
+                                                                                                    to the Ghost title.
+                                                                                                </p>
+                                                                                            </div>
                                                                                             <div className="flex flex-col gap-3">
                                                                                                 {(
                                                                                                     [

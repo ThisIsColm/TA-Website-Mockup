@@ -72,6 +72,9 @@ function migratePostMetadataColumns(database: Database.Database): void {
     if (!names.has("insight_title")) {
         database.exec("ALTER TABLE post_metadata ADD COLUMN insight_title TEXT");
     }
+    if (!names.has("work_title")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN work_title TEXT");
+    }
 }
 
 // ── Public API ───────────────────────────────────────────────────
@@ -144,6 +147,7 @@ export interface PostMetadata {
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
     insightTitle?: string;
+    workTitle?: string;
     previewStartTime?: number;
     updatedAt?: string;
 }
@@ -157,6 +161,7 @@ type MetadataRow = {
     credits_col5: string | null;
     insight_author_id: string | null;
     insight_title: string | null;
+    work_title: string | null;
     preview_start_time: number | null;
     updated_at: string;
 };
@@ -171,6 +176,7 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
         creditsCol5: parseCreditsJson(row.credits_col5),
         insightAuthorId: row.insight_author_id || undefined,
         insightTitle: row.insight_title || undefined,
+        workTitle: row.work_title || undefined,
         previewStartTime:
             row.preview_start_time != null ? row.preview_start_time : undefined,
         updatedAt: row.updated_at,
@@ -181,7 +187,7 @@ export function getPostMetadata(postId: string): PostMetadata | null {
     const row = getDb()
         .prepare(
             `SELECT post_id, director, agency, client, credits_col3, credits_col5,
-                    insight_author_id, insight_title, preview_start_time, updated_at
+                    insight_author_id, insight_title, work_title, preview_start_time, updated_at
              FROM post_metadata WHERE post_id = ?`
         )
         .get(postId) as MetadataRow | undefined;
@@ -203,6 +209,7 @@ export function savePostMetadata(
         creditsCol5?: CreditEntry[];
         insightAuthorId?: string | null;
         insightTitle?: string | null;
+        workTitle?: string | null;
         previewStartTime?: number | null;
     }
 ): void {
@@ -234,6 +241,10 @@ export function savePostMetadata(
         metadata.insightTitle !== undefined
             ? metadata.insightTitle || null
             : existing?.insightTitle ?? null;
+    const workTitle =
+        metadata.workTitle !== undefined
+            ? metadata.workTitle || null
+            : existing?.workTitle ?? null;
     const previewStartTime =
         metadata.previewStartTime !== undefined
             ? metadata.previewStartTime ?? null
@@ -241,8 +252,8 @@ export function savePostMetadata(
 
     getDb()
         .prepare(
-            `INSERT INTO post_metadata (post_id, director, agency, client, credits_col3, credits_col5, insight_author_id, insight_title, preview_start_time, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            `INSERT INTO post_metadata (post_id, director, agency, client, credits_col3, credits_col5, insight_author_id, insight_title, work_title, preview_start_time, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
              ON CONFLICT(post_id)
              DO UPDATE SET director = excluded.director,
                            agency = excluded.agency,
@@ -251,6 +262,7 @@ export function savePostMetadata(
                            credits_col5 = excluded.credits_col5,
                            insight_author_id = excluded.insight_author_id,
                            insight_title = excluded.insight_title,
+                           work_title = excluded.work_title,
                            preview_start_time = excluded.preview_start_time,
                            updated_at = excluded.updated_at`
         )
@@ -263,6 +275,7 @@ export function savePostMetadata(
             creditsCol5,
             insightAuthorId,
             insightTitle,
+            workTitle,
             previewStartTime
         );
 }

@@ -4,7 +4,8 @@ import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import { getAllProjects } from "@/lib/data";
 import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
-import { getSelections, getPostMetadata } from "@/lib/db";
+import { getPostMetadata, getSelections } from "@/lib/db";
+import { getWorkDisplayTitle } from "@/lib/workTitle";
 import { typeClass } from "@/lib/typographyStyles";
 import { Project } from "@/types";
 
@@ -22,7 +23,7 @@ function ghostToProject(post: GhostPost): Project {
 
     return {
         slug: post.slug,
-        title: post.title,
+        title: getWorkDisplayTitle(post.id, post.title),
         excerpt: post.custom_excerpt || post.excerpt || "",
         coverImage: post.feature_image || "",
         tags: post.tags.map(t => t.name),

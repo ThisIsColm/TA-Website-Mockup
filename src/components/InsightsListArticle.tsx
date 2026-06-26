@@ -24,7 +24,6 @@ export default function InsightsListArticle({
     authorName,
 }: InsightsListArticleProps) {
     const [hovered, setHovered] = useState(false);
-    const displayTitle = title.endsWith(".") ? title : `${title}.`;
 
     return (
         <article>
@@ -50,7 +49,7 @@ export default function InsightsListArticle({
                 </div>
 
                 <div className="min-w-0 md:col-span-4 md:col-start-3 md:pl-[2.396vw]">
-                    <InsightsListTitle title={displayTitle} hovered={hovered} />
+                    <InsightsListTitle title={title} hovered={hovered} />
                     {authorName ? (
                         <p
                             className={`mt-4 max-w-full text-black md:mt-[2.604vw] md:max-w-[43.021vw] ${typeClass("insights.listAuthor")}`}

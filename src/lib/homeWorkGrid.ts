@@ -1,5 +1,6 @@
 import { getSelections } from "@/lib/db";
 import { fetchPostsByIds } from "@/lib/ghost";
+import { getWorkDisplayTitle } from "@/lib/workTitle";
 import { getFeaturedProjects, getAllProjects } from "@/lib/data";
 
 export type WorkNavItem = { slug: string; title: string };
@@ -17,7 +18,7 @@ export async function getHomeWorkGridOrder(): Promise<WorkNavItem[]> {
         const posts = await fetchPostsByIds(ghostPostIds);
         return posts.slice(0, HOME_GRID_LIMIT).map((p) => ({
             slug: p.slug,
-            title: p.title,
+            title: getWorkDisplayTitle(p.id, p.title),
         }));
     }
     return getFeaturedProjects(HOME_GRID_LIMIT).map((p) => ({

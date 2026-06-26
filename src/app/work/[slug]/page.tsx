@@ -8,6 +8,7 @@ import type { CreditEntry } from "@/lib/credits";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
 import { getWorkPageNeighbors } from "@/lib/homeWorkGrid";
+import { getWorkDisplayTitle } from "@/lib/workTitle";
 import { typeClass } from "@/lib/typographyStyles";
 
 // Make this page dynamic so it can fetch from Ghost on request
@@ -84,11 +85,12 @@ export async function generateMetadata({
 
     const ghostPost = await fetchGhostPostBySlug(slug);
     if (ghostPost) {
+        const displayTitle = getWorkDisplayTitle(ghostPost.id, ghostPost.title);
         return {
-            title: ghostPost.title,
+            title: displayTitle,
             description: ghostPost.custom_excerpt || ghostPost.excerpt,
             openGraph: {
-                title: `${ghostPost.title} — Tiny Ark`,
+                title: `${displayTitle} — Tiny Ark`,
                 description: ghostPost.custom_excerpt || ghostPost.excerpt,
                 images: ghostPost.feature_image ? [ghostPost.feature_image] : [],
             },
@@ -151,7 +153,7 @@ function ghostToCaseStudy(
     } | null
 ): CaseStudy {
     return {
-        title: post.title,
+        title: getWorkDisplayTitle(post.id, post.title),
         videoHtml: post.video_html || null,
         videoAspectRatio: post.video_aspect_ratio ?? null,
         coverImage: post.feature_image,
