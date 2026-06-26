@@ -12,6 +12,8 @@ const VIMEO_ORIGIN = "https://player.vimeo.com";
 /** One frame at 30fps — poster is frame 0, so reveal while still at the start. */
 const FRAME_ZERO_SECONDS = 1 / 30;
 const POSTER_COLOR_FADE_MS = 1800;
+/** Hard cutoff: reveal whatever we have so the hero is never stuck. */
+const REVEAL_FALLBACK_MS = 8000;
 
 interface VimeoMessage {
     event?: string;
@@ -49,8 +51,6 @@ export default function VideoHero({
     const [lottieComplete, setLottieComplete] = useState(false);
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
 
-    const vimeoReadyRef = useRef(false);
-    const playStartedRef = useRef(false);
     const revealedRef = useRef(false);
 
     useEffect(() => {
@@ -72,30 +72,6 @@ export default function VideoHero({
         afterNextPaint(() => setShowOverlay(false));
     }, []);
 
-    const startVideo = useCallback(() => {
-        if (playStartedRef.current) return;
-
-        const win = iframeRef.current?.contentWindow;
-        if (!win) return;
-
-        playStartedRef.current = true;
-
-        win.postMessage(
-            vimeoMessage({ method: "setCurrentTime", value: 0 }),
-            VIMEO_ORIGIN
-        );
-        win.postMessage(vimeoMessage({ method: "play" }), VIMEO_ORIGIN);
-    }, []);
-
-    const tryStartVideo = useCallback(() => {
-        if (!lottieComplete || !vimeoReadyRef.current) return;
-        startVideo();
-    }, [lottieComplete, startVideo]);
-
-    useEffect(() => {
-        tryStartVideo();
-    }, [tryStartVideo]);
-
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.origin !== VIMEO_ORIGIN) return;
@@ -110,79 +86,81 @@ export default function VideoHero({
             const win = iframeRef.current?.contentWindow;
             if (!win) return;
 
+            // On ready, subscribe to timeupdate so we can reveal at frame 0.
+            // background=1 + autoplay=1 + muted=1 means Vimeo handles play itself.
             if (data.event === "ready") {
-                vimeoReadyRef.current = true;
-                win.postMessage(
-                    vimeoMessage({ method: "setCurrentTime", value: 0 }),
-                    VIMEO_ORIGIN
-                );
                 win.postMessage(
                     vimeoMessage({ method: "addEventListener", value: "timeupdate" }),
                     VIMEO_ORIGIN
                 );
-                tryStartVideo();
+                win.postMessage(
+                    vimeoMessage({ method: "addEventListener", value: "play" }),
+                    VIMEO_ORIGIN
+                );
+                win.postMessage(vimeoMessage({ method: "play" }), VIMEO_ORIGIN);
+                return;
             }
 
-            if (!playStartedRef.current) return;
-
-            // Only reveal once Vimeo reports frame 0 — not on `playing`, which
-            // fires before the iframe has painted the first frame (shows Vimeo's
-            // own thumbnail briefly if we reveal too early).
+            // Reveal once Vimeo reports frame 0 (or any play event after lottie).
             if (
                 data.event === "timeupdate" &&
                 typeof data.data?.seconds === "number" &&
-                data.data.seconds <= FRAME_ZERO_SECONDS
+                data.data.seconds <= FRAME_ZERO_SECONDS &&
+                lottieComplete
             ) {
                 revealVideo();
+            }
+
+            if (data.event === "play" && lottieComplete) {
+                // play fires when Vimeo actually starts; reveal shortly after to
+                // ensure a frame is painted.
+                window.setTimeout(revealVideo, 80);
             }
         };
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [revealVideo, tryStartVideo]);
+    }, [revealVideo, lottieComplete]);
 
     useEffect(() => {
         const startFallback = window.setTimeout(() => {
             setLottieComplete(true);
-        }, 6000);
+        }, 5000);
 
         const revealFallback = window.setTimeout(() => {
-            startVideo();
             revealVideo();
-        }, 10000);
+        }, REVEAL_FALLBACK_MS);
 
         return () => {
             window.clearTimeout(startFallback);
             window.clearTimeout(revealFallback);
         };
-    }, [revealVideo, startVideo]);
+    }, [revealVideo]);
 
     const hashParam = vimeoHash ? `h=${vimeoHash}&` : "";
-    const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=0&loop=1&muted=1&playsinline=1&autopause=0&api=1`;
+    const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&controls=0&api=1`;
 
     return (
         <section
             data-header-surface="dark"
             className="relative h-screen w-full overflow-hidden bg-black"
         >
-            {/* Vimeo loads only after the Lottie finishes so its thumbnail never
-                appears under the poster. Stays invisible until the poster handoff. */}
+            {/* Vimeo mounts immediately so it can load + buffer while the
+                Lottie plays. The black overlay above hides any thumbnail bleed. */}
             <div
                 className={`absolute inset-0 h-full w-full pointer-events-none transition-opacity duration-0 ${
                     showOverlay ? "opacity-0" : "opacity-100"
                 }`}
                 aria-hidden={showOverlay}
             >
-                {lottieComplete ? (
-                    <iframe
-                        ref={iframeRef}
-                        src={iframeSrc}
-                        className="absolute top-1/2 left-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        title={title}
-                        tabIndex={showOverlay ? -1 : undefined}
-                    />
-                ) : null}
+                <iframe
+                    ref={iframeRef}
+                    src={iframeSrc}
+                    className="absolute top-1/2 left-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    title={title}
+                    tabIndex={showOverlay ? -1 : undefined}
+                />
             </div>
 
             {showOverlay && (
