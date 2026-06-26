@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Container from "@/components/Container";
 import { typeClass } from "@/lib/typographyStyles";
 
@@ -59,20 +59,17 @@ const CARDS: WorkCard[] = [
     },
 ];
 
-// Exit: accelerates away quickly (ease-in).
-const EASE_OUT_FAST = [0.4, 0, 1, 1] as const;
-// Enter: ramps up then settles (ease-in-out).
+const EASE_OUT = [0.22, 0.9, 0.2, 1] as const;
 const EASE_IN_OUT = [0.45, 0, 0.2, 1] as const;
 
-const CARD_ENTER = {
-    opacity: { duration: 0.22, ease: EASE_OUT_FAST },
-    y: { duration: 0.3, ease: EASE_IN_OUT },
-    scale: { duration: 0.3, ease: EASE_IN_OUT },
-} as const;
+/** How far each card sits below the one in front (px) — bottom-edge peek. */
+const STACK_OFFSET = 12;
+/** Scale reduction per step back in the stack (front = 1). */
+const STACK_SCALE_STEP = 0.015;
 
-const CARD_EXIT = {
-    duration: 0.18,
-    ease: EASE_OUT_FAST,
+const CARD_STACK_TRANSITION = {
+    duration: 0.5,
+    ease: EASE_OUT,
 } as const;
 
 const ACCENT_MOVE = {
@@ -87,7 +84,6 @@ const LABEL_FADE = {
 
 export default function WorkWithUsCards() {
     const [active, setActive] = useState(0);
-    const card = CARDS[active];
 
     return (
         <section
@@ -149,13 +145,13 @@ export default function WorkWithUsCards() {
                         </div>
                     </div>
 
-                    {/* ── Right: changing card ────────────────────────────── */}
+                    {/* ── Right: rolodex card stack ─────────────────────── */}
                     <div className="col-span-6 md:col-span-3 mt-[24px] md:mt-0">
-                        {/* Sizer stack reserves the tallest card height; card swaps in an absolute overlay */}
+                        {/* Sizer reserves the tallest card height; real cards stack on top */}
                         <div className="relative grid">
                             {CARDS.map((c, i) => (
                                 <div
-                                    key={i}
+                                    key={`sizer-${i}`}
                                     aria-hidden
                                     className="invisible pointer-events-none [grid-area:1/1]"
                                 >
@@ -163,33 +159,32 @@ export default function WorkWithUsCards() {
                                 </div>
                             ))}
 
-                            <div className="absolute inset-0 overflow-hidden [grid-area:1/1]">
-                                <AnimatePresence mode="sync" initial={false}>
+                            {CARDS.map((c, i) => {
+                                const stackPos =
+                                    (i - active + CARDS.length) % CARDS.length;
+                                const isFront = stackPos === 0;
+                                return (
                                     <motion.div
-                                        key={active}
-                                        initial={{
-                                            opacity: 0,
-                                            y: 18,
-                                            scale: 0.99,
-                                        }}
+                                        key={`card-${i}`}
+                                        aria-hidden={!isFront}
                                         animate={{
-                                            opacity: 1,
-                                            y: 0,
-                                            scale: 1,
-                                            transition: CARD_ENTER,
+                                            y: stackPos * STACK_OFFSET,
+                                            scale: 1 - stackPos * STACK_SCALE_STEP,
                                         }}
-                                        exit={{
-                                            opacity: 0,
-                                            y: -10,
-                                            scale: 0.995,
-                                            transition: CARD_EXIT,
+                                        transition={CARD_STACK_TRANSITION}
+                                        style={{
+                                            zIndex: CARDS.length - stackPos,
+                                            transformOrigin: "top center",
+                                            boxShadow: isFront
+                                                ? "0 8px 20px -12px rgba(0,0,0,0.12)"
+                                                : "0 4px 12px -10px rgba(0,0,0,0.08)",
                                         }}
-                                        className="h-full will-change-[opacity,transform]"
+                                        className="[grid-area:1/1] will-change-transform"
                                     >
-                                        <CardBody card={card} fill />
+                                        <CardBody card={c} fill />
                                     </motion.div>
-                                </AnimatePresence>
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -206,9 +201,9 @@ const PILL_GRID =
     "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[5px] gap-y-[8px]";
 
 /**
- * Static version used for the invisible height sizers. When `fill` is true,
- * the card stretches to the reserved cell height so every active card matches
- * the tallest sizer (otherwise smaller cards shrink to their intrinsic height).
+ * Static card body. When `fill` is true, the card stretches to the reserved
+ * cell height so every active card matches the tallest sizer (otherwise smaller
+ * cards shrink to their intrinsic height).
  */
 function CardBody({ card, fill = false }: { card: WorkCard; fill?: boolean }) {
     return (
