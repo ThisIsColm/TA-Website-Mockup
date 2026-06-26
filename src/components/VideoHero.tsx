@@ -48,29 +48,53 @@ export default function VideoHero({
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [showOverlay, setShowOverlay] = useState(true);
     const [posterInColor, setPosterInColor] = useState(false);
-    const [lottieComplete, setLottieComplete] = useState(false);
+    const [lottieHidden, setLottieHidden] = useState(false);
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
 
     const revealedRef = useRef(false);
+    const videoReadyRef = useRef(false);
 
     useEffect(() => {
         const frame = requestAnimationFrame(() => setPosterInColor(true));
         return () => cancelAnimationFrame(frame);
     }, []);
 
-    useEffect(() => {
-        if (!dotLottie) return;
-
-        const onComplete = () => setLottieComplete(true);
-        dotLottie.addEventListener("complete", onComplete);
-        return () => dotLottie.removeEventListener("complete", onComplete);
-    }, [dotLottie]);
-
     const revealVideo = useCallback(() => {
         if (revealedRef.current) return;
         revealedRef.current = true;
+        setLottieHidden(true);
         afterNextPaint(() => setShowOverlay(false));
     }, []);
+
+    /**
+     * The Lottie loops while we wait for Vimeo. As soon as we know the video is
+     * ready, we wait for the *next* loop iteration to finish so the animation
+     * exits on its natural beat instead of mid-frame.
+     */
+    useEffect(() => {
+        if (!dotLottie) return;
+
+        const onLoopOrComplete = () => {
+            if (videoReadyRef.current) revealVideo();
+        };
+
+        dotLottie.addEventListener("loop", onLoopOrComplete);
+        dotLottie.addEventListener("complete", onLoopOrComplete);
+        return () => {
+            dotLottie.removeEventListener("loop", onLoopOrComplete);
+            dotLottie.removeEventListener("complete", onLoopOrComplete);
+        };
+    }, [dotLottie, revealVideo]);
+
+    const markVideoReady = useCallback(() => {
+        if (videoReadyRef.current) return;
+        videoReadyRef.current = true;
+        // If Lottie isn't running (or has already finished a cycle), reveal
+        // straight away. Otherwise wait for its next loop/complete event.
+        if (!dotLottie || dotLottie.currentFrame === undefined) {
+            revealVideo();
+        }
+    }, [dotLottie, revealVideo]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -101,41 +125,35 @@ export default function VideoHero({
                 return;
             }
 
-            // Reveal once Vimeo reports frame 0 (or any play event after lottie).
+            // Vimeo is now actually playing — mark ready so the next Lottie
+            // loop/complete will reveal cleanly.
+            if (data.event === "play") {
+                markVideoReady();
+            }
+
             if (
                 data.event === "timeupdate" &&
                 typeof data.data?.seconds === "number" &&
-                data.data.seconds <= FRAME_ZERO_SECONDS &&
-                lottieComplete
+                data.data.seconds <= FRAME_ZERO_SECONDS
             ) {
-                revealVideo();
-            }
-
-            if (data.event === "play" && lottieComplete) {
-                // play fires when Vimeo actually starts; reveal shortly after to
-                // ensure a frame is painted.
-                window.setTimeout(revealVideo, 80);
+                markVideoReady();
             }
         };
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [revealVideo, lottieComplete]);
+    }, [markVideoReady]);
 
     useEffect(() => {
-        const startFallback = window.setTimeout(() => {
-            setLottieComplete(true);
-        }, 5000);
-
-        const revealFallback = window.setTimeout(() => {
+        // Hard fallback: if Vimeo never reports ready, force-reveal so the
+        // hero is never stuck on the poster.
+        const fallback = window.setTimeout(() => {
+            markVideoReady();
             revealVideo();
         }, REVEAL_FALLBACK_MS);
 
-        return () => {
-            window.clearTimeout(startFallback);
-            window.clearTimeout(revealFallback);
-        };
-    }, [revealVideo]);
+        return () => window.clearTimeout(fallback);
+    }, [markVideoReady, revealVideo]);
 
     const hashParam = vimeoHash ? `h=${vimeoHash}&` : "";
     const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&controls=0&api=1`;
@@ -180,7 +198,7 @@ export default function VideoHero({
                         sizes="100vw"
                     />
 
-                    {!lottieComplete ? (
+                    {!lottieHidden ? (
                         <div
                             className="absolute inset-0 z-30 flex items-center justify-center"
                             role="status"
@@ -188,7 +206,7 @@ export default function VideoHero({
                         >
                             <DotLottieReact
                                 src={HERO_LOADING_LOTTIE}
-                                loop={false}
+                                loop
                                 autoplay
                                 dotLottieRefCallback={setDotLottie}
                                 aria-hidden
