@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
 import { motion } from "framer-motion";
 import Container from "@/components/Container";
 import { typeClass } from "@/lib/typographyStyles";
@@ -84,6 +84,35 @@ const LABEL_FADE = {
 
 export default function WorkWithUsCards() {
     const [active, setActive] = useState(0);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    const [marker, setMarker] = useState({ top: 0, height: 0 });
+
+    /** Measure active item — avoids layoutId shared-element flicker during scroll. */
+    const syncMarker = useCallback(() => {
+        const menu = menuRef.current;
+        const btn = itemRefs.current[active];
+        if (!menu || !btn) return;
+
+        const menuTop = menu.getBoundingClientRect().top;
+        const btnRect = btn.getBoundingClientRect();
+        const fontSize = parseFloat(getComputedStyle(btn).fontSize) || 16;
+        const inset = fontSize * 0.3;
+
+        setMarker({
+            top: btnRect.top - menuTop + inset,
+            height: Math.max(0, btnRect.height - inset * 2),
+        });
+    }, [active]);
+
+    useLayoutEffect(() => {
+        syncMarker();
+    }, [syncMarker]);
+
+    useEffect(() => {
+        window.addEventListener("resize", syncMarker);
+        return () => window.removeEventListener("resize", syncMarker);
+    }, [syncMarker]);
 
     return (
         <section
@@ -101,32 +130,35 @@ export default function WorkWithUsCards() {
                             We Produce
                         </span>
 
-                        <div className="mt-[8px] md:mt-[12px] flex flex-col">
+                        <div
+                            ref={menuRef}
+                            className="relative mt-[8px] md:mt-[12px] flex flex-col pl-[20px]"
+                        >
+                            <motion.span
+                                aria-hidden
+                                className="pointer-events-none absolute left-0 w-[4px] rounded-full bg-accent"
+                                initial={false}
+                                animate={{
+                                    top: marker.top,
+                                    height: marker.height,
+                                }}
+                                transition={ACCENT_MOVE}
+                            />
                             {CARDS.map((c, i) => {
                                 const isActive = i === active;
                                 return (
                                     <button
                                         key={i}
+                                        ref={(el) => {
+                                            itemRefs.current[i] = el;
+                                        }}
                                         type="button"
                                         onMouseEnter={() => setActive(i)}
                                         onFocus={() => setActive(i)}
                                         onClick={() => setActive(i)}
                                         aria-pressed={isActive}
-                                        className="group flex items-stretch text-left cursor-pointer focus:outline-none"
+                                        className="group text-left cursor-pointer focus:outline-none"
                                     >
-                                        {/* Sliding accent marker */}
-                                        <span
-                                            aria-hidden
-                                            className="relative mr-[16px] w-[4px] shrink-0 self-stretch"
-                                        >
-                                            {isActive && (
-                                                <motion.span
-                                                    layoutId="work-accent-marker"
-                                                    className="absolute left-0 top-[0.3em] bottom-[0.3em] w-[4px] rounded-full bg-accent"
-                                                    transition={ACCENT_MOVE}
-                                                />
-                                            )}
-                                        </span>
                                         <motion.span
                                             animate={{
                                                 opacity: isActive ? 1 : 0.3,
