@@ -3,6 +3,10 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import TypographyStyles from "@/components/TypographyStyles";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
+
+const GA_MEASUREMENT_ID = "G-ZKTXN41D1R";
 
 export const metadata: Metadata = {
     title: {
@@ -58,12 +62,14 @@ export default function RootLayout({
                 />
             </head>
             <body className="bg-bg text-text-primary font-sans">
+                <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
                 <TypographyStyles />
                 <SmoothScroll>
                     <ConditionalLayout>
                         {children}
                     </ConditionalLayout>
                 </SmoothScroll>
+                <CookieConsentBanner />
             </body>
         </html>
     );

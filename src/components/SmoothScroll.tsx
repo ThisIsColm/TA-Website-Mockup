@@ -23,9 +23,36 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
             scrollToHashId(window.location.hash.slice(1));
         };
 
+        /** Re-scroll when #work is clicked again while hash is already #work. */
+        const onWorkAnchorClick = (e: MouseEvent) => {
+            if (pathname !== "/") return;
+
+            const anchor = (e.target as Element).closest("a");
+            if (!anchor) return;
+
+            const href = anchor.getAttribute("href");
+            if (href !== "/#work" && href !== "#work") return;
+
+            const el = document.getElementById("work");
+            if (!el) return;
+
+            e.preventDefault();
+
+            if (window.location.hash !== "#work") {
+                window.location.hash = "#work";
+                return;
+            }
+
+            scrollToHashId("work");
+        };
+
         window.addEventListener("hashchange", onHashChange);
-        return () => window.removeEventListener("hashchange", onHashChange);
-    }, [lenis]);
+        document.addEventListener("click", onWorkAnchorClick, true);
+        return () => {
+            window.removeEventListener("hashchange", onHashChange);
+            document.removeEventListener("click", onWorkAnchorClick, true);
+        };
+    }, [lenis, pathname]);
 
     useEffect(() => {
         if (!lenis) return;

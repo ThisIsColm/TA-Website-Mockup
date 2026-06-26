@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Container from "./Container";
 import { typeClass } from "@/lib/typographyStyles";
+import { openCookieSettings } from "@/lib/cookieConsent";
 
 const INSTAGRAM_ICON = "/images/Social Icons/Instagram/Negative.png";
 const LINKEDIN_ICON = "/images/Social Icons/LinkedIn/Vector.png";
@@ -64,7 +65,9 @@ export default function Footer() {
                             © TINY ARK LIMITED.
                         </p>
 
-                        <div className="hidden md:block md:justify-self-end" aria-hidden="true" />
+                        <div className="md:justify-self-end">
+                            <CookieSettingsLink className={`${FOOTER_TEXT_CLASS} text-black/60 hover:text-black`} />
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -100,6 +103,7 @@ export default function Footer() {
                         <Link href="/insights" className="hover:text-white transition-colors">
                             Insights
                         </Link>
+                        <CookieSettingsLink className="text-text-tertiary hover:text-white transition-colors" />
                     </nav>
                     <p className={`${FOOTER_TEXT_CLASS} text-text-tertiary`}>
                         © TINY ARK LIMITED.
@@ -107,6 +111,18 @@ export default function Footer() {
                 </div>
             </Container>
         </footer>
+    );
+}
+
+function CookieSettingsLink({ className = "" }: { className?: string }) {
+    return (
+        <button
+            type="button"
+            onClick={() => openCookieSettings()}
+            className={`underline-offset-2 hover:underline transition-colors ${className}`}
+        >
+            Cookie settings
+        </button>
     );
 }
 
