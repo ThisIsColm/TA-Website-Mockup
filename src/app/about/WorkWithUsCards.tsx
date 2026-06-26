@@ -15,9 +15,9 @@ interface WorkCard {
 
 const CARDS: WorkCard[] = [
     {
-        accent: "create captivating commercials.",
+        accent: "Commercials",
         body: [
-            "We represent a talented, diverse and experienced roster of directors. We collaborate with agencies and brands from first idea through to final delivery — combining strong concepts with cinematic execution at any scale.",
+            "With our talented and diverse roster of directors, we collaborate with agencies to bring their creative to life through cinematic execution.",
         ],
         pills: [
             "Budget & CPA",
@@ -29,10 +29,9 @@ const CARDS: WorkCard[] = [
         ],
     },
     {
-        accent: "craft brand stories.",
+        accent: "Brand Stories",
         body: [
-            "We love getting under the hood of your brand.",
-            "From early concept development through to final film, we shape narrative-led work that connects with audiences and strengthens brand identity.",
+            "We create films that help brands connect with people. Whether it's a documentary-led piece, a founder story or a campaign film, we craft authentic narratives that resonate.",
         ],
         pills: [
             "Ideation & Research",
@@ -44,10 +43,10 @@ const CARDS: WorkCard[] = [
         ],
     },
     {
-        accent: "go live.",
+        accent: "Livestreams",
         body: [
             "We deliver live, multi-camera productions with the same clarity and control as our film work.",
-            "From global product launches to livestream concerts, we manage every detail.",
+            "From global product launches to livestream concerts, we coordinate every detail.",
         ],
         pills: [
             "Broadcast for TV",
@@ -103,7 +102,7 @@ export default function WorkWithUsCards() {
                         <span
                             className={`block ${typeClass("about.rotatingTaglineLead")}`}
                         >
-                            People work with us to
+                            We Produce
                         </span>
 
                         <div className="mt-[8px] md:mt-[12px] flex flex-col">

@@ -112,24 +112,28 @@ function TypewriterSection() {
     }, [handleScroll]);
 
     const renderWordWithLigature = (word: string) => {
-        // Keep this one requested micro-typographic tweak local to "fluff".
-        if (!word.toLowerCase().startsWith("fluff")) return word;
+        const ffIndex = word.toLowerCase().indexOf("ff");
+        if (ffIndex === -1) return word;
 
-        const stem = word.slice(0, 5); // "fluff"
-        const suffix = word.slice(5); // punctuation, if any
+        const before = word.slice(0, ffIndex);
+        const ff = word.slice(ffIndex, ffIndex + 2);
+        const after = word.slice(ffIndex + 2);
 
         return (
             <>
-                {stem.slice(0, 4)}
+                {before}
                 <span
+                    className="inline"
                     style={{
                         fontVariantLigatures: "common-ligatures",
                         fontFeatureSettings: '"liga" 1, "clig" 1',
+                        // Inherited negative tracking prevents ff ligatures from forming.
+                        letterSpacing: 0,
                     }}
                 >
-                    {stem.slice(4)}
+                    {ff}
                 </span>
-                {suffix}
+                {after}
             </>
         );
     };
@@ -184,7 +188,7 @@ function TypewriterSection() {
                         href="/about"
                         className={`inline-block text-accent hover:text-accent-hover underline underline-offset-4 decoration-1 transition-colors ${typeClass("home.moreAboutLink")}`}
                     >
-                        Sound good? Let&rsquo;s dive deeper.
+                        Tell me more.
                     </Link>
                 </div>
             </div>

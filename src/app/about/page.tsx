@@ -102,26 +102,26 @@ export default function AboutPage() {
                             <h1
                                 className={`font-sans font-extrabold text-[#353535] ${typeClass("about.heroHeading")}`}
                             >
-                                We are Tiny Ark &mdash; an independent creative
+                                We&rsquo;re Tiny Ark &mdash; an independent creative
                                 production company.
                             </h1>
                             <div
                                 className={`mt-[28px] md:mt-[80px] w-full space-y-[20px] md:space-y-[24px] text-black ${typeClass("about.heroBody")}`}
                             >
                                 <p>
-                                    We&rsquo;re a team of directors, producers,
-                                    cinematographers, editors, designers, animators and
-                                    VFX artists. Whether it&rsquo;s content for live
-                                    broadcast, commercial or for socials, we&rsquo;ve got
-                                    the creative and production chops you need, all under
-                                    one roof.
+                                    We bring together directors, producers,
+                                    cinematographers, editors, designers and VFX artists
+                                    to create work that moves people. Whether it&rsquo;s
+                                    for livestream, commercial campaigns or socials, from
+                                    brief to final delivery, we get it done. We mobilise
+                                    productions across the globe, and are no strangers to a
+                                    tight timeline.
                                 </p>
                                 <p>
-                                    We&rsquo;ve shot all over the world, and are no
-                                    strangers to launching a production on a tight
-                                    timeline. We aim to create long-lasting creative
-                                    production partnerships and are fully transparent
-                                    about where your budget is going.
+                                    No ego. No unnecessary layers. When you work with us,
+                                    you deal directly with experienced people and
+                                    transparent budgets. We build creative partnerships
+                                    that last.
                                 </p>
                             </div>
                         </div>
