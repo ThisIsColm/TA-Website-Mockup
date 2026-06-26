@@ -111,33 +111,6 @@ function TypewriterSection() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
 
-    const renderWordWithLigature = (word: string) => {
-        const ffIndex = word.toLowerCase().indexOf("ff");
-        if (ffIndex === -1) return word;
-
-        const before = word.slice(0, ffIndex);
-        const ff = word.slice(ffIndex, ffIndex + 2);
-        const after = word.slice(ffIndex + 2);
-
-        return (
-            <>
-                {before}
-                <span
-                    className="inline"
-                    style={{
-                        fontVariantLigatures: "common-ligatures",
-                        fontFeatureSettings: '"liga" 1, "clig" 1',
-                        // Inherited negative tracking prevents ff ligatures from forming.
-                        letterSpacing: 0,
-                    }}
-                >
-                    {ff}
-                </span>
-                {after}
-            </>
-        );
-    };
-
     return (
         <section
             ref={sectionRef}
@@ -177,7 +150,7 @@ function TypewriterSection() {
                                                 transition: "opacity 0.1s ease",
                                             }}
                                         >
-                                            {renderWordWithLigature(word)}
+                                            {word}
                                         </span>
                                     );
                                 })}
