@@ -186,7 +186,7 @@ export default function WorkWithUsCards() {
                                         }}
                                         className="h-full will-change-[opacity,transform]"
                                     >
-                                        <CardBody card={card} />
+                                        <CardBody card={card} fill />
                                     </motion.div>
                                 </AnimatePresence>
                             </div>
@@ -199,16 +199,23 @@ export default function WorkWithUsCards() {
 }
 
 const CARD_SHELL =
-    "bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px]";
+    "bg-white p-[24px] md:p-[32px] flex flex-col gap-[24px] justify-between";
 const CARD_BODY_TEXT = (extra = "") =>
     `min-w-0 w-full space-y-[16px] text-black ${typeClass("about.serviceCardBody")} ${extra}`;
 const PILL_GRID =
     "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[5px] gap-y-[8px]";
 
-/** Static version used for the invisible height sizers. */
-function CardBody({ card }: { card: WorkCard }) {
+/**
+ * Static version used for the invisible height sizers. When `fill` is true,
+ * the card stretches to the reserved cell height so every active card matches
+ * the tallest sizer (otherwise smaller cards shrink to their intrinsic height).
+ */
+function CardBody({ card, fill = false }: { card: WorkCard; fill?: boolean }) {
     return (
-        <div data-header-surface="white" className={CARD_SHELL}>
+        <div
+            data-header-surface="white"
+            className={`${CARD_SHELL}${fill ? " h-full" : ""}`}
+        >
             <div className={CARD_BODY_TEXT()}>
                 {card.body.map((paragraph, i) => (
                     <p key={i}>{paragraph}</p>
