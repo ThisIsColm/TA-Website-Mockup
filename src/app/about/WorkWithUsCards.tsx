@@ -93,10 +93,10 @@ export default function WorkWithUsCards() {
         <section
             data-header-surface="neutral"
             style={{ backgroundColor: BEIGE }}
-            className="pt-[60px] md:pt-[80px] pb-[60px] md:pb-[100px]"
+            className="py-[60px] md:py-[80px]"
         >
             <Container>
-                <div className="grid grid-cols-6 gap-[5px] items-start">
+                <div className="grid grid-cols-6 gap-[5px] items-start md:items-center">
                     {/* ── Left: lead + the three taglines as a hover/tap menu ── */}
                     <div className="col-span-6 md:col-span-3 text-black">
                         <span
