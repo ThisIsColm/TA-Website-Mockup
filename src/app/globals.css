@@ -262,11 +262,13 @@ html.lenis body {
 .case-study-prose > .case-meta > .case-meta-left > h1 {
   color: #000;
   margin: 0;
+  text-wrap: balance;
 }
 
 .case-study-prose > .case-meta > .case-meta-left > p {
   color: #000000;
   margin: 4px 0 0;
+  text-wrap: pretty;
 }
 
 /* Body copy lives in one grid cell so headings and paragraphs stack normally
@@ -284,6 +286,13 @@ html.lenis body {
   color: #000;
   margin-top: 0;
   margin-bottom: 0;
+  text-wrap: balance;
+}
+
+.case-study-prose > .case-study-body > p,
+.case-study-prose > .case-study-body > li,
+.case-study-prose > .case-study-body > blockquote {
+  text-wrap: pretty;
 }
 
 .case-study-prose > .case-study-body > * + h2,
@@ -880,6 +889,15 @@ html.lenis body {
 .insight-article-prose > h4 {
   color: #000;
   margin: 0;
+  text-wrap: balance;
+}
+
+.insight-article-prose > p,
+.insight-article-prose > li,
+.insight-article-prose > ul > li,
+.insight-article-prose > ol > li,
+.insight-article-prose > blockquote {
+  text-wrap: pretty;
 }
 
 /* Body sizes: see src/lib/typography.ts → prose.insightArticle* (injected CSS) */

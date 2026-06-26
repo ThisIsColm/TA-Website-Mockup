@@ -273,7 +273,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                                         Previous Project
                                     </p>
                                     <p
-                                        className={`m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
+                                        className={`text-balance m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
                                     >
                                         {prev.title}
                                     </p>
@@ -292,7 +292,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                                         Next Project
                                     </p>
                                     <p
-                                        className={`m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
+                                        className={`text-balance m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
                                     >
                                         {next.title}
                                     </p>

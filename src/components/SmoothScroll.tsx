@@ -1,24 +1,24 @@
 "use client";
 
-import { ReactLenis, useLenis } from 'lenis/react';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+
+const HASH_SCROLL_OFFSET = -24;
+
+function scrollToHashId(hashId: string, behavior: ScrollBehavior = "smooth") {
+    if (!hashId) return;
+    const el = document.getElementById(hashId);
+    if (!el) return;
+
+    const top =
+        el.getBoundingClientRect().top + window.scrollY + HASH_SCROLL_OFFSET;
+    window.scrollTo({ top, behavior });
+}
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const lenis = useLenis();
 
     useEffect(() => {
-        if (!lenis) return;
-
-        const scrollToHashId = (hashId: string) => {
-            if (!hashId) return;
-            const el = document.getElementById(hashId);
-            if (el) {
-                lenis.scrollTo(el, { offset: -24, immediate: false });
-            }
-        };
-
         const onHashChange = () => {
             scrollToHashId(window.location.hash.slice(1));
         };
@@ -52,30 +52,25 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
             window.removeEventListener("hashchange", onHashChange);
             document.removeEventListener("click", onWorkAnchorClick, true);
         };
-    }, [lenis, pathname]);
+    }, [pathname]);
 
     useEffect(() => {
-        if (!lenis) return;
-
-        const hash = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
+        const hash =
+            typeof window !== "undefined" ? window.location.hash.slice(1) : "";
         if (hash) {
             const t = window.setTimeout(() => {
                 const el = document.getElementById(hash);
                 if (el) {
-                    lenis.scrollTo(el, { offset: -24, immediate: false });
+                    scrollToHashId(hash);
                 } else {
-                    lenis.scrollTo(0, { immediate: true });
+                    window.scrollTo({ top: 0, behavior: "auto" });
                 }
             }, 0);
             return () => window.clearTimeout(t);
         }
 
-        lenis.scrollTo(0, { immediate: true });
-    }, [pathname, lenis]);
+        window.scrollTo({ top: 0, behavior: "auto" });
+    }, [pathname]);
 
-    return (
-        <ReactLenis root options={{ lerp: 0.05, duration: 1.2 }}>
-            {children}
-        </ReactLenis>
-    );
+    return children;
 }

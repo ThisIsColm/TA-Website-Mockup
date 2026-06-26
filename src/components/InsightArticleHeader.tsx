@@ -45,13 +45,13 @@ export default function InsightArticleHeader({
 
                     <div className="col-span-6 md:col-span-4 md:col-start-3">
                         <h1
-                            className={`text-black capitalize ${typeClass("insights.articleHeaderTitle")}`}
+                            className={`text-balance text-black capitalize ${typeClass("insights.articleHeaderTitle")}`}
                         >
                             {title}
                         </h1>
                         {subtitle ? (
                             <p
-                                className={`mt-[24px] md:mt-[28px] text-black max-w-[52ch] ${typeClass("insights.articleHeaderSubtitle")}`}
+                                className={`text-pretty mt-[24px] md:mt-[28px] text-black max-w-[52ch] ${typeClass("insights.articleHeaderSubtitle")}`}
                             >
                                 {subtitle}
                             </p>

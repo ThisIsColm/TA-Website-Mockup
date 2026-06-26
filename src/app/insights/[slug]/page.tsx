@@ -76,7 +76,7 @@ export default async function InsightPage({ params }: InsightPageProps) {
     const data = await loadInsight(slug);
     if (!data) notFound();
 
-    const { prev, next } = await getInsightsPageNeighbors(slug);
+    const { next } = await getInsightsPageNeighbors(slug);
     const heroAspect = data.videoAspectRatio || 16 / 9;
 
     return (
@@ -130,45 +130,26 @@ export default async function InsightPage({ params }: InsightPageProps) {
                 </section>
             ) : null}
 
-            {(prev || next) && (
+            {next ? (
                 <section
                     data-header-surface="white"
                     className={`pt-[50px] pb-[100px] ${OUTER}`}
                 >
-                    <div className="grid grid-cols-6 gap-x-[5px] gap-y-[40px] md:gap-y-0 md:items-end">
-                        {prev ? (
-                            <div className="col-span-6 md:col-span-1 md:col-start-1">
-                                <Link
-                                    href={`/insights/${prev.slug}`}
-                                    className="group inline-block max-w-full text-left"
-                                >
-                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                        Previous
-                                    </p>
-                                    <h2 className={`text-[#353535] ${typeClass("insights.nextArticleTitle")}`}>
-                                        {prev.title}
-                                    </h2>
-                                </Link>
-                            </div>
-                        ) : null}
-                        {next ? (
-                            <div className="col-span-6 md:col-span-4 flex md:justify-end md:col-start-3">
-                                <Link
-                                    href={`/insights/${next.slug}`}
-                                    className="group inline-block max-w-full text-left md:text-right"
-                                >
-                                    <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
-                                        Next Project
-                                    </p>
-                                    <h2 className={`text-[#353535] ${typeClass("insights.nextArticleTitle")}`}>
-                                        {next.title}
-                                    </h2>
-                                </Link>
-                            </div>
-                        ) : null}
+                    <div className="flex justify-end">
+                        <Link
+                            href={`/insights/${next.slug}`}
+                            className="group inline-block max-w-full text-left md:text-right"
+                        >
+                            <p className="text-[11px] uppercase tracking-[0.08em] text-black/55 mb-[6px]">
+                                Next
+                            </p>
+                            <h2 className={`text-balance text-[#353535] ${typeClass("insights.nextArticleTitle")}`}>
+                                {next.title}
+                            </h2>
+                        </Link>
                     </div>
                 </section>
-            )}
+            ) : null}
         </article>
     );
 }

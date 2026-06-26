@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
-import { INSIGHTS_EYE_LOTTIE } from "@/lib/insightsLottie";
+import {
+    INSIGHTS_EYE_LOTTIE,
+    INSIGHTS_EYE_LOOP_SEGMENT,
+    normalizeLottieLoop,
+} from "@/lib/insightsLottie";
 
 interface InsightsPostThumbnailProps {
     coverImage: string;
@@ -25,7 +29,7 @@ export default function InsightsPostThumbnail({
         fetch(INSIGHTS_EYE_LOTTIE)
             .then((response) => response.json())
             .then((json) => {
-                if (!cancelled) setAnimationData(json);
+                if (!cancelled) setAnimationData(normalizeLottieLoop(json));
             })
             .catch((err) => {
                 console.error("[InsightsPostThumbnail] Failed to load eye Lottie:", err);
@@ -38,7 +42,7 @@ export default function InsightsPostThumbnail({
 
     useEffect(() => {
         if (hovered) {
-            lottieRef.current?.goToAndPlay(0, true);
+            lottieRef.current?.playSegments(INSIGHTS_EYE_LOOP_SEGMENT, true);
         } else {
             lottieRef.current?.stop();
             lottieRef.current?.goToAndStop(0, true);
@@ -74,6 +78,7 @@ export default function InsightsPostThumbnail({
                             animationData={animationData}
                             loop
                             autoplay={false}
+                            initialSegment={INSIGHTS_EYE_LOOP_SEGMENT}
                             className="h-1/2 w-1/2"
                         />
                     </div>
