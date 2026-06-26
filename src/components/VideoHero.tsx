@@ -66,7 +66,7 @@ export default function VideoHero({
         return () => dotLottie.removeEventListener("complete", onComplete);
     }, [dotLottie]);
 
-    const revealPoster = useCallback(() => {
+    const revealVideo = useCallback(() => {
         if (revealedRef.current) return;
         revealedRef.current = true;
         afterNextPaint(() => setShowOverlay(false));
@@ -74,10 +74,11 @@ export default function VideoHero({
 
     const startVideo = useCallback(() => {
         if (playStartedRef.current) return;
-        playStartedRef.current = true;
 
         const win = iframeRef.current?.contentWindow;
         if (!win) return;
+
+        playStartedRef.current = true;
 
         win.postMessage(
             vimeoMessage({ method: "setCurrentTime", value: 0 }),
@@ -115,42 +116,46 @@ export default function VideoHero({
                     vimeoMessage({ method: "setCurrentTime", value: 0 }),
                     VIMEO_ORIGIN
                 );
-                for (const value of ["playing", "timeupdate"] as const) {
-                    win.postMessage(
-                        vimeoMessage({ method: "addEventListener", value }),
-                        VIMEO_ORIGIN
-                    );
-                }
+                win.postMessage(
+                    vimeoMessage({ method: "addEventListener", value: "timeupdate" }),
+                    VIMEO_ORIGIN
+                );
                 tryStartVideo();
             }
 
             if (!playStartedRef.current) return;
 
-            if (data.event === "playing") {
-                revealPoster();
-            }
-
+            // Only reveal once Vimeo reports frame 0 — not on `playing`, which
+            // fires before the iframe has painted the first frame (shows Vimeo's
+            // own thumbnail briefly if we reveal too early).
             if (
                 data.event === "timeupdate" &&
                 typeof data.data?.seconds === "number" &&
                 data.data.seconds <= FRAME_ZERO_SECONDS
             ) {
-                revealPoster();
+                revealVideo();
             }
         };
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [revealPoster, tryStartVideo]);
+    }, [revealVideo, tryStartVideo]);
 
     useEffect(() => {
-        const fallback = window.setTimeout(() => {
+        const startFallback = window.setTimeout(() => {
             setLottieComplete(true);
-            startVideo();
-            revealPoster();
         }, 6000);
-        return () => window.clearTimeout(fallback);
-    }, [revealPoster, startVideo]);
+
+        const revealFallback = window.setTimeout(() => {
+            startVideo();
+            revealVideo();
+        }, 10000);
+
+        return () => {
+            window.clearTimeout(startFallback);
+            window.clearTimeout(revealFallback);
+        };
+    }, [revealVideo, startVideo]);
 
     const hashParam = vimeoHash ? `h=${vimeoHash}&` : "";
     const iframeSrc = `https://player.vimeo.com/video/${vimeoId}?${hashParam}background=1&autoplay=0&loop=1&muted=1&playsinline=1&autopause=0&api=1`;
@@ -160,18 +165,28 @@ export default function VideoHero({
             data-header-surface="dark"
             className="relative h-screen w-full overflow-hidden bg-black"
         >
-            <div className="absolute inset-0 h-full w-full pointer-events-none">
-                <iframe
-                    ref={iframeRef}
-                    src={iframeSrc}
-                    className="absolute top-1/2 left-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    title={title}
-                />
+            {/* Vimeo loads only after the Lottie finishes so its thumbnail never
+                appears under the poster. Stays invisible until the poster handoff. */}
+            <div
+                className={`absolute inset-0 h-full w-full pointer-events-none transition-opacity duration-0 ${
+                    showOverlay ? "opacity-0" : "opacity-100"
+                }`}
+                aria-hidden={showOverlay}
+            >
+                {lottieComplete ? (
+                    <iframe
+                        ref={iframeRef}
+                        src={iframeSrc}
+                        className="absolute top-1/2 left-1/2 h-[56.25vw] min-h-full w-[177.78vh] min-w-full -translate-x-1/2 -translate-y-1/2"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        title={title}
+                        tabIndex={showOverlay ? -1 : undefined}
+                    />
+                ) : null}
             </div>
 
             {showOverlay && (
-                <div className="absolute inset-0 z-20">
+                <div className="absolute inset-0 z-20 bg-black">
                     <Image
                         src={posterSrc}
                         alt=""
@@ -187,20 +202,22 @@ export default function VideoHero({
                         sizes="100vw"
                     />
 
-                    <div
-                        className="absolute inset-0 z-30 flex items-center justify-center"
-                        role="status"
-                        aria-label="Loading video"
-                    >
-                        <DotLottieReact
-                            src={HERO_LOADING_LOTTIE}
-                            loop={false}
-                            autoplay
-                            dotLottieRefCallback={setDotLottie}
-                            aria-hidden
-                            className="h-[clamp(96px,12vw,160px)] w-[clamp(96px,12vw,160px)]"
-                        />
-                    </div>
+                    {!lottieComplete ? (
+                        <div
+                            className="absolute inset-0 z-30 flex items-center justify-center"
+                            role="status"
+                            aria-label="Loading video"
+                        >
+                            <DotLottieReact
+                                src={HERO_LOADING_LOTTIE}
+                                loop={false}
+                                autoplay
+                                dotLottieRefCallback={setDotLottie}
+                                aria-hidden
+                                className="h-[clamp(96px,12vw,160px)] w-[clamp(96px,12vw,160px)]"
+                            />
+                        </div>
+                    ) : null}
                 </div>
             )}
         </section>
