@@ -18,6 +18,7 @@ export type CuratedPost = GhostPost & {
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
+    insightTitle?: string;
     previewStartTime?: number;
 };
 
@@ -129,6 +130,7 @@ interface CurationApiPost {
     creditsCol3?: CreditEntry[];
     creditsCol5?: CreditEntry[];
     insightAuthorId?: string;
+    insightTitle?: string;
     previewStartTime?: number;
     vimeoId?: string;
 }
@@ -158,6 +160,7 @@ export default function AdminPage() {
     const [editCreditsCol5, setEditCreditsCol5] = useState("");
     const [editPreviewStart, setEditPreviewStart] = useState("");
     const [editInsightAuthor, setEditInsightAuthor] = useState("");
+    const [editInsightTitle, setEditInsightTitle] = useState("");
     const [editingSectionKey, setEditingSectionKey] = useState<DashboardSectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
 
@@ -268,6 +271,7 @@ export default function AdminPage() {
         setEditingSectionKey(sectionKey);
         if (sectionKind(sectionKey) === "insight") {
             setEditInsightAuthor(post.insightAuthorId || "");
+            setEditInsightTitle(post.insightTitle || "");
         } else {
             setEditDirector(post.director || "");
             setEditAgency(post.agency || "");
@@ -296,7 +300,10 @@ export default function AdminPage() {
                 body: JSON.stringify({
                     postId: post.id,
                     data: insight
-                        ? { insightAuthorId: editInsightAuthor || null }
+                        ? {
+                              insightAuthorId: editInsightAuthor || null,
+                              insightTitle: editInsightTitle.trim() || null,
+                          }
                         : {
                               director: editDirector,
                               agency: editAgency,
@@ -313,7 +320,11 @@ export default function AdminPage() {
                     const updatePost = (p: CuratedPost): CuratedPost =>
                         p.id === post.id
                             ? insight
-                                ? { ...p, insightAuthorId: editInsightAuthor || undefined }
+                                ? {
+                                      ...p,
+                                      insightAuthorId: editInsightAuthor || undefined,
+                                      insightTitle: editInsightTitle.trim() || undefined,
+                                  }
                                 : {
                                       ...p,
                                       director: editDirector,
@@ -831,8 +842,15 @@ export default function AdminPage() {
                                                                             )}
                                                                             <div className="flex-1 min-w-0">
                                                                                 <p className="text-sm font-medium truncate">
-                                                                                    {post.title}
+                                                                                    {post.insightTitle ||
+                                                                                        post.title}
                                                                                 </p>
+                                                                                {insight &&
+                                                                                post.insightTitle ? (
+                                                                                    <p className="text-xs text-white/25 truncate mt-0.5">
+                                                                                        Ghost: {post.title}
+                                                                                    </p>
+                                                                                ) : null}
                                                                                 {insight &&
                                                                                 post.insightAuthorId ? (
                                                                                     <p className="text-xs text-text-tertiary truncate mt-0.5">
@@ -899,50 +917,82 @@ export default function AdminPage() {
                                                                                     </p>
 
                                                                                     {insight ? (
-                                                                                        <div>
-                                                                                            <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
-                                                                                                AUTHOR
-                                                                                            </label>
-                                                                                            <select
-                                                                                                className={`${styles.input} !py-2`}
-                                                                                                value={
-                                                                                                    editInsightAuthor
-                                                                                                }
-                                                                                                onChange={(
-                                                                                                    e
-                                                                                                ) =>
-                                                                                                    setEditInsightAuthor(
+                                                                                        <>
+                                                                                            <div>
+                                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                    TITLE
+                                                                                                </label>
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    className={`${styles.input} !py-2`}
+                                                                                                    value={editInsightTitle}
+                                                                                                    onKeyDown={(e) =>
+                                                                                                        e.key ===
+                                                                                                            "Enter" &&
+                                                                                                        savePostMeta(
+                                                                                                            post,
+                                                                                                            key
+                                                                                                        )
+                                                                                                    }
+                                                                                                    onChange={(e) =>
+                                                                                                        setEditInsightTitle(
+                                                                                                            e.target.value
+                                                                                                        )
+                                                                                                    }
+                                                                                                    placeholder={
+                                                                                                        post.title
+                                                                                                    }
+                                                                                                />
+                                                                                                <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                                    Leave blank to use the
+                                                                                                    Ghost title.
+                                                                                                </p>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                    AUTHOR
+                                                                                                </label>
+                                                                                                <select
+                                                                                                    className={`${styles.input} !py-2`}
+                                                                                                    value={
+                                                                                                        editInsightAuthor
+                                                                                                    }
+                                                                                                    onChange={(
                                                                                                         e
-                                                                                                            .target
-                                                                                                            .value
-                                                                                                    )
-                                                                                                }
-                                                                                            >
-                                                                                                <option value="">
-                                                                                                    Optional —
-                                                                                                    select team
-                                                                                                    member
-                                                                                                </option>
-                                                                                                {TEAM_AUTHORS.map(
-                                                                                                    (
-                                                                                                        author
-                                                                                                    ) => (
-                                                                                                        <option
-                                                                                                            key={
-                                                                                                                author.id
-                                                                                                            }
-                                                                                                            value={
-                                                                                                                author.id
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {
-                                                                                                                author.name
-                                                                                                            }
-                                                                                                        </option>
-                                                                                                    )
-                                                                                                )}
-                                                                                            </select>
-                                                                                        </div>
+                                                                                                    ) =>
+                                                                                                        setEditInsightAuthor(
+                                                                                                            e
+                                                                                                                .target
+                                                                                                                .value
+                                                                                                        )
+                                                                                                    }
+                                                                                                >
+                                                                                                    <option value="">
+                                                                                                        Optional —
+                                                                                                        select team
+                                                                                                        member
+                                                                                                    </option>
+                                                                                                    {TEAM_AUTHORS.map(
+                                                                                                        (
+                                                                                                            author
+                                                                                                        ) => (
+                                                                                                            <option
+                                                                                                                key={
+                                                                                                                    author.id
+                                                                                                                }
+                                                                                                                value={
+                                                                                                                    author.id
+                                                                                                                }
+                                                                                                            >
+                                                                                                                {
+                                                                                                                    author.name
+                                                                                                                }
+                                                                                                            </option>
+                                                                                                        )
+                                                                                                    )}
+                                                                                                </select>
+                                                                                            </div>
+                                                                                        </>
                                                                                     ) : (
                                                                                         <>
                                                                                             <div className="flex flex-col gap-3">

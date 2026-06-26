@@ -52,6 +52,7 @@ function formatPost(post: GhostPost) {
         creditsCol3: customMeta?.creditsCol3,
         creditsCol5: customMeta?.creditsCol5,
         insightAuthorId: customMeta?.insightAuthorId,
+        insightTitle: customMeta?.insightTitle,
         previewStartTime: customMeta?.previewStartTime,
         vimeoId: vimeoId,
     };

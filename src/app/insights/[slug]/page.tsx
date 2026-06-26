@@ -7,6 +7,7 @@ import GhostContent from "@/components/GhostContent";
 import InsightArticleHeader from "@/components/InsightArticleHeader";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
 import { getPostMetadata } from "@/lib/db";
+import { getInsightDisplayTitle } from "@/lib/insightTitle";
 import { getInsightsPageNeighbors } from "@/lib/insightsGrid";
 import { typeClass } from "@/lib/typographyStyles";
 
@@ -25,11 +26,12 @@ export async function generateMetadata({
 
     const ghostPost = await fetchGhostPostBySlug(slug);
     if (ghostPost) {
+        const displayTitle = getInsightDisplayTitle(ghostPost.id, ghostPost.title);
         return {
-            title: ghostPost.title,
+            title: displayTitle,
             description: ghostPost.custom_excerpt || ghostPost.excerpt,
             openGraph: {
-                title: `${ghostPost.title} — Tiny Ark Insights`,
+                title: `${displayTitle} — Tiny Ark Insights`,
                 description: ghostPost.custom_excerpt || ghostPost.excerpt,
                 images: ghostPost.feature_image ? [ghostPost.feature_image] : [],
             },
@@ -59,7 +61,7 @@ function ghostToInsight(post: GhostPost): Insight {
     const meta = getPostMetadata(post.id);
 
     return {
-        title: post.title,
+        title: getInsightDisplayTitle(post.id, post.title),
         videoHtml: post.video_html || null,
         videoAspectRatio: post.video_aspect_ratio ?? null,
         coverImage: post.feature_image,

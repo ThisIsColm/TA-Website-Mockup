@@ -1,5 +1,6 @@
 import { getSelections } from "@/lib/db";
 import { fetchPostsByIds } from "@/lib/ghost";
+import { getInsightDisplayTitle } from "@/lib/insightTitle";
 
 export type InsightsNavItem = { slug: string; title: string };
 
@@ -13,7 +14,10 @@ export async function getInsightsOrder(): Promise<InsightsNavItem[]> {
     const { ghostPostIds } = getSelections(SECTION);
     if (ghostPostIds.length === 0) return [];
     const posts = await fetchPostsByIds(ghostPostIds);
-    return posts.map((p) => ({ slug: p.slug, title: p.title }));
+    return posts.map((p) => ({
+        slug: p.slug,
+        title: getInsightDisplayTitle(p.id, p.title),
+    }));
 }
 
 function neighborsFromList(

@@ -4,6 +4,7 @@ import InsightsIntroIcon from "@/components/InsightsIntroIcon";
 import InsightsListArticle from "@/components/InsightsListArticle";
 import { fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getPostMetadata, getSelections } from "@/lib/db";
+import { getInsightDisplayTitle } from "@/lib/insightTitle";
 import { getTeamAuthor } from "@/lib/team";
 import { typeClass } from "@/lib/typographyStyles";
 
@@ -37,7 +38,7 @@ function ghostToInsight(post: GhostPost): InsightPost {
     return {
         id: post.id,
         slug: post.slug,
-        title: post.title,
+        title: getInsightDisplayTitle(post.id, post.title),
         excerpt: post.custom_excerpt || post.excerpt || "",
         coverImage: post.feature_image || "",
         date: post.published_at,
