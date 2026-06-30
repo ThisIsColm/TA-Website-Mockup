@@ -7,6 +7,7 @@ import WorkCreditsSection from "@/components/WorkCreditsSection";
 import type { CreditEntry } from "@/lib/credits";
 import { getAllProjects, getProjectBySlug } from "@/lib/data";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
+import { normalizeGhostHtml } from "@/lib/ghostHtml";
 import { getWorkPageNeighbors } from "@/lib/homeWorkGrid";
 import { getWorkDisplayTitle } from "@/lib/workTitle";
 import { typeClass } from "@/lib/typographyStyles";
@@ -133,7 +134,7 @@ async function loadCaseStudy(slug: string): Promise<CaseStudy | null> {
             videoHtml: project.vimeoId ? buildVimeoIframe(project.vimeoId) : null,
             videoAspectRatio: 16 / 9,
             coverImage: project.coverImage || null,
-            html: markdownToHtml(project.content),
+            html: normalizeGhostHtml(markdownToHtml(project.content)),
             creditsCol3: [],
             creditsCol5: [],
         };
@@ -193,7 +194,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     const data = await loadCaseStudy(slug);
     if (!data) notFound();
 
-    const { prev, next } = await getWorkPageNeighbors(slug);
+    const { next } = await getWorkPageNeighbors(slug);
     const heroAspect = data.videoAspectRatio || 16 / 9;
 
     return (
@@ -257,51 +258,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 className={`pt-[13px] pb-[50px] ${OUTER}`}
             />
 
-            {/* ── Prev / Next (same order as home page grid) ────────── */}
-            {(prev || next) && (
+            {/* ── Next (same order as home page grid) ────────── */}
+            {next ? (
                 <section className={`pt-[50px] pb-[100px] ${OUTER}`}>
-                    <div className="grid grid-cols-6 gap-x-[5px] gap-y-[40px] md:gap-y-0 md:items-end">
-                        {prev ? (
-                            <div className="hidden md:block col-span-6 md:col-span-1 md:col-start-1">
-                                <Link
-                                    href={`/work/${prev.slug}`}
-                                    className="group inline-block max-w-full text-left"
+                    <div className="grid grid-cols-6 gap-x-[5px]">
+                        <div className="col-span-6 md:col-span-4 flex md:justify-end md:col-start-3">
+                            <Link
+                                href={`/work/${next.slug}`}
+                                className="group inline-block max-w-full text-left md:text-right"
+                            >
+                                <p
+                                    className={`m-0 text-[#353535] ${typeClass("work.nextProjectLabel")}`}
                                 >
-                                    <p
-                                        className={`m-0 text-[#353535] ${typeClass("work.nextProjectLabel")}`}
-                                    >
-                                        Previous Project
-                                    </p>
-                                    <p
-                                        className={`text-balance m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
-                                    >
-                                        {prev.title}
-                                    </p>
-                                </Link>
-                            </div>
-                        ) : null}
-                        {next ? (
-                            <div className="col-span-6 md:col-span-4 flex md:justify-end md:col-start-3">
-                                <Link
-                                    href={`/work/${next.slug}`}
-                                    className="group inline-block max-w-full text-left"
+                                    Next Project
+                                </p>
+                                <p
+                                    className={`text-balance m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
                                 >
-                                    <p
-                                        className={`m-0 text-[#353535] ${typeClass("work.nextProjectLabel")}`}
-                                    >
-                                        Next Project
-                                    </p>
-                                    <p
-                                        className={`text-balance m-0 text-accent underline underline-offset-4 decoration-1 transition-colors group-hover:text-accent-hover ${typeClass("work.nextProjectLink")}`}
-                                    >
-                                        {next.title}
-                                    </p>
-                                </Link>
-                            </div>
-                        ) : null}
+                                    {next.title}
+                                </p>
+                            </Link>
+                        </div>
                     </div>
                 </section>
-            )}
+            ) : null}
             </div>
         </article>
     );

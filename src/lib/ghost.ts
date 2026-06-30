@@ -7,6 +7,7 @@
  */
 
 import { config } from "./config";
+import { normalizeGhostHtml } from "./ghostHtml";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -312,6 +313,8 @@ export async function fetchGhostPostBySlug(slug: string): Promise<GhostPost | nu
                 prev = post.html;
                 post.html = post.html.replace(emptyWrapper, "");
             } while (post.html !== prev);
+
+            post.html = normalizeGhostHtml(post.html);
         }
 
         if (post) setCache(cacheKey, post);

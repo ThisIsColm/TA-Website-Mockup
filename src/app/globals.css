@@ -306,6 +306,18 @@ html.lenis body {
   margin: 0;
 }
 
+/* Desktop: body copy stacks in one grid cell — consecutive paragraphs need explicit gap */
+@media (min-width: 769px) {
+  .case-study-prose > .case-study-body > p + p {
+    margin-top: 1em;
+  }
+
+  .case-study-prose > .case-study-body > :is(ul, ol) + p,
+  .case-study-prose > .case-study-body > p + :is(ul, ol) {
+    margin-top: 1em;
+  }
+}
+
 .case-study-prose > .case-study-body > h2 + p,
 .case-study-prose > .case-study-body > h3 + p {
   margin-top: 0;
@@ -861,8 +873,7 @@ html.lenis body {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   column-gap: 5px;
-  /* Consistent vertical rhythm between every block (text, video, image) */
-  row-gap: clamp(28px, 2.5vw, 48px);
+  row-gap: 0;
   color: #000;
   font-family: var(--font-sans);
   padding-left: var(--page-padding);
@@ -872,6 +883,12 @@ html.lenis body {
 .insight-article-prose > * {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+/* Block spacing (paragraphs, headings, media) — replaces row-gap so hidden spacer
+ * paragraphs do not collapse breaks between real paragraphs. */
+.insight-article-prose > * + * {
+  margin-top: clamp(28px, 2.5vw, 48px);
 }
 
 .insight-article-prose > h2,
@@ -1020,8 +1037,8 @@ html.lenis body {
 }
 
 @media (max-width: 768px) {
-  .insight-article-prose {
-    row-gap: clamp(24px, 5vw, 32px);
+  .insight-article-prose > * + * {
+    margin-top: clamp(24px, 5vw, 32px);
   }
 
   .insight-article-prose > figure {
