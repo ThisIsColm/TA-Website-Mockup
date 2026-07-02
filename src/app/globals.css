@@ -523,6 +523,32 @@ html.lenis body {
   margin-top: 5px;
 }
 
+/* Ghost work pages wrap body in .case-study-body — same 5px gutter between stacked media */
+.case-study-prose > .case-study-body > :is(
+    figure,
+    .kg-card,
+    .kg-image-card,
+    .kg-gallery-card,
+    .kg-embed-card,
+    .kg-video-card,
+    img,
+    video,
+    iframe
+  )
+  + :is(
+    figure,
+    .kg-card,
+    .kg-image-card,
+    .kg-gallery-card,
+    .kg-embed-card,
+    .kg-video-card,
+    img,
+    video,
+    iframe
+  ) {
+  margin-top: 5px;
+}
+
 /* Space after a media block when body text resumes (not another image) */
 .case-study-prose > :is(
     figure,
