@@ -316,11 +316,11 @@ html.lenis body {
   .case-study-prose > .case-study-body > p + :is(ul, ol) {
     margin-top: 1em;
   }
-}
 
-.case-study-prose > .case-study-body > h2 + p,
-.case-study-prose > .case-study-body > h3 + p {
-  margin-top: 0;
+  /* Space below headings before body copy */
+  .case-study-prose > .case-study-body > :is(h2, h3, h4) + :is(p, ul, ol) {
+    margin-top: clamp(28px, 2.5vw, 48px);
+  }
 }
 
 /* Ghost spacer paragraphs between blocks */
@@ -407,10 +407,14 @@ html.lenis body {
   margin-bottom: 0;
 }
 
-/* Tight spacing between heading and the immediately-following paragraph */
+/* Space below headings before body copy */
 .case-study-prose > h2 + p,
-.case-study-prose > h3 + p {
-  margin-top: 0;
+.case-study-prose > h3 + p,
+.case-study-prose > h2 + ul,
+.case-study-prose > h3 + ul,
+.case-study-prose > h2 + ol,
+.case-study-prose > h3 + ol {
+  margin-top: clamp(28px, 2.5vw, 48px);
 }
 
 .case-study-prose p a {
@@ -625,11 +629,19 @@ html.lenis body {
 }
 
 .case-study-prose figcaption {
-  margin-top: 12px;
+  margin-top: 0;
   font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(0, 0, 0, 0.55);
   text-align: left;
+}
+
+/* Caption sits tight to its image; spacing to the next block is handled separately. */
+.case-study-prose > .case-study-body > figure:not(.kg-gallery-card):not(:has(iframe)),
+.case-study-prose figure:not(.kg-gallery-card):not(:has(iframe)):not(.kg-embed-card) {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* In-content video embeds — body column width, not full-bleed like photos */
@@ -786,16 +798,6 @@ html.lenis body {
     margin-top: 0;
   }
 
-  /* No gap: heading → body copy (cancel row-gap + heading line-height box) */
-  .case-study-prose > .case-study-body > :is(h2, h3, h4):has(+ :is(p, ul, ol)) {
-    line-height: 1 !important;
-    margin-bottom: -32px;
-  }
-
-  .case-study-prose > .case-study-body > :is(h2, h3, h4) + :is(p, ul, ol) {
-    margin-top: 0;
-  }
-
   /* Ghost sometimes inserts a blank line between heading and copy */
   .case-study-prose > .case-study-body > :is(h2, h3, h4) + p + :is(p, ul, ol) {
     margin-top: -64px;
@@ -805,6 +807,11 @@ html.lenis body {
   .case-study-prose > .case-study-body > :is(h2, h3, h4) + p:empty,
   .case-study-prose > .case-study-body > :is(h2, h3, h4) + p:has(> br:only-child) {
     display: none;
+  }
+
+  /* Captioned figure → heading: more air than the default 32px row-gap alone */
+  .case-study-prose > .case-study-body > figure:has(figcaption) + :is(h2, h3, h4) {
+    margin-top: 32px;
   }
 
   /* No gap: heading → its image (when Ghost puts the title before the photo) */
@@ -931,8 +938,13 @@ html.lenis body {
 .insight-article-prose > h3,
 .insight-article-prose > h4 {
   color: #000;
-  margin: 0;
+  margin-bottom: 0;
   text-wrap: balance;
+}
+
+/* Captioned figure → next heading: extra air so the title doesn't crowd the caption. */
+.insight-article-prose > figure:not(.kg-gallery-card) + :is(h2, h3, h4) {
+  margin-top: clamp(56px, 5vw, 88px);
 }
 
 .insight-article-prose > p,
@@ -997,7 +1009,15 @@ html.lenis body {
 .insight-article-prose > figure:not(.kg-gallery-card) {
   display: flex;
   flex-direction: column;
-  gap: clamp(28px, 2.5vw, 48px);
+  /* Caption sits tight to its image; figure → heading spacing is set separately. */
+  gap: 10px;
+}
+
+.insight-article-prose > figure:not(.kg-gallery-card) > figcaption {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(0, 0, 0, 0.55);
+  text-align: left;
 }
 
 .insight-article-prose figure figure {
@@ -1068,7 +1088,11 @@ html.lenis body {
   }
 
   .insight-article-prose > figure {
-    gap: clamp(24px, 5vw, 32px);
+    gap: 8px;
+  }
+
+  .insight-article-prose > figure:not(.kg-gallery-card) + :is(h2, h3, h4) {
+    margin-top: clamp(40px, 8vw, 56px);
   }
 
   .insight-article-prose > h2,
