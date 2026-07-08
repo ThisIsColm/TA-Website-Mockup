@@ -476,9 +476,10 @@ const prose = {
         font: "tenon",
     },
     caseStudyCaption: {
-        size: 12,
-        mobile: 11,
+        size: 18,
+        mobile: 14,
         weight: 400,
+        lineHeight: 24,
         letterSpacing: 0.04,
         font: "tenon",
     },

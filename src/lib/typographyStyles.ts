@@ -247,6 +247,12 @@ ${mobileRules.join("\n")}
   }
   .case-study-prose figcaption {
     font-size: var(--type-prose-caseStudyCaption-size-desktop);
+    line-height: var(--type-prose-caseStudyCaption-line-height-desktop);
+    letter-spacing: 0.04em;
+  }
+  .insight-article-prose > figure:not(.kg-gallery-card) > figcaption {
+    font-size: var(--type-prose-caseStudyCaption-size-desktop);
+    line-height: var(--type-prose-caseStudyCaption-line-height-desktop);
     letter-spacing: 0.04em;
   }
 }
@@ -319,6 +325,17 @@ ${mobileRules.join("\n")}
   }
   .case-study-prose > .case-meta > .case-meta-left > p {
     font-weight: 400;
+  }
+
+  .case-study-prose figcaption {
+    font-size: var(--type-prose-caseStudyCaption-size-mobile);
+    line-height: var(--type-prose-caseStudyCaption-line-height-mobile);
+    letter-spacing: 0.04em;
+  }
+  .insight-article-prose > figure:not(.kg-gallery-card) > figcaption {
+    font-size: var(--type-prose-caseStudyCaption-size-mobile);
+    line-height: var(--type-prose-caseStudyCaption-line-height-mobile);
+    letter-spacing: 0.04em;
   }
 }
 `;

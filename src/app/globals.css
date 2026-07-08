@@ -630,7 +630,6 @@ html.lenis body {
 
 .case-study-prose figcaption {
   margin-top: 0;
-  font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(0, 0, 0, 0.55);
   text-align: left;
@@ -1014,7 +1013,6 @@ html.lenis body {
 }
 
 .insight-article-prose > figure:not(.kg-gallery-card) > figcaption {
-  font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(0, 0, 0, 0.55);
   text-align: left;
