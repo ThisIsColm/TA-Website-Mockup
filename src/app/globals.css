@@ -306,6 +306,18 @@ html.lenis body {
   margin: 0;
 }
 
+/* Section label + body in one paragraph — label on its own line, no extra paragraph gap */
+.case-study-prose > .case-study-body > p.case-section-lead > strong:first-child {
+  display: block;
+  font-weight: 800;
+  margin: 0;
+}
+
+/* Fallback when label/body are still separate paragraphs */
+.case-study-prose > .case-study-body > p.case-section-label + p {
+  margin-top: 0;
+}
+
 /* Desktop: body copy stacks in one grid cell — consecutive paragraphs need explicit gap */
 @media (min-width: 769px) {
   .case-study-prose > .case-study-body > p + p {
@@ -344,11 +356,6 @@ html.lenis body {
     )
     + :is(h2, h3, h4, p, ul, ol, blockquote) {
     margin-top: 100px;
-  }
-
-  /* Inline section label (Brief, Process, …) — bold the label word only */
-  .case-study-prose > .case-study-body > p > strong:only-child {
-    font-weight: 800;
   }
 }
 
@@ -833,6 +840,11 @@ html.lenis body {
     margin-bottom: 0;
   }
 
+
+  /* Section label → body: collapse mobile flex row-gap when still split */
+  .case-study-prose > .case-study-body > p.case-section-label + p {
+    margin-top: -32px;
+  }
 
   /* Override desktop heading spacing inside the mobile media query */
   .case-study-prose > .case-study-body > * + :is(h2, h3, h4) {

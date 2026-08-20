@@ -60,31 +60,10 @@ function tagMediaForHeaderContrast(root: HTMLElement) {
     );
 }
 
-function tagSectionLabelParagraphs(root: HTMLElement) {
-    root.querySelectorAll("p").forEach((p) => {
-        p.classList.remove("case-section-label");
+function joinSectionLabelsWithBody(scope: ParentNode) {
+    scope.querySelectorAll("p").forEach((labelP) => {
+        if (!labelP.classList.contains("case-section-label")) return;
 
-        const meaningful = [...p.childNodes].filter(
-            (node) =>
-                node.nodeType !== Node.TEXT_NODE ||
-                (node.textContent?.trim().length ?? 0) > 0
-        );
-
-        if (
-            meaningful.length === 1 &&
-            meaningful[0] instanceof HTMLElement &&
-            meaningful[0].tagName === "STRONG"
-        ) {
-            p.classList.add("case-section-label");
-        }
-    });
-}
-
-/** Join `<p><strong>Brief</strong></p>` with the following body paragraph. */
-function mergeSectionLabelsWithBody(root: HTMLElement) {
-    const scope = root.querySelector(".case-study-body") ?? root;
-
-    scope.querySelectorAll("p.case-section-label").forEach((labelP) => {
         const next = labelP.nextElementSibling;
         if (
             !next ||
@@ -101,19 +80,46 @@ function mergeSectionLabelsWithBody(root: HTMLElement) {
         }
 
         next.insertBefore(strong, next.firstChild);
-
-        const afterStrong = strong.nextSibling;
-        if (afterStrong?.nodeType === Node.TEXT_NODE) {
-            const text = afterStrong.textContent ?? "";
-            if (text.length > 0 && !/^\s/.test(text)) {
-                afterStrong.textContent = ` ${text}`;
-            }
-        } else if (afterStrong) {
-            next.insertBefore(document.createTextNode(" "), afterStrong);
-        }
-
+        next.classList.add("case-section-lead");
         labelP.remove();
     });
+}
+
+function tagSectionLeadParagraphs(scope: ParentNode) {
+    scope.querySelectorAll("p").forEach((p) => {
+        p.classList.remove("case-section-label", "case-section-lead");
+
+        const meaningful = [...p.childNodes].filter(
+            (node) =>
+                node.nodeType !== Node.TEXT_NODE ||
+                (node.textContent?.trim().length ?? 0) > 0
+        );
+
+        const onlyStrong =
+            meaningful.length === 1 &&
+            meaningful[0] instanceof HTMLElement &&
+            meaningful[0].tagName === "STRONG";
+
+        if (onlyStrong) {
+            p.classList.add("case-section-label");
+            return;
+        }
+
+        const first = meaningful[0];
+        if (
+            first instanceof HTMLElement &&
+            first.tagName === "STRONG" &&
+            meaningful.length > 1
+        ) {
+            p.classList.add("case-section-lead");
+        }
+    });
+}
+
+function processSectionLabels(root: HTMLElement) {
+    const scope = root.querySelector(".case-study-body") ?? root;
+    tagSectionLeadParagraphs(scope);
+    joinSectionLabelsWithBody(scope);
 }
 
 export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: GhostContentProps) {
@@ -133,8 +139,7 @@ export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: Gh
         setImages(urls);
 
         const runMediaMarking = () => {
-            tagSectionLabelParagraphs(root);
-            mergeSectionLabelsWithBody(root);
+            processSectionLabels(root);
             tagMediaForHeaderContrast(root);
             notifyHeaderSurfaceUpdate();
         };

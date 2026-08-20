@@ -237,6 +237,17 @@ ${mobileRules.join("\n")}
     font-weight: 800;
     letter-spacing: -0.02em;
   }
+  .case-study-prose > .case-study-body > p.case-section-lead > strong:first-child,
+  .case-study-prose > .case-study-body > p.case-section-label {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyH2-size-desktop);
+    line-height: var(--type-prose-caseStudyH2-line-height-desktop);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-study-body > p.case-section-label > strong {
+    font-weight: 800;
+  }
   .case-study-prose > .case-meta > .case-meta-left > h1 {
     font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyMeta-size-desktop);
@@ -324,6 +335,17 @@ ${mobileRules.join("\n")}
     line-height: var(--type-prose-caseStudyH2-line-height-mobile);
     font-weight: 800;
     letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-study-body > p.case-section-lead > strong:first-child,
+  .case-study-prose > .case-study-body > p.case-section-label {
+    font-family: "tenon", sans-serif;
+    font-size: var(--type-prose-caseStudyH2-size-mobile);
+    line-height: var(--type-prose-caseStudyH2-line-height-mobile);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-study-body > p.case-section-label > strong {
+    font-weight: 800;
   }
   .case-study-prose > .case-meta > .case-meta-left > h1,
   .case-study-prose > .case-meta > .case-meta-left > p {
