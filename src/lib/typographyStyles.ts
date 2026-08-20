@@ -175,7 +175,9 @@ ${mobileRules.join("\n")}
 @media (min-width: ${MOBILE_BREAKPOINT_PX}px) {
   .insight-article-prose > p,
   .insight-article-prose > ul,
-  .insight-article-prose > ol {
+  .insight-article-prose > ol,
+  .insight-article-prose > ul > li,
+  .insight-article-prose > ol > li {
     font-size: var(--type-prose-insightArticleBody-size-desktop);
     line-height: var(--type-prose-insightArticleBody-line-height-desktop);
     letter-spacing: -0.02em;
@@ -260,7 +262,9 @@ ${mobileRules.join("\n")}
 @media (max-width: ${MOBILE_BREAKPOINT_PX - 1}px) {
   .insight-article-prose > p,
   .insight-article-prose > ul,
-  .insight-article-prose > ol {
+  .insight-article-prose > ol,
+  .insight-article-prose > ul > li,
+  .insight-article-prose > ol > li {
     font-size: var(--type-prose-insightArticleBody-size-mobile);
     line-height: var(--type-prose-insightArticleBody-line-height-mobile);
   }

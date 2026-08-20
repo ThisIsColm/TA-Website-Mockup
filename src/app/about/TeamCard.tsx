@@ -10,6 +10,8 @@ export interface TeamCardProps {
     nameLabel?: string;
     /** Key for `/images/team/tape/{key}_Tape.webp` (e.g. "Mark", "Beatriz", "AJ"). */
     tapeKey?: string;
+    /** Explicit tape label path — overrides `tapeKey` when filenames differ. */
+    tapeSrc?: string;
     /** [default, hover] — takes precedence over `photoPrefix`. */
     photos?: [string, string] | string[];
     /** Builds `_001` (default) + `_002` (hover) from `/images/team/`. */
@@ -23,6 +25,7 @@ export default function TeamCard({
     role,
     nameLabel,
     tapeKey,
+    tapeSrc: tapeSrcProp,
     photos,
     photoPrefix,
 }: TeamCardProps) {
@@ -40,7 +43,9 @@ export default function TeamCard({
     const displayName = (nameLabel?.trim() || role).trim();
     const photoAlt = `Portrait of ${displayName}`;
 
-    const tapeSrc = tapeKey ? `/images/team/tape/${tapeKey}_Tape.webp` : null;
+    const tapeSrc =
+        tapeSrcProp ??
+        (tapeKey ? `/images/team/tape/${tapeKey}_Tape.webp` : null);
 
     return (
         <div className="flex flex-col">

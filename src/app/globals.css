@@ -496,9 +496,9 @@ html.lenis body {
 .case-study-prose > .case-study-body > video,
 .case-study-prose > .case-study-body > iframe {
   grid-column: unset;
-  width: calc(150% + 5px);
-  max-width: none;
-  margin-left: calc(-50% - 5px);
+  width: calc(150% + 5px) !important;
+  max-width: none !important;
+  margin-left: calc(-50% - 5px) !important;
 }
 
 /* Consecutive media — match 2×2 gallery gutter (5px) */
@@ -643,50 +643,39 @@ html.lenis body {
   gap: 10px;
 }
 
-/* In-content video embeds — body column width, not full-bleed like photos */
-.case-study-prose > .kg-embed-card,
-.case-study-prose > .kg-video-card,
-.case-study-prose > figure.kg-embed-card,
-.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
+/* Ghost Vimeo/YouTube — inner wrappers fill the breakout box; override inline editor dimensions */
+.case-study-prose .kg-embed-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  padding: 0 !important;
+  aspect-ratio: 16 / 9;
+}
+
+.case-study-prose .kg-embed-card iframe,
+.case-study-prose .kg-video-card iframe,
+.case-study-prose figure.kg-embed-card iframe,
+.case-study-prose figure:has(iframe):not(.kg-gallery-card):not(:has(img)) iframe,
+.case-study-prose .kg-embed-container iframe,
 .case-study-prose > iframe,
-.case-study-prose > .case-study-body > .kg-embed-card,
-.case-study-prose > .case-study-body > .kg-video-card,
-.case-study-prose > .case-study-body > figure.kg-embed-card,
-.case-study-prose > .case-study-body > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
 .case-study-prose > .case-study-body > iframe {
-  grid-column: 3 / span 4;
-  width: 100%;
-  max-width: none;
-}
-
-.case-study-prose > .case-study-body > .kg-embed-card,
-.case-study-prose > .case-study-body > .kg-video-card,
-.case-study-prose > .case-study-body > figure.kg-embed-card,
-.case-study-prose > .case-study-body > figure:has(iframe):not(.kg-gallery-card):not(:has(img)),
-.case-study-prose > .case-study-body > iframe {
-  grid-column: unset;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin-left: 0;
-}
-
-/* Ghost Vimeo/YouTube — override inline width/height from the editor */
-.case-study-prose > .kg-embed-card,
-.case-study-prose > .kg-video-card,
-.case-study-prose > figure.kg-embed-card,
-.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)) {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.case-study-prose > .kg-embed-card iframe,
-.case-study-prose > .kg-video-card iframe,
-.case-study-prose > figure.kg-embed-card iframe,
-.case-study-prose > figure:has(iframe):not(.kg-gallery-card):not(:has(img)) iframe,
-.case-study-prose > iframe {
   display: block;
   width: 100% !important;
   max-width: 100% !important;
+  border: 0;
+}
+
+.case-study-prose .kg-embed-container iframe {
+  height: 100% !important;
+  aspect-ratio: unset;
+}
+
+.case-study-prose .kg-embed-card > iframe,
+.case-study-prose .kg-video-card > iframe,
+.case-study-prose figure.kg-embed-card > iframe,
+.case-study-prose figure:has(iframe):not(.kg-gallery-card):not(:has(img)) > iframe,
+.case-study-prose > iframe,
+.case-study-prose > .case-study-body > iframe {
   height: auto !important;
   aspect-ratio: 16 / 9;
 }
@@ -982,7 +971,39 @@ html.lenis body {
 
 .insight-article-prose > ul,
 .insight-article-prose > ol {
-  padding-left: 1.25em;
+  padding-left: 1.5em;
+  color: #000;
+}
+
+.insight-article-prose > ul {
+  list-style: disc;
+  list-style-position: outside;
+}
+
+.insight-article-prose > ol {
+  list-style: decimal;
+  list-style-position: outside;
+}
+
+.insight-article-prose > ul > li,
+.insight-article-prose > ol > li {
+  color: #000;
+  padding-left: 0.15em;
+}
+
+.insight-article-prose > ul > li + li,
+.insight-article-prose > ol > li + li {
+  margin-top: 0.45em;
+}
+
+.insight-article-prose li a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.insight-article-prose li a:hover {
+  color: var(--color-accent-hover);
 }
 
 .insight-article-prose > blockquote {

@@ -15,7 +15,7 @@ export type TeamAuthorId =
     | "colm"
     | "rory"
     | "bea"
-    | "kate"
+    | "woodie"
     | "rosie"
     | "aj";
 
@@ -37,7 +37,11 @@ export const TEAM_AUTHORS: TeamAuthor[] = [
     { id: "colm", name: "Colm Moore", photoPrefix: "Colm" },
     { id: "rory", name: "Rory Bradley", photoPrefix: "Rory" },
     { id: "bea", name: "Beatriz Gonçalves", photoPrefix: "Beatriz" },
-    { id: "kate", name: "Kate Brady", photoPrefix: "Kate" },
+    {
+        id: "woodie",
+        name: "Woodie",
+        photos: ["/images/team/Woodie_001.png", "/images/team/Woodie_002.png"],
+    },
     { id: "rosie", name: "Rosie Spearing", photoPrefix: "Rosie" },
     { id: "aj", name: "Alex James", photoPrefix: "AJ" },
 ];

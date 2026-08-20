@@ -17,7 +17,7 @@ const CARDS: WorkCard[] = [
     {
         accent: "Commercials",
         body: [
-            "With our talented and diverse roster of directors, we collaborate with agencies to bring their creative to life through cinematic execution.",
+            "With our talented and diverse roster of directors, we collaborate with agencies to bring their creative to life.",
         ],
         pills: [
             "Budget & CPA",
@@ -31,7 +31,7 @@ const CARDS: WorkCard[] = [
     {
         accent: "Brand Stories",
         body: [
-            "We create films that help brands connect with people. Whether it's a documentary-led piece, a founder story or a campaign film, we craft authentic narratives that resonate.",
+            "We create films to strengthen connection between brand and audience. Whether it's a documentary, a founder story or a campaign film, we build authentic stories that resonate.",
         ],
         pills: [
             "Ideation & Research",

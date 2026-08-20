@@ -22,6 +22,7 @@ export const metadata: Metadata = {
  * - `photoPrefix` → `_001.webp` (default) + `_002` (hover) via `getTeamPhotoPair`.
  * - `photos` for explicit [default, hover] paths when filenames differ.
  * - `tapeKey` maps to `/images/team/tape/{key}_Tape.webp`.
+ * - `tapeSrc` for custom tape label paths (e.g. Woodie's `Woody.png`).
  */
 const TEAM: TeamCardProps[] = [
     { nameLabel: "Nathan Reilly", role: "CEO", photoPrefix: "Nathan", tapeKey: "Nathan" },
@@ -69,12 +70,6 @@ const TEAM: TeamCardProps[] = [
         tapeKey: "Beatriz",
     },
     {
-        nameLabel: "Kate Brady",
-        role: "Producer",
-        photoPrefix: "Kate",
-        tapeKey: "Kate",
-    },
-    {
         nameLabel: "Rosie Spearing",
         role: "Assistant Producer",
         photoPrefix: "Rosie",
@@ -85,6 +80,12 @@ const TEAM: TeamCardProps[] = [
         role: "CTO",
         photoPrefix: "AJ",
         tapeKey: "AJ",
+    },
+    {
+        nameLabel: "Woodie",
+        role: "Front of House",
+        photos: ["/images/team/Woodie_001.png", "/images/team/Woodie_002.png"],
+        tapeSrc: "/images/team/tape/Woody.png",
     },
 ];
 
@@ -113,7 +114,10 @@ export default function AboutPage() {
                                     cinematographers, editors, designers and VFX artists
                                     to create work that moves people. Whether it&rsquo;s
                                     for livestream, commercial campaigns or socials, from
-                                    brief to final delivery, we get it done. We mobilise
+                                    brief to final delivery, we get it done. 
+                                </p>
+                                <p>    
+                                    We mobilise
                                     productions across the globe, and are no strangers to a
                                     tight timeline.
                                 </p>
@@ -156,7 +160,7 @@ export default function AboutPage() {
                 className="bg-white pt-[40px] md:pt-[60px] pb-[60px] md:pb-[100px]"
             >
                 <Container>
-                    <SectionHeading>People we work with</SectionHeading>
+                    <SectionHeading>We work with</SectionHeading>
                     <div className="mt-[24px] md:mt-[32px] relative w-full">
                         <Image
                             src="/images/Client%20Logos%203x4.png"
