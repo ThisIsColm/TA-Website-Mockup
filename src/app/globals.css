@@ -712,6 +712,36 @@ html.lenis body {
   aspect-ratio: 16 / 9;
 }
 
+/* Ghost native video uploads (kg-video-card) — full width like embeds; hide stock player chrome */
+.case-study-prose figure.kg-video-card,
+.case-study-prose .kg-video-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.case-study-prose .kg-video-container {
+  position: relative;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+}
+
+.case-study-prose .kg-video-container > video {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.case-study-prose .kg-video-overlay,
+.case-study-prose .kg-video-player-container {
+  display: none !important;
+}
+
 /* Ghost gallery card layout */
 .case-study-prose .kg-gallery-row {
   display: flex;
@@ -1133,6 +1163,36 @@ html.lenis body {
   aspect-ratio: 16 / 9;
 }
 
+/* Ghost native video uploads (kg-video-card) — full column width; hide stock player chrome */
+.insight-article-prose figure.kg-video-card,
+.insight-article-prose .kg-video-card {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.insight-article-prose .kg-video-container {
+  position: relative;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+}
+
+.insight-article-prose .kg-video-container > video {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.insight-article-prose .kg-video-overlay,
+.insight-article-prose .kg-video-player-container {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
   .insight-article-prose > * + * {
     margin-top: clamp(24px, 5vw, 32px);
@@ -1343,6 +1403,36 @@ html.lenis body {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 16 / 9; /* Default aspect ratio */
+}
+
+/* Ghost native video uploads — match prose pages (full width, no stock player UI) */
+.ghost-content figure.kg-video-card,
+.ghost-content .kg-video-card {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.ghost-content .kg-video-container {
+  position: relative;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+}
+
+.ghost-content .kg-video-container > video {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.ghost-content .kg-video-overlay,
+.ghost-content .kg-video-player-container {
+  display: none !important;
 }
 
 /* If the card has a specific aspect ratio or is known to be vertical */
