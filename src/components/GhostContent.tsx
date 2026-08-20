@@ -60,6 +60,62 @@ function tagMediaForHeaderContrast(root: HTMLElement) {
     );
 }
 
+function tagSectionLabelParagraphs(root: HTMLElement) {
+    root.querySelectorAll("p").forEach((p) => {
+        p.classList.remove("case-section-label");
+
+        const meaningful = [...p.childNodes].filter(
+            (node) =>
+                node.nodeType !== Node.TEXT_NODE ||
+                (node.textContent?.trim().length ?? 0) > 0
+        );
+
+        if (
+            meaningful.length === 1 &&
+            meaningful[0] instanceof HTMLElement &&
+            meaningful[0].tagName === "STRONG"
+        ) {
+            p.classList.add("case-section-label");
+        }
+    });
+}
+
+/** Join `<p><strong>Brief</strong></p>` with the following body paragraph. */
+function mergeSectionLabelsWithBody(root: HTMLElement) {
+    const scope = root.querySelector(".case-study-body") ?? root;
+
+    scope.querySelectorAll("p.case-section-label").forEach((labelP) => {
+        const next = labelP.nextElementSibling;
+        if (
+            !next ||
+            next.tagName !== "P" ||
+            next.classList.contains("case-section-label")
+        ) {
+            return;
+        }
+
+        const strong = labelP.querySelector(":scope > strong");
+        if (!strong) {
+            labelP.remove();
+            return;
+        }
+
+        next.insertBefore(strong, next.firstChild);
+
+        const afterStrong = strong.nextSibling;
+        if (afterStrong?.nodeType === Node.TEXT_NODE) {
+            const text = afterStrong.textContent ?? "";
+            if (text.length > 0 && !/^\s/.test(text)) {
+                afterStrong.textContent = ` ${text}`;
+            }
+        } else if (afterStrong) {
+            next.insertBefore(document.createTextNode(" "), afterStrong);
+        }
+
+        labelP.remove();
+    });
+}
+
 export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: GhostContentProps) {
     const [images, setImages] = useState<string[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -77,6 +133,8 @@ export default function GhostContent({ html, className = DEFAULT_CLASSNAME }: Gh
         setImages(urls);
 
         const runMediaMarking = () => {
+            tagSectionLabelParagraphs(root);
+            mergeSectionLabelsWithBody(root);
             tagMediaForHeaderContrast(root);
             notifyHeaderSurfaceUpdate();
         };

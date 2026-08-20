@@ -246,8 +246,8 @@ ${mobileRules.join("\n")}
   }
   .case-study-prose > .case-meta > .case-meta-left > p {
     font-family: "tenon", sans-serif;
-    font-size: var(--type-prose-caseStudyMeta-size-desktop);
-    line-height: var(--type-prose-caseStudyMeta-line-height-desktop);
+    font-size: var(--type-prose-caseStudyBody-size-desktop);
+    line-height: var(--type-prose-caseStudyBody-line-height-desktop);
     font-weight: 400;
     letter-spacing: -0.02em;
   }
@@ -328,9 +328,15 @@ ${mobileRules.join("\n")}
   .case-study-prose > .case-meta > .case-meta-left > h1,
   .case-study-prose > .case-meta > .case-meta-left > p {
     font-family: "tenon", sans-serif;
+    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > h1 {
     font-size: var(--type-prose-caseStudyMeta-size-mobile);
     line-height: var(--type-prose-caseStudyMeta-line-height-mobile);
-    letter-spacing: -0.02em;
+  }
+  .case-study-prose > .case-meta > .case-meta-left > p {
+    font-size: var(--type-prose-caseStudyBody-size-mobile);
+    line-height: var(--type-prose-caseStudyBody-line-height-mobile);
   }
   .case-study-prose > .case-meta > .case-meta-left > h1 {
     font-weight: 800;

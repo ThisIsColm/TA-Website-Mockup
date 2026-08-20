@@ -267,7 +267,7 @@ html.lenis body {
 
 .case-study-prose > .case-meta > .case-meta-left > p {
   color: #000000;
-  margin: 4px 0 0;
+  margin: 0;
   text-wrap: pretty;
 }
 
@@ -349,6 +349,11 @@ html.lenis body {
   /* Bold-only line (Ghost section label) → body copy stays tight */
   .case-study-prose > .case-study-body > p:has(> strong:only-child) + p {
     margin-top: 0;
+  }
+
+  /* Inline section label (Brief, Process, …) — bold the label word only */
+  .case-study-prose > .case-study-body > p > strong:only-child {
+    font-weight: 800;
   }
 }
 
@@ -833,15 +838,6 @@ html.lenis body {
     margin-bottom: 0;
   }
 
-  /* Bold-only section label (Ghost) → body copy, no gap */
-  .case-study-prose > .case-study-body > p:has(> strong:only-child) {
-    line-height: 1 !important;
-    margin-bottom: -32px;
-  }
-
-  .case-study-prose > .case-study-body > p:has(> strong:only-child) + p {
-    margin-top: 0;
-  }
 
   /* Override desktop heading spacing inside the mobile media query */
   .case-study-prose > .case-study-body > * + :is(h2, h3, h4) {
