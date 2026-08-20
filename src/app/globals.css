@@ -352,13 +352,6 @@ html.lenis body {
   }
 }
 
-.case-study-prose > .case-study-body > ul,
-.case-study-prose > .case-study-body > ol {
-  color: #000;
-  margin-bottom: 16px;
-  padding-left: 1.25rem;
-}
-
 .case-study-prose > .case-study-body > blockquote {
   border-left: 2px solid var(--color-accent);
   padding-left: 1rem;
@@ -435,19 +428,58 @@ html.lenis body {
 }
 
 .case-study-prose > ul,
-.case-study-prose > ol {
+.case-study-prose > ol,
+.case-study-prose > .case-study-body > ul,
+.case-study-prose > .case-study-body > ol {
   color: #000;
-  margin-bottom: 16px;
-  padding-left: 1.25rem;
-  grid-column: 3 / span 4;
+  padding-left: 1.5em;
 }
 
-.case-study-prose > ul {
+.case-study-prose > ul,
+.case-study-prose > .case-study-body > ul {
   list-style: disc;
+  list-style-position: outside;
 }
 
-.case-study-prose > ol {
+.case-study-prose > ol,
+.case-study-prose > .case-study-body > ol {
   list-style: decimal;
+  list-style-position: outside;
+}
+
+.case-study-prose > ul > li,
+.case-study-prose > ol > li,
+.case-study-prose > .case-study-body > ul > li,
+.case-study-prose > .case-study-body > ol > li {
+  color: #000;
+  padding-left: 0.15em;
+  text-wrap: pretty;
+}
+
+.case-study-prose > ul > li + li,
+.case-study-prose > ol > li + li,
+.case-study-prose > .case-study-body > ul > li + li,
+.case-study-prose > .case-study-body > ol > li + li {
+  margin-top: 0.45em;
+}
+
+.case-study-prose li a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s;
+}
+
+.case-study-prose li a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Legacy: direct prose children (static markdown projects without wrapper) */
+.case-study-prose > ul,
+.case-study-prose > ol {
+  margin-bottom: 16px;
+  grid-column: 3 / span 4;
 }
 
 .case-study-prose > blockquote {

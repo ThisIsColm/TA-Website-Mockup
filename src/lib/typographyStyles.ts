@@ -205,7 +205,9 @@ ${mobileRules.join("\n")}
   /* Work case study — body + in-content section labels (Brief, Production, Result, …) */
   .case-study-prose > p,
   .case-study-prose > ul,
-  .case-study-prose > ol {
+  .case-study-prose > ol,
+  .case-study-prose > ul > li,
+  .case-study-prose > ol > li {
     font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-desktop);
     line-height: var(--type-prose-caseStudyBody-line-height-desktop);
@@ -214,7 +216,9 @@ ${mobileRules.join("\n")}
   }
   .case-study-prose > .case-study-body > p,
   .case-study-prose > .case-study-body > ul,
-  .case-study-prose > .case-study-body > ol {
+  .case-study-prose > .case-study-body > ol,
+  .case-study-prose > .case-study-body > ul > li,
+  .case-study-prose > .case-study-body > ol > li {
     font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-desktop);
     line-height: var(--type-prose-caseStudyBody-line-height-desktop);
@@ -289,7 +293,9 @@ ${mobileRules.join("\n")}
 
   .case-study-prose > p,
   .case-study-prose > ul,
-  .case-study-prose > ol {
+  .case-study-prose > ol,
+  .case-study-prose > ul > li,
+  .case-study-prose > ol > li {
     font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-mobile);
     line-height: var(--type-prose-caseStudyBody-line-height-mobile);
@@ -298,7 +304,9 @@ ${mobileRules.join("\n")}
   }
   .case-study-prose > .case-study-body > p,
   .case-study-prose > .case-study-body > ul,
-  .case-study-prose > .case-study-body > ol {
+  .case-study-prose > .case-study-body > ol,
+  .case-study-prose > .case-study-body > ul > li,
+  .case-study-prose > .case-study-body > ol > li {
     font-family: "tenon", sans-serif;
     font-size: var(--type-prose-caseStudyBody-size-mobile);
     line-height: var(--type-prose-caseStudyBody-line-height-mobile);
