@@ -346,11 +346,6 @@ html.lenis body {
     margin-top: 100px;
   }
 
-  /* Bold-only line (Ghost section label) → body copy stays tight */
-  .case-study-prose > .case-study-body > p:has(> strong:only-child) + p {
-    margin-top: 0;
-  }
-
   /* Inline section label (Brief, Process, …) — bold the label word only */
   .case-study-prose > .case-study-body > p > strong:only-child {
     font-weight: 800;
