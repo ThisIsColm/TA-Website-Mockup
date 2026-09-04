@@ -11,7 +11,6 @@ import { typeClass } from "@/lib/typographyStyles";
 const navLinks = [
     /** Project grid lives on the homepage — menu scrolls to this anchor */
     { href: "/#work", label: "Work" },
-    { href: "/directors", label: "Directors" },
     { href: "/about", label: "About" },
     { href: "/insights", label: "Insights" },
     { href: "/contact", label: "Contact" },
