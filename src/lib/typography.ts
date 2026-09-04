@@ -246,6 +246,37 @@ const contact = {
     },
 } as const satisfies Record<string, TypeSpec>;
 
+// ── Directors ───────────────────────────────────────────────────────────────
+
+const directors = {
+    name: {
+        size: 56,
+        mobile: 28,
+        weight: 800,
+        lineHeightRatio: 1.28,
+        letterSpacing: -0.02,
+        font: "tenon",
+    },
+    /** Director detail page — name in grid columns 1–2. */
+    pageName: {
+        size: 96,
+        mobile: 40,
+        weight: 800,
+        lineHeight: 96,
+        letterSpacing: -0.02,
+        font: "tenon",
+    },
+    /** Director detail page — intro copy and body text in columns 3–6. */
+    pageBody: {
+        size: 36,
+        mobile: 18,
+        weight: 400,
+        lineHeight: 46,
+        letterSpacing: -0.02,
+        font: "tenon",
+    },
+} as const satisfies Record<string, TypeSpec>;
+
 // ── Insights ────────────────────────────────────────────────────────────────
 
 const insights = {
@@ -491,6 +522,7 @@ export const typography = {
     home,
     about,
     contact,
+    directors,
     insights,
     work,
     prose,

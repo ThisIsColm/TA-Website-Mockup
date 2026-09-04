@@ -170,7 +170,7 @@ function TypewriterSection() {
     );
 }
 
-const HOME_WORK_GRID_LIMIT = 16;
+const HOME_WORK_GRID_LIMIT = 18;
 
 export default function HomePage() {
     const fallbackProjects = getFeaturedProjects(HOME_WORK_GRID_LIMIT);

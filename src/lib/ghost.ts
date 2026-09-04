@@ -85,6 +85,21 @@ interface FetchGhostOptions {
     refresh?: boolean;
 }
 
+/** In-memory + Next fetch caching — off in dev so Ghost edits show immediately. */
+function useGhostCache(refresh = false): boolean {
+    if (refresh) return false;
+    if (process.env.NODE_ENV === "development") return false;
+    if (process.env.GHOST_CACHE === "0") return false;
+    return true;
+}
+
+function ghostFetchOptions(refresh = false): RequestInit {
+    if (!useGhostCache(refresh)) {
+        return { cache: "no-store" };
+    }
+    return { next: { revalidate: config.cache.ttlSeconds } };
+}
+
 // ── API helpers ───────────────────────────────────────────────────
 
 function ghostApiUrl(endpoint: string, params: Record<string, string> = {}): string {
@@ -108,7 +123,7 @@ export async function fetchGhostPosts(
     const { refresh = false } = options;
     const cacheKey = `posts:${page}:${limit}:${filter || ""}`;
 
-    if (!refresh) {
+    if (useGhostCache(refresh)) {
         const cached = getCached<GhostPostsResponse>(cacheKey);
         if (cached) return cached;
     }
@@ -123,19 +138,14 @@ export async function fetchGhostPosts(
     if (filter) params.filter = filter;
 
     try {
-        const res = await fetch(
-            ghostApiUrl("posts", params),
-            refresh
-                ? { cache: "no-store" }
-                : { next: { revalidate: config.cache.ttlSeconds } }
-        );
+        const res = await fetch(ghostApiUrl("posts", params), ghostFetchOptions(refresh));
 
         if (!res.ok) {
             throw new Error(`Ghost API error: ${res.status} ${res.statusText}`);
         }
 
         const data: GhostPostsResponse = await res.json();
-        setCache(cacheKey, data);
+        if (useGhostCache(refresh)) setCache(cacheKey, data);
         return data;
     } catch (err) {
         console.error("[ghost] Fetch failed:", err);
@@ -163,7 +173,7 @@ export async function fetchAllGhostPosts(
 ): Promise<GhostPost[]> {
     const { refresh = false } = options;
     const cacheKey = "all-posts";
-    if (!refresh) {
+    if (useGhostCache(refresh)) {
         const cached = getCached<GhostPost[]>(cacheKey);
         if (cached) return cached;
     }
@@ -179,7 +189,7 @@ export async function fetchAllGhostPosts(
         page++;
     }
 
-    setCache(cacheKey, allPosts);
+    if (useGhostCache(refresh)) setCache(cacheKey, allPosts);
     return allPosts;
 }
 
@@ -241,23 +251,50 @@ export async function fetchPostsByIds(
     return result;
 }
 
+/** All published posts carrying a given tag slug (e.g. `director`). */
+export async function fetchPostsByTag(
+    tagSlug: string,
+    options: FetchGhostOptions = {}
+): Promise<GhostPost[]> {
+    const slug = tagSlug.trim().toLowerCase();
+    if (!slug) return [];
+
+    const allPosts: GhostPost[] = [];
+    let page = 1;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+        const res = await fetchGhostPosts(page, 100, `tag:${slug}`, options);
+        allPosts.push(...res.posts);
+        totalPages = res.meta.pagination.pages;
+        page++;
+    }
+
+    return allPosts;
+}
+
 /**
  * Fetch a single Ghost post by slug. Returns full HTML content.
  * Returns null if not found.
  */
-export async function fetchGhostPostBySlug(slug: string): Promise<GhostPost | null> {
+export async function fetchGhostPostBySlug(
+    slug: string,
+    options: FetchGhostOptions = {}
+): Promise<GhostPost | null> {
+    const { refresh = false } = options;
     const cacheKey = `post-slug:${slug}`;
-    const cached = getCached<GhostPost | null>(cacheKey);
-    if (cached !== null) return cached;
+
+    if (useGhostCache(refresh)) {
+        const cached = getCached<GhostPost | null>(cacheKey);
+        if (cached !== null) return cached;
+    }
 
     try {
         const params: Record<string, string> = {
             include: "tags",
         };
         const url = ghostApiUrl(`posts/slug/${slug}`, params);
-        const res = await fetch(url, {
-            next: { revalidate: config.cache.ttlSeconds },
-        });
+        const res = await fetch(url, ghostFetchOptions(refresh));
 
         if (!res.ok) {
             if (res.status === 404) return null;
@@ -317,7 +354,7 @@ export async function fetchGhostPostBySlug(slug: string): Promise<GhostPost | nu
             post.html = normalizeGhostHtml(post.html);
         }
 
-        if (post) setCache(cacheKey, post);
+        if (post && useGhostCache(refresh)) setCache(cacheKey, post);
         return post;
     } catch (err) {
         console.error(`[ghost] Failed to fetch post by slug "${slug}":`, err);

@@ -9,6 +9,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import type { CreditEntry } from "@/lib/credits";
 import { parseCreditsJson, serializeCreditsJson } from "@/lib/credits";
+import { DIRECTOR_STILL_COUNT } from "@/lib/directorsShared";
 
 // ── Database singleton ───────────────────────────────────────────
 
@@ -75,6 +76,34 @@ function migratePostMetadataColumns(database: Database.Database): void {
     if (!names.has("work_title")) {
         database.exec("ALTER TABLE post_metadata ADD COLUMN work_title TEXT");
     }
+    if (!names.has("director_name")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN director_name TEXT");
+    }
+    if (!names.has("director_stills")) {
+        database.exec("ALTER TABLE post_metadata ADD COLUMN director_stills TEXT");
+    }
+}
+
+function parseStillsJson(raw: string | null): string[] | undefined {
+    if (!raw) return undefined;
+    try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return undefined;
+        const urls = parsed.filter(
+            (url): url is string => typeof url === "string" && url.length > 0
+        );
+        return urls.length > 0 ? urls.slice(0, DIRECTOR_STILL_COUNT) : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+function serializeStillsJson(stills: string[] | undefined): string | null {
+    if (!stills) return null;
+    const urls = stills
+        .filter((url) => typeof url === "string" && url.trim().length > 0)
+        .slice(0, DIRECTOR_STILL_COUNT);
+    return urls.length > 0 ? JSON.stringify(urls) : null;
 }
 
 // ── Public API ───────────────────────────────────────────────────
@@ -148,6 +177,8 @@ export interface PostMetadata {
     insightAuthorId?: string;
     insightTitle?: string;
     workTitle?: string;
+    directorName?: string;
+    directorStills?: string[];
     previewStartTime?: number;
     updatedAt?: string;
 }
@@ -162,6 +193,8 @@ type MetadataRow = {
     insight_author_id: string | null;
     insight_title: string | null;
     work_title: string | null;
+    director_name: string | null;
+    director_stills: string | null;
     preview_start_time: number | null;
     updated_at: string;
 };
@@ -177,6 +210,8 @@ function rowToMetadata(row: MetadataRow): PostMetadata {
         insightAuthorId: row.insight_author_id || undefined,
         insightTitle: row.insight_title || undefined,
         workTitle: row.work_title || undefined,
+        directorName: row.director_name || undefined,
+        directorStills: parseStillsJson(row.director_stills),
         previewStartTime:
             row.preview_start_time != null ? row.preview_start_time : undefined,
         updatedAt: row.updated_at,
@@ -187,7 +222,8 @@ export function getPostMetadata(postId: string): PostMetadata | null {
     const row = getDb()
         .prepare(
             `SELECT post_id, director, agency, client, credits_col3, credits_col5,
-                    insight_author_id, insight_title, work_title, preview_start_time, updated_at
+                    insight_author_id, insight_title, work_title, director_name,
+                    director_stills, preview_start_time, updated_at
              FROM post_metadata WHERE post_id = ?`
         )
         .get(postId) as MetadataRow | undefined;
@@ -210,6 +246,8 @@ export function savePostMetadata(
         insightAuthorId?: string | null;
         insightTitle?: string | null;
         workTitle?: string | null;
+        directorName?: string | null;
+        directorStills?: string[] | null;
         previewStartTime?: number | null;
     }
 ): void {
@@ -245,6 +283,14 @@ export function savePostMetadata(
         metadata.workTitle !== undefined
             ? metadata.workTitle || null
             : existing?.workTitle ?? null;
+    const directorName =
+        metadata.directorName !== undefined
+            ? metadata.directorName || null
+            : existing?.directorName ?? null;
+    const directorStills =
+        metadata.directorStills !== undefined
+            ? serializeStillsJson(metadata.directorStills ?? undefined)
+            : serializeStillsJson(existing?.directorStills);
     const previewStartTime =
         metadata.previewStartTime !== undefined
             ? metadata.previewStartTime ?? null
@@ -252,8 +298,8 @@ export function savePostMetadata(
 
     getDb()
         .prepare(
-            `INSERT INTO post_metadata (post_id, director, agency, client, credits_col3, credits_col5, insight_author_id, insight_title, work_title, preview_start_time, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            `INSERT INTO post_metadata (post_id, director, agency, client, credits_col3, credits_col5, insight_author_id, insight_title, work_title, director_name, director_stills, preview_start_time, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
              ON CONFLICT(post_id)
              DO UPDATE SET director = excluded.director,
                            agency = excluded.agency,
@@ -263,6 +309,8 @@ export function savePostMetadata(
                            insight_author_id = excluded.insight_author_id,
                            insight_title = excluded.insight_title,
                            work_title = excluded.work_title,
+                           director_name = excluded.director_name,
+                           director_stills = excluded.director_stills,
                            preview_start_time = excluded.preview_start_time,
                            updated_at = excluded.updated_at`
         )
@@ -276,6 +324,8 @@ export function savePostMetadata(
             insightAuthorId,
             insightTitle,
             workTitle,
+            directorName,
+            directorStills,
             previewStartTime
         );
 }

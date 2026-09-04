@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { getSelections, saveSelections, getPostMetadata } from "@/lib/db";
 import { clearGhostCache, fetchPostsByIds, GhostPost } from "@/lib/ghost";
+import { extractPostImages } from "@/lib/postImages";
 
 // ── Section keys ─────────────────────────────────────────────────
 
@@ -17,7 +18,8 @@ export const SECTIONS = [
     "home.caseStudies",
     "work",
     "case-studies",
-    "home.clients"
+    "home.clients",
+    "directors"
 ] as const;
 
 export type SectionKey = typeof SECTIONS[number];
@@ -54,6 +56,13 @@ function formatPost(post: GhostPost) {
         insightAuthorId: customMeta?.insightAuthorId,
         insightTitle: customMeta?.insightTitle,
         workTitle: customMeta?.workTitle,
+        directorName: customMeta?.directorName,
+        directorStills: customMeta?.directorStills,
+        /**
+         * Images uploaded to this Ghost post — the pool the stills picker offers.
+         * Capped so image-heavy posts can't bloat this response.
+         */
+        imageOptions: extractPostImages(post.html, post.feature_image).slice(0, 40),
         previewStartTime: customMeta?.previewStartTime,
         vimeoId: vimeoId,
     };

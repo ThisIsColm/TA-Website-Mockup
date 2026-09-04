@@ -37,6 +37,11 @@ function removeSpacerParagraphs(html: string): string {
     });
 }
 
+/** Ghost often ends copy paragraphs with a trailing <br> — strip it so CSS spacer rules don't hide real text. */
+function stripTrailingBreaks(html: string): string {
+    return html.replace(/<br\s*\/?>\s*(<\/p>)/gi, "$1");
+}
+
 function appendClass(attrs: string, className: string): string {
     const trimmed = attrs.trim();
     const classMatch = trimmed.match(/\bclass=(["'])(.*?)\1/i);
@@ -87,6 +92,7 @@ export function normalizeGhostHtml(html: string): string {
     if (!html) return html;
     const split = splitParagraphsOnDoubleBreaks(html);
     const cleaned = removeSpacerParagraphs(split);
-    const joined = joinSectionLabelParagraphs(cleaned);
+    const trimmedBreaks = stripTrailingBreaks(cleaned);
+    const joined = joinSectionLabelParagraphs(trimmedBreaks);
     return tagInlineSectionLeadParagraphs(joined);
 }

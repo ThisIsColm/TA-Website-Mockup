@@ -19,6 +19,21 @@ const SURFACE_PRIORITY: Record<HeaderSurface, number> = {
     neutral: 2,
 };
 
+/** Pages that are always white behind the fixed header (orange logo, black menu). */
+function isAlwaysWhiteChromePath(pathname: string | null): boolean {
+    if (!pathname) return false;
+    return pathname === "/contact" || pathname === "/directors";
+}
+
+/** Director profile pages — white at the top; dark surfaces win when images scroll under the bar. */
+function isDirectorDetailPath(pathname: string | null): boolean {
+    return pathname?.startsWith("/directors/") ?? false;
+}
+
+function defaultWhiteChrome(pathname: string | null): boolean {
+    return isAlwaysWhiteChromePath(pathname) || isDirectorDetailPath(pathname);
+}
+
 /** Which marked section sits under the fixed header (highest top among intersecting). */
 function getSurfaceUnderHeader(headerBottom: number): HeaderSurface | null {
     const candidates: { surface: HeaderSurface; top: number }[] = [];
@@ -55,7 +70,7 @@ export function useHeaderContrast(
     const lastThemeRef = useRef(false);
 
     const update = useCallback(() => {
-        if (pathname === "/contact") {
+        if (isAlwaysWhiteChromePath(pathname)) {
             lastThemeRef.current = true;
             setIsOverWhiteBg(true);
             return;
@@ -73,14 +88,19 @@ export function useHeaderContrast(
             setIsOverWhiteBg(false);
         } else if (surface === "neutral") {
             setIsOverWhiteBg(lastThemeRef.current);
+        } else if (isDirectorDetailPath(pathname)) {
+            // Profile pages start on white; keep orange/black chrome until a dark surface wins.
+            lastThemeRef.current = true;
+            setIsOverWhiteBg(true);
         } else {
             setIsOverWhiteBg(lastThemeRef.current);
         }
     }, [headerRef, pathname]);
 
     useEffect(() => {
-        lastThemeRef.current = false;
-        setIsOverWhiteBg(false);
+        const whiteDefault = defaultWhiteChrome(pathname);
+        lastThemeRef.current = whiteDefault;
+        setIsOverWhiteBg(whiteDefault);
         update();
 
         window.addEventListener("scroll", update, { passive: true });

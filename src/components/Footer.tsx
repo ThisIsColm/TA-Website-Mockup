@@ -28,6 +28,8 @@ export default function Footer() {
         path.startsWith("/about/") ||
         path.endsWith("/about") ||
         path.startsWith("/work/") ||
+        path === "/directors" ||
+        path.startsWith("/directors/") ||
         path === "/contact" ||
         path === "/insights" ||
         path.startsWith("/insights/");

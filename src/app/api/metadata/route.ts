@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
             insightAuthorId: data.insightAuthorId as string | null | undefined,
             insightTitle: data.insightTitle as string | null | undefined,
             workTitle: data.workTitle as string | null | undefined,
+            directorName: data.directorName as string | null | undefined,
+            directorStills: data.directorStills as string[] | null | undefined,
             previewStartTime: data.previewStartTime as number | null | undefined,
         });
 

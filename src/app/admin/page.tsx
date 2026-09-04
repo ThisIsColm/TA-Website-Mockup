@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import Link from "next/link";
 import { GhostPost, GhostTag } from "@/lib/ghost";
@@ -10,6 +10,13 @@ import {
     type CreditEntry,
 } from "@/lib/credits";
 import { getTeamAuthor, TEAM_AUTHORS } from "@/lib/team";
+import {
+    DIRECTOR_STILL_COUNT,
+    DIRECTOR_TAG,
+    PLACEHOLDER_DIRECTOR_NAMES,
+    normalizeDirectorName,
+} from "@/lib/directorsShared";
+import { resolvePostImageOptions } from "@/lib/postImages";
 
 export type CuratedPost = GhostPost & {
     director?: string;
@@ -20,6 +27,10 @@ export type CuratedPost = GhostPost & {
     insightAuthorId?: string;
     insightTitle?: string;
     workTitle?: string;
+    directorName?: string;
+    directorStills?: string[];
+    /** Every image uploaded to this Ghost post — the pool the stills picker offers. */
+    imageOptions?: string[];
     previewStartTime?: number;
 };
 
@@ -29,8 +40,8 @@ export const DASHBOARD_SECTIONS = [
     {
         key: "home.selectedWork",
         title: "Work",
-        description: "Homepage project grid — up to 16 projects shown on the site.",
-        limit: 16,
+        description: "Homepage project grid — up to 18 projects shown on the site.",
+        limit: 18,
         previewHref: "/",
         previewLabel: "View homepage",
         kind: "work" as const,
@@ -43,6 +54,16 @@ export const DASHBOARD_SECTIONS = [
         previewHref: "/insights",
         previewLabel: "View insights",
         kind: "insight" as const,
+    },
+    {
+        key: "directors",
+        title: "Directors",
+        description:
+            "Directors page — drag to set the order names appear. Hover stills default to the first 4 post images.",
+        limit: null,
+        previewHref: "/directors",
+        previewLabel: "View directors",
+        kind: "director" as const,
     },
 ] as const;
 
@@ -86,6 +107,8 @@ const styles = {
     badgeWork: "px-2 py-0.5 bg-accent/15 text-accent text-[10px] border border-accent/30 uppercase tracking-wide font-bold",
     badgeInsight:
         "px-2 py-0.5 bg-blue-500/15 text-blue-300 text-[10px] border border-blue-500/30 uppercase tracking-wide font-bold",
+    badgeDirector:
+        "px-2 py-0.5 bg-purple-500/15 text-purple-300 text-[10px] border border-purple-500/30 uppercase tracking-wide font-bold",
     helpBar:
         "mb-4 shrink-0 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/60",
     grid: "flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-4 gap-6",
@@ -133,12 +156,52 @@ interface CurationApiPost {
     insightAuthorId?: string;
     insightTitle?: string;
     workTitle?: string;
+    directorName?: string;
+    directorStills?: string[];
+    imageOptions?: string[];
     previewStartTime?: number;
     vimeoId?: string;
 }
 
-function sectionKind(key: DashboardSectionKey): "work" | "insight" {
+type SectionKind = (typeof DASHBOARD_SECTIONS)[number]["kind"];
+
+function sectionKind(key: DashboardSectionKey): SectionKind {
     return SECTION_BY_KEY[key].kind;
+}
+
+/** Title shown on a curated row — the section's override, falling back to Ghost. */
+function curatedRowTitle(post: CuratedPost, kind: SectionKind): string {
+    const override =
+        kind === "insight"
+            ? post.insightTitle
+            : kind === "director"
+              ? post.directorName
+              : post.workTitle;
+    return override || post.title;
+}
+
+/** Saved stills, or the first four post images when none have been picked yet. */
+function defaultDirectorStills(
+    post: Pick<
+        CuratedPost,
+        "directorStills" | "html" | "feature_image" | "imageOptions"
+    >
+): string[] {
+    if (post.directorStills?.length) {
+        return post.directorStills.slice(0, DIRECTOR_STILL_COUNT);
+    }
+    return resolvePostImageOptions(post).slice(0, DIRECTOR_STILL_COUNT);
+}
+
+function enrichDirectorPost(post: GhostPost | CuratedPost): CuratedPost {
+    const imageOptions = resolvePostImageOptions(post);
+    const directorStills = defaultDirectorStills({ ...post, imageOptions });
+    return {
+        ...(post as CuratedPost),
+        tags: normalizeCurationTags(post.tags),
+        imageOptions,
+        directorStills: directorStills.length > 0 ? directorStills : undefined,
+    };
 }
 
 // ── Component ────────────────────────────────────────────────────
@@ -164,12 +227,17 @@ export default function AdminPage() {
     const [editInsightAuthor, setEditInsightAuthor] = useState("");
     const [editInsightTitle, setEditInsightTitle] = useState("");
     const [editWorkTitle, setEditWorkTitle] = useState("");
+    const [editDirectorName, setEditDirectorName] = useState("");
+    const [editDirectorStills, setEditDirectorStills] = useState<string[]>([]);
+    const [editImageOptions, setEditImageOptions] = useState<string[]>([]);
+    const [editImageOptionsLoading, setEditImageOptionsLoading] = useState(false);
     const [editingSectionKey, setEditingSectionKey] = useState<DashboardSectionKey | null>(null);
     const [isSavingMeta, setIsSavingMeta] = useState(false);
 
     const [selections, setSelections] = useState<Record<DashboardSectionKey, CuratedPost[]>>({
         "home.selectedWork": [],
         "case-studies": [],
+        directors: [],
     });
 
     const [saving, setSaving] = useState(false);
@@ -177,6 +245,18 @@ export default function AdminPage() {
 
     const isInitialMount = useRef(true);
     const [hasLoadedSelections, setHasLoadedSelections] = useState(false);
+
+    /** Roster names from the design that have no Ghost post in the column yet. */
+    const missingRosterNames = useMemo(() => {
+        const present = new Set(
+            selections.directors.map((post) =>
+                normalizeDirectorName(post.directorName?.trim() || post.title)
+            )
+        );
+        return PLACEHOLDER_DIRECTOR_NAMES.filter(
+            (name) => !present.has(normalizeDirectorName(name))
+        );
+    }, [selections.directors]);
 
     const showToast = (msg: string, type: "success" | "error" = "success") => {
         setToast({ msg, type });
@@ -243,14 +323,20 @@ export default function AdminPage() {
             const newSelections: Record<DashboardSectionKey, CuratedPost[]> = {
                 "home.selectedWork": [],
                 "case-studies": [],
+                directors: [],
             };
 
             for (const { key } of DASHBOARD_SECTIONS) {
                 if (data[key]?.length) {
-                    newSelections[key] = data[key].map((p: CurationApiPost) => ({
-                        ...p,
-                        tags: normalizeCurationTags(p.tags),
-                    })) as CuratedPost[];
+                    newSelections[key] = data[key].map((p: CurationApiPost) => {
+                        const mapped = {
+                            ...p,
+                            tags: normalizeCurationTags(p.tags),
+                        } as CuratedPost;
+                        return key === "directors"
+                            ? enrichDirectorPost(mapped)
+                            : mapped;
+                    });
                 }
             }
 
@@ -258,6 +344,41 @@ export default function AdminPage() {
             setHasLoadedSelections(true);
         } catch (err) {
             console.error("Failed to load selections:", err);
+        }
+    }, []);
+
+    /** Pull in any Ghost posts tagged `director` that aren't in the column yet. */
+    const syncDirectorsFromTag = useCallback(async () => {
+        try {
+            const res = await fetch(
+                `/api/ghost/posts?tag=${encodeURIComponent(DIRECTOR_TAG)}&limit=100`
+            );
+            if (res.status === 401) {
+                setAuthed(false);
+                return;
+            }
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const tagged = (data.posts || []) as CuratedPost[];
+            if (tagged.length === 0) return;
+
+            setSelections((prev) => {
+                const existingIds = new Set(prev.directors.map((p) => p.id));
+                const additions = tagged
+                    .filter((p) => !existingIds.has(p.id))
+                    .map((p) => enrichDirectorPost(p));
+
+                if (additions.length === 0) return prev;
+
+                showToast(
+                    `Added ${additions.length} director${additions.length === 1 ? "" : "s"} from Ghost “${DIRECTOR_TAG}” tag`
+                );
+
+                return { ...prev, directors: [...prev.directors, ...additions] };
+            });
+        } catch (err) {
+            console.error("Director tag sync failed:", err);
         }
     }, []);
 
@@ -269,12 +390,61 @@ export default function AdminPage() {
         [selections]
     );
 
+    /** Click order becomes reveal order: slots 1–2 sit left, 3–4 right. */
+    const toggleDirectorStill = (url: string) => {
+        setEditDirectorStills((prev) => {
+            if (prev.includes(url)) return prev.filter((u) => u !== url);
+            if (prev.length >= DIRECTOR_STILL_COUNT) return prev;
+            return [...prev, url];
+        });
+    };
+
     const openEditPost = (post: CuratedPost, sectionKey: DashboardSectionKey) => {
         setEditingPostId(post.id);
         setEditingSectionKey(sectionKey);
-        if (sectionKind(sectionKey) === "insight") {
+        const kind = sectionKind(sectionKey);
+        if (kind === "insight") {
             setEditInsightAuthor(post.insightAuthorId || "");
             setEditInsightTitle(post.insightTitle || post.title);
+            setEditImageOptions([]);
+            setEditImageOptionsLoading(false);
+        } else if (kind === "director") {
+            setEditDirectorName(post.directorName || post.title);
+
+            const localOptions = resolvePostImageOptions(post);
+            setEditDirectorStills(defaultDirectorStills({ ...post, imageOptions: localOptions }));
+            setEditImageOptions(localOptions);
+            setEditImageOptionsLoading(localOptions.length === 0);
+
+            if (localOptions.length === 0) {
+                void fetch(`/api/ghost/posts/${post.id}/images?refresh=1`)
+                    .then(async (r) => (r.ok ? r.json() : null))
+                    .then((data) => {
+                        if (!data?.imageOptions?.length) return;
+                        setEditImageOptions(data.imageOptions);
+                        setEditDirectorStills((prev) =>
+                            prev.length > 0
+                                ? prev
+                                : data.imageOptions.slice(0, DIRECTOR_STILL_COUNT)
+                        );
+                        setSelections((prev) => ({
+                            ...prev,
+                            directors: prev.directors.map((p) =>
+                                p.id === post.id
+                                    ? {
+                                          ...p,
+                                          imageOptions: data.imageOptions,
+                                          directorStills: defaultDirectorStills({
+                                              ...p,
+                                              imageOptions: data.imageOptions,
+                                          }),
+                                      }
+                                    : p
+                            ),
+                        }));
+                    })
+                    .finally(() => setEditImageOptionsLoading(false));
+            }
         } else {
             setEditWorkTitle(post.workTitle || post.title);
             setEditDirector(post.director || "");
@@ -290,7 +460,9 @@ export default function AdminPage() {
 
     const savePostMeta = async (post: CuratedPost, sectionKey: DashboardSectionKey) => {
         setIsSavingMeta(true);
-        const insight = sectionKind(sectionKey) === "insight";
+        const kind = sectionKind(sectionKey);
+        const insight = kind === "insight";
+        const director = kind === "director";
         const trimmedStart = editPreviewStart.trim();
         const parsedStart = trimmedStart === "" ? null : Number(trimmedStart);
         const previewStartTime =
@@ -307,6 +479,13 @@ export default function AdminPage() {
             !insight && trimmedWorkTitle === post.title.trim()
                 ? null
                 : trimmedWorkTitle || null;
+        const trimmedDirectorName = editDirectorName.trim();
+        const directorNameForSave =
+            director && trimmedDirectorName === post.title.trim()
+                ? null
+                : trimmedDirectorName || null;
+        const directorStillsForSave =
+            editDirectorStills.length > 0 ? editDirectorStills : null;
         try {
             const res = await fetch("/api/metadata", {
                 method: "POST",
@@ -318,40 +497,52 @@ export default function AdminPage() {
                               insightAuthorId: editInsightAuthor || null,
                               insightTitle: insightTitleForSave,
                           }
-                        : {
-                              workTitle: workTitleForSave,
-                              director: editDirector,
-                              agency: editAgency,
-                              client: editClient,
-                              creditsCol3: parseCreditsText(editCreditsCol3),
-                              creditsCol5: parseCreditsText(editCreditsCol5),
-                              previewStartTime,
-                          },
+                        : director
+                          ? {
+                                directorName: directorNameForSave,
+                                directorStills: directorStillsForSave,
+                            }
+                          : {
+                                workTitle: workTitleForSave,
+                                director: editDirector,
+                                agency: editAgency,
+                                client: editClient,
+                                creditsCol3: parseCreditsText(editCreditsCol3),
+                                creditsCol5: parseCreditsText(editCreditsCol5),
+                                previewStartTime,
+                            },
                 }),
             });
 
             if (res.ok) {
                 setSelections((prev) => {
-                    const updatePost = (p: CuratedPost): CuratedPost =>
-                        p.id === post.id
-                            ? insight
-                                ? {
-                                      ...p,
-                                      insightAuthorId: editInsightAuthor || undefined,
-                                      insightTitle:
-                                          insightTitleForSave ?? undefined,
-                                  }
-                                : {
-                                      ...p,
-                                      workTitle: workTitleForSave ?? undefined,
-                                      director: editDirector,
-                                      agency: editAgency,
-                                      client: editClient,
-                                      creditsCol3: parseCreditsText(editCreditsCol3),
-                                      creditsCol5: parseCreditsText(editCreditsCol5),
-                                      previewStartTime: previewStartTime ?? undefined,
-                                  }
-                            : p;
+                    const updatePost = (p: CuratedPost): CuratedPost => {
+                        if (p.id !== post.id) return p;
+                        if (insight) {
+                            return {
+                                ...p,
+                                insightAuthorId: editInsightAuthor || undefined,
+                                insightTitle: insightTitleForSave ?? undefined,
+                            };
+                        }
+                        if (director) {
+                            return {
+                                ...p,
+                                directorName: directorNameForSave ?? undefined,
+                                directorStills: directorStillsForSave ?? undefined,
+                            };
+                        }
+                        return {
+                            ...p,
+                            workTitle: workTitleForSave ?? undefined,
+                            director: editDirector,
+                            agency: editAgency,
+                            client: editClient,
+                            creditsCol3: parseCreditsText(editCreditsCol3),
+                            creditsCol5: parseCreditsText(editCreditsCol5),
+                            previewStartTime: previewStartTime ?? undefined,
+                        };
+                    };
 
                     const next = { ...prev };
                     for (const { key } of DASHBOARD_SECTIONS) {
@@ -361,6 +552,8 @@ export default function AdminPage() {
                 });
                 setEditingPostId(null);
                 setEditingSectionKey(null);
+                setEditImageOptions([]);
+                setEditImageOptionsLoading(false);
                 showToast("Details saved");
             } else {
                 showToast("Could not save details", "error");
@@ -384,9 +577,11 @@ export default function AdminPage() {
             );
             return;
         }
+        const entry =
+            sectionKey === "directors" ? enrichDirectorPost(post) : post;
         setSelections((prev) => ({
             ...prev,
-            [sectionKey]: [...prev[sectionKey], post],
+            [sectionKey]: [...prev[sectionKey], entry],
         }));
         showToast(`Added to ${SECTION_BY_KEY[sectionKey].title}`);
     };
@@ -404,6 +599,11 @@ export default function AdminPage() {
             loadSelections();
         }
     }, [authed, fetchPosts, loadSelections]);
+
+    useEffect(() => {
+        if (!authed || !hasLoadedSelections) return;
+        void syncDirectorsFromTag();
+    }, [authed, hasLoadedSelections, syncDirectorsFromTag]);
 
     useEffect(() => {
         if (!authed) return;
@@ -449,7 +649,9 @@ export default function AdminPage() {
 
             setSelections((prev) => {
                 const arr = [...prev[destId]];
-                arr.splice(destination.index, 0, post);
+                const entry =
+                    destId === "directors" ? enrichDirectorPost(post) : post;
+                arr.splice(destination.index, 0, entry);
                 return { ...prev, [destId]: arr };
             });
             return;
@@ -484,7 +686,13 @@ export default function AdminPage() {
                     return prev;
                 }
 
-                destArr.splice(destination.index, 0, movedItem);
+                destArr.splice(
+                    destination.index,
+                    0,
+                    destId === "directors"
+                        ? enrichDirectorPost(movedItem)
+                        : movedItem
+                );
 
                 return {
                     ...prev,
@@ -570,8 +778,8 @@ export default function AdminPage() {
                 <div>
                     <h1 className={styles.title}>Content Dashboard</h1>
                     <p className={styles.subtitle}>
-                        Drag posts from the Ghost library into Work or Insights. Reorder by
-                        dragging within each column. Changes save automatically.
+                        Drag posts from the Ghost library into Work, Insights, or Directors.
+                        Reorder by dragging within each column. Changes save automatically.
                     </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
@@ -588,8 +796,10 @@ export default function AdminPage() {
 
             <div className={styles.helpBar}>
                 <strong className="text-white/80">Quick guide:</strong> Search the library → drag
-                a post into a column (or use + Work / + Insights). Click a post to edit project
-                details or insight author. Drag between columns to move content.
+                a post into a column (or use the + buttons). Click a post to edit project details,
+                insight author, or a director&rsquo;s name and hover stills. Posts tagged{" "}
+                <code className="text-white/70">director</code> in Ghost are added to the
+                Directors column automatically. Drag between columns to move content.
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
@@ -605,7 +815,7 @@ export default function AdminPage() {
                             </div>
                             <button
                                 type="button"
-                                onClick={() => fetchPosts(search, true)}
+                                onClick={() => fetchPosts(search, true).then(() => syncDirectorsFromTag())}
                                 disabled={loading}
                                 className={`${styles.btnGhost} shrink-0`}
                             >
@@ -694,6 +904,17 @@ export default function AdminPage() {
                                                                                 Insights
                                                                             </span>
                                                                         )}
+                                                                        {inSections.includes(
+                                                                            "directors"
+                                                                        ) && (
+                                                                            <span
+                                                                                className={
+                                                                                    styles.badgeDirector
+                                                                                }
+                                                                            >
+                                                                                Directors
+                                                                            </span>
+                                                                        )}
                                                                         {post.tags
                                                                             ?.slice(0, 1)
                                                                             .map((tag, i) => (
@@ -735,6 +956,19 @@ export default function AdminPage() {
                                                                     >
                                                                         + Insights
                                                                     </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            addToSection(
+                                                                                post,
+                                                                                "directors"
+                                                                            );
+                                                                        }}
+                                                                        className="px-2 py-1 text-[10px] font-bold text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded"
+                                                                    >
+                                                                        + Directors
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -750,7 +984,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* ── Work + Insights columns ─────────────────────────── */}
-                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0 h-full">
+                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-h-0 h-full">
                         {DASHBOARD_SECTIONS.map(
                             ({ key, title, description, previewHref, previewLabel, kind }) => (
                                 <div key={key} className="flex flex-col min-h-0 h-full">
@@ -804,6 +1038,9 @@ export default function AdminPage() {
 
                                                     {selections[key].map((post, i) => {
                                                         const insight = kind === "insight";
+                                                        const director = kind === "director";
+                                                        const stillsCount =
+                                                            post.directorStills?.length ?? 0;
                                                         const metaPreview = [
                                                             post.director &&
                                                                 `Dir: ${post.director}`,
@@ -859,16 +1096,27 @@ export default function AdminPage() {
                                                                             )}
                                                                             <div className="flex-1 min-w-0">
                                                                                 <p className="text-sm font-medium truncate">
-                                                                                    {(insight
-                                                                                        ? post.insightTitle
-                                                                                        : post.workTitle) ||
-                                                                                        post.title}
+                                                                                    {curatedRowTitle(
+                                                                                        post,
+                                                                                        kind
+                                                                                    )}
                                                                                 </p>
-                                                                                {(insight
-                                                                                    ? post.insightTitle
-                                                                                    : post.workTitle) ? (
+                                                                                {curatedRowTitle(
+                                                                                    post,
+                                                                                    kind
+                                                                                ) !== post.title ? (
                                                                                     <p className="text-xs text-white/25 truncate mt-0.5">
                                                                                         Ghost: {post.title}
+                                                                                    </p>
+                                                                                ) : null}
+                                                                                {director ? (
+                                                                                    <p
+                                                                                        className={`text-xs truncate mt-0.5 ${stillsCount === DIRECTOR_STILL_COUNT ? "text-text-tertiary" : "text-amber-400/80"}`}
+                                                                                    >
+                                                                                        {stillsCount ===
+                                                                                        0
+                                                                                            ? "No stills picked — click to choose 4"
+                                                                                            : `${stillsCount} of ${DIRECTOR_STILL_COUNT} stills picked`}
                                                                                     </p>
                                                                                 ) : null}
                                                                                 {insight &&
@@ -882,12 +1130,14 @@ export default function AdminPage() {
                                                                                     </p>
                                                                                 ) : null}
                                                                                 {!insight &&
+                                                                                !director &&
                                                                                 metaPreview ? (
                                                                                     <p className="text-xs text-text-tertiary truncate mt-0.5">
                                                                                         {metaPreview}
                                                                                     </p>
                                                                                 ) : null}
                                                                                 {!insight &&
+                                                                                !director &&
                                                                                 !metaPreview ? (
                                                                                     <p className="text-xs text-white/25 mt-0.5">
                                                                                         Click to add
@@ -933,7 +1183,9 @@ export default function AdminPage() {
                                                                                     <p className="text-xs font-bold text-white/50 uppercase tracking-wider">
                                                                                         {insight
                                                                                             ? "Insight details"
-                                                                                            : "Project details"}
+                                                                                            : director
+                                                                                              ? "Director details"
+                                                                                              : "Project details"}
                                                                                     </p>
 
                                                                                     {insight ? (
@@ -1011,6 +1263,157 @@ export default function AdminPage() {
                                                                                                         )
                                                                                                     )}
                                                                                                 </select>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    ) : director ? (
+                                                                                        <>
+                                                                                            <div>
+                                                                                                <label className="block text-xs text-text-tertiary mb-1 font-bold tracking-wider">
+                                                                                                    NAME
+                                                                                                </label>
+                                                                                                <input
+                                                                                                    type="text"
+                                                                                                    className={`${styles.input} !py-2`}
+                                                                                                    value={editDirectorName}
+                                                                                                    onKeyDown={(e) =>
+                                                                                                        e.key ===
+                                                                                                            "Enter" &&
+                                                                                                        savePostMeta(
+                                                                                                            post,
+                                                                                                            key
+                                                                                                        )
+                                                                                                    }
+                                                                                                    onChange={(e) =>
+                                                                                                        setEditDirectorName(
+                                                                                                            e.target.value
+                                                                                                        )
+                                                                                                    }
+                                                                                                    placeholder={
+                                                                                                        post.title
+                                                                                                    }
+                                                                                                />
+                                                                                                <p className="text-[10px] text-text-tertiary mt-1">
+                                                                                                    Name shown on the
+                                                                                                    directors page. Clear
+                                                                                                    and save to revert to
+                                                                                                    the Ghost title.
+                                                                                                </p>
+                                                                                            </div>
+
+                                                                                            <div>
+                                                                                                <div className="flex items-baseline justify-between gap-3 mb-2">
+                                                                                                    <label className="block text-xs text-text-tertiary font-bold tracking-wider">
+                                                                                                        HOVER STILLS (
+                                                                                                        {editDirectorStills.length}
+                                                                                                        /
+                                                                                                        {DIRECTOR_STILL_COUNT}
+                                                                                                        )
+                                                                                                    </label>
+                                                                                                    {editDirectorStills.length >
+                                                                                                    0 ? (
+                                                                                                        <button
+                                                                                                            type="button"
+                                                                                                            onClick={() =>
+                                                                                                                setEditDirectorStills(
+                                                                                                                    []
+                                                                                                                )
+                                                                                                            }
+                                                                                                            className="text-[10px] font-bold text-white/40 hover:text-white/70"
+                                                                                                        >
+                                                                                                            Clear
+                                                                                                        </button>
+                                                                                                    ) : null}
+                                                                                                </div>
+
+                                                                                                {editImageOptionsLoading ? (
+                                                                                                    <p className="text-xs text-white/40">
+                                                                                                        Loading images
+                                                                                                        from Ghost…
+                                                                                                    </p>
+                                                                                                ) : editImageOptions.length ? (
+                                                                                                    <>
+                                                                                                        <div className="grid grid-cols-4 gap-2">
+                                                                                                            {editImageOptions.map(
+                                                                                                                (
+                                                                                                                    url
+                                                                                                                ) => {
+                                                                                                                    const slot =
+                                                                                                                        editDirectorStills.indexOf(
+                                                                                                                            url
+                                                                                                                        );
+                                                                                                                    const picked =
+                                                                                                                        slot !==
+                                                                                                                        -1;
+                                                                                                                    const full =
+                                                                                                                        !picked &&
+                                                                                                                        editDirectorStills.length >=
+                                                                                                                            DIRECTOR_STILL_COUNT;
+
+                                                                                                                    return (
+                                                                                                                        <button
+                                                                                                                            key={
+                                                                                                                                url
+                                                                                                                            }
+                                                                                                                            type="button"
+                                                                                                                            onClick={() =>
+                                                                                                                                toggleDirectorStill(
+                                                                                                                                    url
+                                                                                                                                )
+                                                                                                                            }
+                                                                                                                            disabled={
+                                                                                                                                full
+                                                                                                                            }
+                                                                                                                            title={
+                                                                                                                                full
+                                                                                                                                    ? "Deselect one first"
+                                                                                                                                    : picked
+                                                                                                                                      ? "Remove from stills"
+                                                                                                                                      : "Add to stills"
+                                                                                                                            }
+                                                                                                                            className={`relative aspect-video overflow-hidden rounded border-2 transition-all ${picked ? "border-accent" : "border-transparent hover:border-white/30"} ${full ? "opacity-30 cursor-not-allowed" : ""}`}
+                                                                                                                        >
+                                                                                                                            <img
+                                                                                                                                src={
+                                                                                                                                    url
+                                                                                                                                }
+                                                                                                                                alt=""
+                                                                                                                                className="h-full w-full object-cover"
+                                                                                                                            />
+                                                                                                                            {picked ? (
+                                                                                                                                <span className="absolute top-1 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                                                                                                                                    {slot +
+                                                                                                                                        1}
+                                                                                                                                </span>
+                                                                                                                            ) : null}
+                                                                                                                        </button>
+                                                                                                                    );
+                                                                                                                }
+                                                                                                            )}
+                                                                                                        </div>
+                                                                                                        <p className="text-[10px] text-text-tertiary mt-2">
+                                                                                                            The first four
+                                                                                                            post images are
+                                                                                                            selected
+                                                                                                            automatically —
+                                                                                                            click to swap
+                                                                                                            them. Order is
+                                                                                                            left column
+                                                                                                            (1, 2) then
+                                                                                                            right (3, 4).
+                                                                                                        </p>
+                                                                                                    </>
+                                                                                                ) : (
+                                                                                                    <p className="text-xs text-amber-400/80">
+                                                                                                        No images in this
+                                                                                                        Ghost post yet.
+                                                                                                        Upload the four
+                                                                                                        stills to the post
+                                                                                                        in Ghost, hit
+                                                                                                        &ldquo;Refresh from
+                                                                                                        Ghost&rdquo;, then
+                                                                                                        pick them here.
+                                                                                                    </p>
+                                                                                                )}
                                                                                             </div>
                                                                                         </>
                                                                                     ) : (
@@ -1219,6 +1622,10 @@ export default function AdminPage() {
                                                                                                 setEditingSectionKey(
                                                                                                     null
                                                                                                 );
+                                                                                                setEditImageOptions([]);
+                                                                                                setEditImageOptionsLoading(
+                                                                                                    false
+                                                                                                );
                                                                                             }}
                                                                                             className="px-4 py-2 text-xs font-bold text-text-secondary hover:text-white transition-colors"
                                                                                         >
@@ -1253,6 +1660,24 @@ export default function AdminPage() {
                                                 </div>
                                             )}
                                         </Droppable>
+
+                                        {kind === "director" &&
+                                            missingRosterNames.length > 0 && (
+                                                <div className="px-3 py-2.5 border-t border-border/50 bg-bg-card">
+                                                    <p className="text-[10px] leading-relaxed text-text-tertiary">
+                                                        Name-only placeholders on the
+                                                        directors page until each has a
+                                                        Ghost post tagged{" "}
+                                                        <span className="font-bold text-white/60">
+                                                            {DIRECTOR_TAG}
+                                                        </span>
+                                                        :{" "}
+                                                        <span className="text-amber-400/80">
+                                                            {missingRosterNames.join(", ")}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            )}
                                     </div>
                                 </div>
                             )

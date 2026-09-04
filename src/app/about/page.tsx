@@ -22,7 +22,7 @@ export const metadata: Metadata = {
  * - `photoPrefix` → `_001.webp` (default) + `_002` (hover) via `getTeamPhotoPair`.
  * - `photos` for explicit [default, hover] paths when filenames differ.
  * - `tapeKey` maps to `/images/team/tape/{key}_Tape.webp`.
- * - `tapeSrc` for custom tape label paths (e.g. Woodie's `Woody.png`).
+ * - `tapeSrc` for custom tape label paths (e.g. Woodie's `Tape_Woody.png`).
  */
 const TEAM: TeamCardProps[] = [
     { nameLabel: "Nathan Reilly", role: "CEO", photoPrefix: "Nathan", tapeKey: "Nathan" },
@@ -85,7 +85,7 @@ const TEAM: TeamCardProps[] = [
         nameLabel: "Woodie",
         role: "Front of House",
         photos: ["/images/team/Woodie_001.png", "/images/team/Woodie_002.png"],
-        tapeSrc: "/images/team/tape/Woody.png",
+        tapeSrc: "/images/team/tape/Tape_Woody.png",
     },
 ];
 
@@ -112,13 +112,16 @@ export default function AboutPage() {
                                 <p>
                                     We bring together directors, producers,
                                     cinematographers, editors, designers and VFX artists
-                                    to create work that moves people. Whether it&rsquo;s
+                                    to create work that moves people. 
+                                </p>
+                                <p>     
+                                    Whether it&rsquo;s
                                     for livestream, commercial campaigns or socials, from
                                     brief to final delivery, we get it done. 
                                 </p>
                                 <p>    
                                     We mobilise
-                                    productions across the globe, and are no strangers to a
+                                    productions across the globe, and are no strangers<br /> to a
                                     tight timeline.
                                 </p>
                                 <p>
