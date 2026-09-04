@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Container from "@/components/Container";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
-import { getAllProjects } from "@/lib/data";
 import { fetchGhostPosts, fetchPostsByIds, GhostPost } from "@/lib/ghost";
 import { getPostMetadata, getSelections } from "@/lib/db";
 import { getWorkDisplayTitle } from "@/lib/workTitle";
@@ -63,13 +62,10 @@ export default async function WorkPage() {
             const ghostPostsResponse = await fetchGhostPosts(1, 18);
             if (ghostPostsResponse.posts && ghostPostsResponse.posts.length > 0) {
                 projects = ghostPostsResponse.posts.map(ghostToProject).slice(0, 18);
-            } else {
-                projects = getAllProjects().slice(0, 18);
             }
         }
     } catch (err) {
         console.error("[work page] Failed to fetch Ghost posts:", err);
-        projects = getAllProjects().slice(0, 18);
     }
 
     return (

@@ -7,7 +7,6 @@ import ProjectCard from "@/components/ProjectCard";
 import VideoHero from "@/components/VideoHero";
 import { HERO_LOADING_POSTER } from "@/lib/heroLottie";
 import WorkTogetherCta from "@/components/WorkTogetherCta";
-import { getFeaturedProjects } from "@/lib/data";
 import { Project } from "@/types";
 
 // ── Types for curated API response ───────────────────────────────
@@ -173,8 +172,7 @@ function TypewriterSection() {
 const HOME_WORK_GRID_LIMIT = 18;
 
 export default function HomePage() {
-    const fallbackProjects = getFeaturedProjects(HOME_WORK_GRID_LIMIT);
-    const [projects, setProjects] = useState<Project[]>(fallbackProjects);
+    const [projects, setProjects] = useState<Project[]>([]);
 
     useEffect(() => {
         async function fetchCurated() {
@@ -190,7 +188,7 @@ export default function HomePage() {
                     );
                 }
             } catch (err) {
-                console.warn("[home] Could not fetch curated data, using fallback:", err);
+                console.warn("[home] Could not fetch curated data:", err);
             }
         }
         fetchCurated();

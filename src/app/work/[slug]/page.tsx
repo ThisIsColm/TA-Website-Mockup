@@ -5,9 +5,7 @@ import type { Metadata } from "next";
 import GhostContent from "@/components/GhostContent";
 import WorkCreditsSection from "@/components/WorkCreditsSection";
 import type { CreditEntry } from "@/lib/credits";
-import { getAllProjects, getProjectBySlug } from "@/lib/data";
 import { fetchGhostPostBySlug, GhostPost } from "@/lib/ghost";
-import { normalizeGhostHtml } from "@/lib/ghostHtml";
 import { getWorkPageNeighbors } from "@/lib/homeWorkGrid";
 import { getWorkDisplayTitle } from "@/lib/workTitle";
 import { typeClass } from "@/lib/typographyStyles";
@@ -62,27 +60,13 @@ interface ProjectPageProps {
 // ──────────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
-    const projects = getAllProjects();
-    return projects.map((p) => ({ slug: p.slug }));
+    return [];
 }
 
 export async function generateMetadata({
     params,
 }: ProjectPageProps): Promise<Metadata> {
     const { slug } = await params;
-
-    const project = getProjectBySlug(slug);
-    if (project) {
-        return {
-            title: project.title,
-            description: project.excerpt,
-            openGraph: {
-                title: `${project.title} — Tiny Ark`,
-                description: project.excerpt,
-                images: project.coverImage ? [project.coverImage] : [],
-            },
-        };
-    }
 
     const ghostPost = await fetchGhostPostBySlug(slug);
     if (ghostPost) {
@@ -119,28 +103,12 @@ interface CaseStudy {
 }
 
 async function loadCaseStudy(slug: string): Promise<CaseStudy | null> {
-    // Prefer Ghost when available so editorial content stays fresh.
     const ghostPost = await fetchGhostPostBySlug(slug);
-    if (ghostPost) {
-        const { getPostMetadata } = await import("@/lib/db");
-        const meta = getPostMetadata(ghostPost.id);
-        return ghostToCaseStudy(ghostPost, meta);
-    }
+    if (!ghostPost) return null;
 
-    const project = getProjectBySlug(slug);
-    if (project) {
-        return {
-            title: project.title,
-            videoHtml: project.vimeoId ? buildVimeoIframe(project.vimeoId) : null,
-            videoAspectRatio: 16 / 9,
-            coverImage: project.coverImage || null,
-            html: normalizeGhostHtml(markdownToHtml(project.content)),
-            creditsCol3: [],
-            creditsCol5: [],
-        };
-    }
-
-    return null;
+    const { getPostMetadata } = await import("@/lib/db");
+    const meta = getPostMetadata(ghostPost.id);
+    return ghostToCaseStudy(ghostPost, meta);
 }
 
 function ghostToCaseStudy(
@@ -165,24 +133,6 @@ function ghostToCaseStudy(
         creditsCol3: meta?.creditsCol3 ?? [],
         creditsCol5: meta?.creditsCol5 ?? [],
     };
-}
-
-function buildVimeoIframe(vimeoId: string): string {
-    const src = `https://player.vimeo.com/video/${vimeoId}?color=D86001&title=0&byline=0&portrait=0`;
-    return `<iframe src="${src}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-}
-
-function markdownToHtml(markdown: string): string {
-    return markdown
-        .split("\n")
-        .map((line) => {
-            const t = line.trim();
-            if (t.startsWith("## ")) return `<h2>${t.slice(3)}</h2>`;
-            if (t.startsWith("### ")) return `<h3>${t.slice(4)}</h3>`;
-            if (t === "") return "";
-            return `<p>${t}</p>`;
-        })
-        .join("\n");
 }
 
 // ──────────────────────────────────────────────────────────────────

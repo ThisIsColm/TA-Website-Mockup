@@ -1,29 +1,21 @@
 import { getSelections } from "@/lib/db";
 import { fetchPostsByIds } from "@/lib/ghost";
 import { getWorkDisplayTitle } from "@/lib/workTitle";
-import { getFeaturedProjects, getAllProjects } from "@/lib/data";
 
 export type WorkNavItem = { slug: string; title: string };
 
 const SECTION = "home.selectedWork";
 const HOME_GRID_LIMIT = 18;
 
-/**
- * Same ordered list as the homepage grid: curated Ghost IDs first (max 18),
- * then static fallback via getFeaturedProjects when curation is empty.
- */
+/** Same ordered list as the homepage grid: curated Ghost IDs only. */
 export async function getHomeWorkGridOrder(): Promise<WorkNavItem[]> {
     const { ghostPostIds } = getSelections(SECTION);
-    if (ghostPostIds.length > 0) {
-        const posts = await fetchPostsByIds(ghostPostIds);
-        return posts.slice(0, HOME_GRID_LIMIT).map((p) => ({
-            slug: p.slug,
-            title: getWorkDisplayTitle(p.id, p.title),
-        }));
-    }
-    return getFeaturedProjects(HOME_GRID_LIMIT).map((p) => ({
+    if (ghostPostIds.length === 0) return [];
+
+    const posts = await fetchPostsByIds(ghostPostIds);
+    return posts.slice(0, HOME_GRID_LIMIT).map((p) => ({
         slug: p.slug,
-        title: p.title,
+        title: getWorkDisplayTitle(p.id, p.title),
     }));
 }
 
@@ -41,18 +33,10 @@ function neighborsFromList(
     };
 }
 
-/**
- * Prev/next for a work slug, following home grid order (wrapping).
- * If the slug is not on the home grid, falls back to date-sorted getAllProjects().
- */
+/** Prev/next for a work slug, following home grid order (wrapping). */
 export async function getWorkPageNeighbors(
     slug: string
 ): Promise<{ prev: WorkNavItem | null; next: WorkNavItem | null }> {
     const gridOrder = await getHomeWorkGridOrder();
-    let result = neighborsFromList(gridOrder, slug);
-    if (result.prev === null && gridOrder.length > 0 && !gridOrder.some((p) => p.slug === slug)) {
-        const all = getAllProjects().map((p) => ({ slug: p.slug, title: p.title }));
-        result = neighborsFromList(all, slug);
-    }
-    return result;
+    return neighborsFromList(gridOrder, slug);
 }
