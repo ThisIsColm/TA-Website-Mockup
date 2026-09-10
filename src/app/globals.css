@@ -1274,6 +1274,7 @@ html.lenis body {
   /* Figma @ 1920: ~39px between the name block and intro copy */
   .director-prose > .director-meta-name {
     padding-right: clamp(24px, 2.03vw, 39px);
+    padding-top: clamp(3px, 0.26vw, 5px);
   }
 
   .director-prose > .director-intro {

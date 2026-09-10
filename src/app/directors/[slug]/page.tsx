@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import GhostContent from "@/components/GhostContent";
-import { splitDirectorHtml } from "@/lib/directorHtml";
+import { prepareDirectorHtml } from "@/lib/directorHtml";
 import { getDirectorBySlug } from "@/lib/directors";
 import { splitDirectorNameLines } from "@/lib/directorsShared";
 import { typeClass } from "@/lib/typographyStyles";
@@ -41,8 +41,10 @@ export default async function DirectorPage({ params }: DirectorPageProps) {
     if (!director) notFound();
 
     const { post, name } = director;
-    const bodyHtml = [post.video_html, post.html].filter(Boolean).join("");
-    const { introHtml, mediaHtml } = splitDirectorHtml(bodyHtml);
+    const { introHtml, videoHtml } = prepareDirectorHtml(
+        post.html ?? "",
+        post.video_html
+    );
     const { first: nameFirst, last: nameLast } = splitDirectorNameLines(name);
 
     return (
@@ -70,9 +72,9 @@ export default async function DirectorPage({ params }: DirectorPageProps) {
                     ) : null}
                 </div>
 
-                {mediaHtml ? (
+                {videoHtml ? (
                     <div className="director-media">
-                        <GhostContent html={mediaHtml} className="director-media-body" />
+                        <GhostContent html={videoHtml} className="director-media-body" />
                     </div>
                 ) : null}
             </section>
