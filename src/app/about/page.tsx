@@ -25,7 +25,12 @@ export const metadata: Metadata = {
  * - `tapeSrc` for custom tape label paths (e.g. Woodie's `Tape_Woody.png`).
  */
 const TEAM: TeamCardProps[] = [
-    { nameLabel: "Nathan Reilly", role: "CEO", photoPrefix: "Nathan", tapeKey: "Nathan" },
+    {
+        nameLabel: "Nathan Reilly",
+        role: "CEO",
+        photos: ["/images/team/Nathan_001_V02.png", "/images/team/Nathan_002.webp"],
+        tapeKey: "Nathan",
+    },
     { nameLabel: "Gabi Chrobak", role: "Head of Production", photoPrefix: "Gabi", tapeKey: "Gabi" },
     {
         nameLabel: "Mark O'Brien",
