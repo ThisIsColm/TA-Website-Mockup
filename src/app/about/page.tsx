@@ -28,7 +28,7 @@ const TEAM: TeamCardProps[] = [
     {
         nameLabel: "Nathan Reilly",
         role: "CEO",
-        photos: ["/images/team/Nathan_001_V02.png", "/images/team/Nathan_002.webp"],
+        photos: ["/images/team/Nathan_001_V03.png", "/images/team/Nathan_002.webp"],
         tapeKey: "Nathan",
     },
     { nameLabel: "Gabi Chrobak", role: "Head of Production", photoPrefix: "Gabi", tapeKey: "Gabi" },
